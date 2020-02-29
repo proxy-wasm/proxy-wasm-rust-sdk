@@ -1,0 +1,105 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Rust
+
+on:
+
+  pull_request:
+    branches:
+    - master
+
+  push:
+    branches:
+    - master
+
+jobs:
+
+  stable:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Update Rust
+      run: |
+        rustup update
+        rustup target add wasm32-unknown-unknown
+
+    - name: Build
+      env:
+        RUSTFLAGS: -C link-args=-S -D warnings
+      run: cargo build --target=wasm32-unknown-unknown --release --all-targets
+
+    - name: Format (clippy)
+      env:
+        RUSTFLAGS: -C link-args=-S -D warnings
+      run: cargo clippy --target=wasm32-unknown-unknown --release --all-targets
+
+    - name: Format (rustfmt)
+      run: cargo fmt -- --check
+
+    - name: Format (manifest)
+      run: cargo verify-project
+
+    - name: Format (addlicense)
+      run: |
+        go get -u github.com/google/addlicense
+        export PATH=$PATH:$(go env GOPATH)/bin
+        addlicense -check .
+
+    - name: Package (docs)
+      run: cargo doc --no-deps --target=wasm32-unknown-unknown
+
+    - name: Package (publish)
+      run: cargo publish --dry-run --target=wasm32-unknown-unknown
+
+  nightly:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Update Rust
+      run: |
+        rustup toolchain install nightly
+        rustup target add --toolchain nightly wasm32-unknown-unknown
+
+    - name: Build
+      env:
+        RUSTFLAGS: -C link-args=-S -D warnings
+      run: cargo +nightly build --target=wasm32-unknown-unknown --release --all-targets
+
+    - name: Format (clippy)
+      env:
+        RUSTFLAGS: -C link-args=-S -D warnings
+      run: cargo +nightly clippy --target=wasm32-unknown-unknown --release --all-targets
+
+    - name: Format (rustfmt)
+      run: cargo +nightly fmt -- --check
+
+    - name: Format (manifest)
+      run: cargo +nightly verify-project
+
+    - name: Format (addlicense)
+      run: |
+        go get -u github.com/google/addlicense
+        export PATH=$PATH:$(go env GOPATH)/bin
+        addlicense -check .
+
+    - name: Package (docs)
+      run: cargo +nightly doc --no-deps --target=wasm32-unknown-unknown
+
+    - name: Package (publish)
+      run: cargo +nightly publish --dry-run --target=wasm32-unknown-unknown
