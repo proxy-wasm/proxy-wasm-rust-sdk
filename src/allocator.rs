@@ -24,3 +24,12 @@ pub extern "C" fn malloc(size: usize) -> *mut u8 {
     let slice = vec.into_boxed_slice();
     Box::into_raw(slice) as *mut u8
 }
+
+#[no_mangle]
+pub extern "C" fn free(ptr: *mut u8) {
+    if !ptr.is_null() {
+        unsafe {
+            Box::from_raw(ptr);
+        }
+    }
+}
