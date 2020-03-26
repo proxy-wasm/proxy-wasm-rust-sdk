@@ -43,3 +43,8 @@ crate-type = ["cdylib"]
 name = "http_headers"
 path = "examples/http_headers.rs"
 crate-type = ["cdylib"]
+
+[[example]]
+name = "http_body"
+path = "examples/http_body.rs"
+crate-type = ["cdylib"]
