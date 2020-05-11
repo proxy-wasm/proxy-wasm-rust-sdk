@@ -15,7 +15,7 @@
 use crate::hostcalls;
 use crate::traits::*;
 use crate::types::*;
-use hashbrown::HashMap;
+use std::collections::HashMap;
 use std::cell::{Cell, RefCell};
 
 thread_local! {

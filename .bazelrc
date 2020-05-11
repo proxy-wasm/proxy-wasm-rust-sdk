@@ -1,0 +1,2 @@
+# wasm32-unknown-unknown for rust
+build --platforms=@io_bazel_rules_rust//rust/platform:wasm
