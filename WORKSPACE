@@ -26,26 +26,26 @@ new_git_repository(
   name = "wee_alloc",
   commit = "f26c431df6fb6c7df0d6f8e0675471b9c56d8787",
   remote = "https://github.com/rustwasm/wee_alloc",
-  build_file = "@//:wee_alloc.BUILD",
+  build_file = "//external:wee_alloc.BUILD",
 )
 
 new_git_repository(
   name = "memory_units",
   commit = "d4e90ecd0efd81adb9feea093e1427077f5b29ff",
   remote = "https://github.com/pepyakin/memory_units",
-  build_file = "@//:memory_units.BUILD",
+  build_file = "//external:memory_units.BUILD",
 )
 
 new_git_repository(
   name = "cfg_if",
   commit = "f71bf60f212312faddee7da525fcf47daac66499",
   remote = "https://github.com/alexcrichton/cfg-if",
-  build_file = "@//:cfg_if.BUILD",
+  build_file = "//external:cfg_if.BUILD",
 )
 
 http_archive(
   name = "log",
-  build_file = "@//:log.BUILD",
+  build_file = "//external:log.BUILD",
   strip_prefix = "log-0.4.0",
   urls = [
     "https://github.com/rust-lang/log/archive/0.4.0.zip",
@@ -54,7 +54,7 @@ http_archive(
 
 load("@io_bazel_rules_rust//rust:repositories.bzl", "rust_repositories")
 
-rust_repositories(version = "1.42.0")
+rust_repositories()
 
 load("@io_bazel_rules_rust//:workspace.bzl", "bazel_version")
 
