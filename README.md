@@ -14,3 +14,8 @@
 [docs-link]: https://docs.rs/proxy-wasm
 [license-badge]: https://img.shields.io/github/license/proxy-wasm/proxy-wasm-rust-sdk
 [license-link]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/blob/master/LICENSE
+
+## Examples that use this SDK
+
++ [Extending Envoy with WASM and Rust](https://antweiss.com/blog/extending-envoy-with-wasm-and-rust/)
++ [Extending Istio with Rust and WebAssembly](https://blog.red-badger.com/extending-istio-with-rust-and-webassembly)
