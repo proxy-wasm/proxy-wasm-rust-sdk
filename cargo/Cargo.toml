@@ -8,9 +8,14 @@ license = "Apache-2.0"
 repository = "https://github.com/proxy-wasm/proxy-wasm-rust-sdk"
 edition = "2018"
 
+[raze]
+workspace_path = "//cargo"
+target = "wasm32-unknown-unknown"
+genmode = "Remote"
+
 [dependencies]
 hashbrown = { version = "0.7", default-features = false, features = ["ahash", "inline-more"] }
-log = "0.4"
+log = "0.4.0"
 wee_alloc = "0.4"
 
 [dev-dependencies]
@@ -20,18 +25,3 @@ chrono = "0.4"
 lto = true
 opt-level = 3
 panic = "abort"
-
-[[example]]
-name = "hello_world"
-path = "examples/hello_world.rs"
-crate-type = ["cdylib"]
-
-[[example]]
-name = "http_auth_random"
-path = "examples/http_auth_random.rs"
-crate-type = ["cdylib"]
-
-[[example]]
-name = "http_headers"
-path = "examples/http_headers.rs"
-crate-type = ["cdylib"]

@@ -40,7 +40,7 @@ jobs:
     - name: Build
       env:
         RUSTFLAGS: -C link-args=-S -D warnings
-      run: cargo build --target=wasm32-unknown-unknown --release --all-targets
+      run: bazel build //...
 
     - name: Format (clippy)
       env:
