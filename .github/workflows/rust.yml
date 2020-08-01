@@ -34,7 +34,6 @@ jobs:
 
     - name: Update Rust
       run: |
-        rustup update
         rustup toolchain install stable --component clippy --component rustfmt
         rustup target add wasm32-unknown-unknown
 
@@ -74,7 +73,6 @@ jobs:
 
     - name: Update Rust
       run: |
-        rustup update
         rustup toolchain install nightly --component clippy --component rustfmt
         rustup +nightly target add wasm32-unknown-unknown
 
