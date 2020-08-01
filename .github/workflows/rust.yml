@@ -78,7 +78,10 @@ jobs:
         rustup update
         rustup component add clippy
         rustup component add rustfmt
+        rustup component add rustfmt-preview
         rustup toolchain install nightly
+        rustup +nightly component add clippy
+        rustup +nightly component add rustfmt
         rustup +nightly target add wasm32-unknown-unknown
 
     - name: Build
