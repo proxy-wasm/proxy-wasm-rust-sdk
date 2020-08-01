@@ -26,6 +26,18 @@ on:
 
 jobs:
 
+  licenses:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Check licenses
+      run: |
+        go get -u github.com/google/addlicense
+        export PATH=$PATH:$(go env GOPATH)/bin
+        addlicense -check .
+
   stable:
     runs-on: ubuntu-latest
 
@@ -52,12 +64,6 @@ jobs:
 
     - name: Format (manifest)
       run: cargo verify-project
-
-    - name: Format (addlicense)
-      run: |
-        go get -u github.com/google/addlicense
-        export PATH=$PATH:$(go env GOPATH)/bin
-        addlicense -check .
 
     - name: Package (docs)
       run: cargo doc --no-deps --target=wasm32-unknown-unknown
@@ -91,12 +97,6 @@ jobs:
 
     - name: Format (manifest)
       run: cargo +nightly verify-project
-
-    - name: Format (addlicense)
-      run: |
-        go get -u github.com/google/addlicense
-        export PATH=$PATH:$(go env GOPATH)/bin
-        addlicense -check .
 
     - name: Package (docs)
       run: cargo +nightly doc --no-deps --target=wasm32-unknown-unknown
