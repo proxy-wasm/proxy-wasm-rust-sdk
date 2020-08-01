@@ -35,9 +35,9 @@ jobs:
     - name: Update Rust
       run: |
         rustup update
-        rustup target add wasm32-unknown-unknown
         rustup component add clippy
         rustup component add rustfmt
+        rustup target add wasm32-unknown-unknown
 
     - name: Build
       env:
@@ -76,10 +76,10 @@ jobs:
     - name: Update Rust
       run: |
         rustup update
+        rustup component add clippy
+        rustup component add rustfmt
         rustup toolchain install nightly
         rustup +nightly target add wasm32-unknown-unknown
-        rustup +nightly component add clippy
-        rustup +nightly component add rustfmt
 
     - name: Build
       env:
