@@ -75,6 +75,7 @@ jobs:
 
     - name: Update Rust
       run: |
+        rustup update
         rustup toolchain install nightly
         rustup +nightly target add wasm32-unknown-unknown
         rustup +nightly component add clippy
