@@ -1,2 +1,2 @@
-# wasm32-unknown-unknown for rust
+# Force Bazel to use --target=wasm32-unknown-unknown.
 build --platforms=@io_bazel_rules_rust//rust/platform:wasm

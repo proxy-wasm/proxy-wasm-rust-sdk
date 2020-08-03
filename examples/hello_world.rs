@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use chrono::{DateTime, Utc};
-use log::*;
+use log::info;
 use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
 use std::time::Duration;

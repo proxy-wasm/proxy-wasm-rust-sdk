@@ -1,6 +1,5 @@
 workspace(name = "proxy_wasm_rust_sdk")
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
@@ -16,10 +15,16 @@ load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
 
-git_repository(
-  name = "io_bazel_rules_rust",
-  commit = "c056d676c8bc67c1e63d0496776cfcc43e7110d7",
-  remote = "https://github.com/Shikugawa/rules_rust",
+http_archive(
+    name = "io_bazel_rules_rust",
+    sha256 = "484a2b2b67cd2d1fa1054876de7f8d291c4b203fd256bc8cbea14d749bb864ce",
+    # Last commit where "out_binary = True" works.
+    # See: https://github.com/bazelbuild/rules_rust/issues/386
+    strip_prefix = "rules_rust-fda9a1ce6482973adfda022cadbfa6b300e269c3",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_rust/archive/fda9a1ce6482973adfda022cadbfa6b300e269c3.tar.gz",
+        "https://github.com/bazelbuild/rules_rust/archive/fda9a1ce6482973adfda022cadbfa6b300e269c3.tar.gz",
+    ],
 )
 
 load("@io_bazel_rules_rust//rust:repositories.bzl", "rust_repositories")
