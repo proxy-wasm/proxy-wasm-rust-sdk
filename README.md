@@ -15,6 +15,12 @@
 [license-badge]: https://img.shields.io/github/license/proxy-wasm/proxy-wasm-rust-sdk
 [license-link]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/blob/master/LICENSE
 
+## Examples
+
++ [Hello World](./examples/hello_world.rs)
++ [HTTP Auth random](./examples/http_auth_random.rs)
++ [HTTP Headers](./examples/http_headers.rs)
+
 ## Articles & blog posts from the community
 
 + [Extending Envoy with WASM and Rust](https://antweiss.com/blog/extending-envoy-with-wasm-and-rust/)
