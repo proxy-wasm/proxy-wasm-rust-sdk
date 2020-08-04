@@ -132,7 +132,7 @@ jobs:
 
     - name: Format (cargo raze)
       run: |
-        cargo install cargo-raze
+        cargo install cargo-raze --version 0.3.8
         cp -p cargo/Cargo.lock .
         rm -rf cargo/
         cargo raze --output=cargo
