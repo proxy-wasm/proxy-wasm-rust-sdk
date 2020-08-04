@@ -110,11 +110,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Mount Bazel cache
+    - name: Cache
       uses: actions/cache@v2
       with:
-        path: "~/.cache/bazel"
-        key: bazel-${{ hashFiles('WORKSPACE', 'cargo/Cargo.lock', '.bazelversion', '.bazelrc') }}
+        path: |
+          "~/.cache/bazel/"
+          "~/.cargo/"
+        key: cache-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'cargo/Cargo.lock') }}
 
     - name: Build
       run: |
