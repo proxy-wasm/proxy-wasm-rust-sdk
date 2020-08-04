@@ -21,10 +21,7 @@ http_archive(
     # Last commit where "out_binary = True" works.
     # See: https://github.com/bazelbuild/rules_rust/issues/386
     strip_prefix = "rules_rust-fda9a1ce6482973adfda022cadbfa6b300e269c3",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_rust/archive/fda9a1ce6482973adfda022cadbfa6b300e269c3.tar.gz",
-        "https://github.com/bazelbuild/rules_rust/archive/fda9a1ce6482973adfda022cadbfa6b300e269c3.tar.gz",
-    ],
+    url = "https://github.com/bazelbuild/rules_rust/archive/fda9a1ce6482973adfda022cadbfa6b300e269c3.tar.gz",
 )
 
 load("@io_bazel_rules_rust//rust:repositories.bzl", "rust_repositories")
