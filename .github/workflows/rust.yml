@@ -122,8 +122,8 @@ jobs:
 
     - name: List cache
       run: |
-          du -hs ~/.cache/*
-          du -hs ~/.cargo/*
+          du -hs ~/.cache/* || true
+          du -hs ~/.cargo/* || true
 
     - name: Build
       run: |
