@@ -145,3 +145,12 @@ jobs:
         cargo raze --output=cargo
         mv Cargo.lock cargo/
         git diff --exit-code
+
+    - name: List cache
+      run: |
+          du -hs ~/.cache/* || true
+          du -hs ~/.cargo/* || true
+
+    - name: Find cargo-raze
+      run: |
+          command -v cargo-raze
