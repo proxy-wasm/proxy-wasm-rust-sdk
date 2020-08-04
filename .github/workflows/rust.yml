@@ -125,6 +125,16 @@ jobs:
           du -hs ~/.cache/* || true
           du -hs ~/.cargo/* || true
 
+    - name: Find cargo-raze
+      run: |
+          env || true
+          echo "====="
+          command -v cargo-raze || true
+          echo "====="
+          ls -l ~/.cargo/bin/ || true
+          echo "====="
+          ls -l /usr/share/rust/.cargo/bin/ || true
+
     - name: Build
       run: |
         bazelisk build //...
@@ -153,4 +163,10 @@ jobs:
 
     - name: Find cargo-raze
       run: |
-          command -v cargo-raze
+          env || true
+          echo "====="
+          command -v cargo-raze || true
+          echo "====="
+          ls -l ~/.cargo/bin/ || true
+          echo "====="
+          ls -l /usr/share/rust/.cargo/bin/ || true
