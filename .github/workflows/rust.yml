@@ -116,21 +116,13 @@ jobs:
         path: "${HOME}/.cache/bazel"
         key: bazel
 
-    - name: Install Bazelisk
-      run: |
-        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.5.0/bazelisk-linux-amd64"
-        echo "605c4b417654a09febc7e15c6b802195fdd1c4fe8d876145fb15f10d4fa27b5b  bazelisk-linux-amd64" | sha256sum --check
-        mkdir -p "${HOME}/bin/"
-        mv bazelisk-linux-amd64 "${HOME}/bin/bazel"
-        chmod +x "${HOME}/bin/bazel"
-
     - name: Build
       run: |
-        "${HOME}/bin/bazel" build //...
+        bazelisk build //...
 
     - name: Format (buildifier)
       run: |
-        go get -u github.com/bazelbuild/buildtools/buildifier
+        go get -u github.com/bazelbuild/buildtools/buildifier@3.4.0
         export PATH=$PATH:$(go env GOPATH)/bin
         buildifier -mode=check WORKSPACE
         buildifier -mode=check BUILD
