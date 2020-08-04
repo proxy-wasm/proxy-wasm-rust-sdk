@@ -120,24 +120,7 @@ jobs:
           ~/.cargo/.crates2.json
           ~/.cargo/bin
           ~/.cargo/registry
-        key: test6-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'cargo/Cargo.lock') }}
-
-    - name: List cache
-      run: |
-          du -hs ~/.cache/* || true
-          du -hs ~/.cargo/* || true
-
-    - name: Find cargo-raze
-      run: |
-          env || true
-          echo "====="
-          command -v cargo-raze || true
-          echo "====="
-          cat ~/.cargo/.crates.toml || true
-          ls -l ~/.cargo/bin/ || true
-          echo "====="
-          cat /usr/share/rust/.cargo/.crates.toml || true
-          ls -l /usr/share/rust/.cargo/bin/ || true
+        key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'cargo/Cargo.lock') }}
 
     - name: Build
       run: |
@@ -159,20 +142,3 @@ jobs:
         cargo raze --output=cargo
         mv Cargo.lock cargo/
         git diff --exit-code
-
-    - name: List cache
-      run: |
-          du -hs ~/.cache/* || true
-          du -hs ~/.cargo/* || true
-
-    - name: Find cargo-raze
-      run: |
-          env || true
-          echo "====="
-          command -v cargo-raze || true
-          echo "====="
-          cat ~/.cargo/.crates.toml || true
-          ls -l ~/.cargo/bin/ || true
-          echo "====="
-          cat /usr/share/rust/.cargo/.crates.toml || true
-          ls -l /usr/share/rust/.cargo/bin/ || true
