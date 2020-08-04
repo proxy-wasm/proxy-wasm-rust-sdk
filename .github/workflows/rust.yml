@@ -116,10 +116,11 @@ jobs:
         path: |
           ~/.cache/bazel
           ~/.cache/bazelisk
-          ~/.cargo
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
           ~/.cargo/bin
           ~/.cargo/registry
-        key: test5-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'cargo/Cargo.lock') }}
+        key: test6-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'cargo/Cargo.lock') }}
 
     - name: List cache
       run: |
