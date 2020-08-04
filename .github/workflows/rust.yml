@@ -114,9 +114,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: |
-          "~/.cache/bazel/"
-          "~/.cargo/"
-        key: cache-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'cargo/Cargo.lock') }}
+          ~/.cache/bazel
+          ~/.cargo
+        key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'cargo/Cargo.lock') }}
 
     - name: Build
       run: |
