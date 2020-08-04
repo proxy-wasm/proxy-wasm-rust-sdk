@@ -21,6 +21,14 @@ lto = true
 opt-level = 3
 panic = "abort"
 
+[raze]
+workspace_path = "//cargo"
+target = "wasm32-unknown-unknown"
+genmode = "Remote"
+
+[raze.crates.log.'0.4.11']
+additional_flags = ["--cfg=atomic_cas"]
+
 [[example]]
 name = "hello_world"
 path = "examples/hello_world.rs"
