@@ -118,7 +118,7 @@ jobs:
 
     - name: Build
       run: |
-        bazelisk build //...
+        bazelisk build -s //...
 
     - name: Format (buildifier)
       run: |
