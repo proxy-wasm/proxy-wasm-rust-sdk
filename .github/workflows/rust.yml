@@ -122,7 +122,7 @@ jobs:
 
     - name: Format (buildifier)
       run: |
-        go get -u github.com/bazelbuild/buildtools/buildifier@3.4.0
+        GO111MODULE=on go get -u github.com/bazelbuild/buildtools/buildifier@3.4.0
         export PATH=$PATH:$(go env GOPATH)/bin
         buildifier -mode=check WORKSPACE
         buildifier -mode=check BUILD
