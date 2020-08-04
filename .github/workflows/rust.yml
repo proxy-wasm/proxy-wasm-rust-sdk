@@ -113,12 +113,12 @@ jobs:
     - name: Mount Bazel cache
       uses: actions/cache@v2
       with:
-        path: "${HOME}/.cache/bazel"
-        key: bazel-${{ hashFiles('WORKSPACE', 'cargo/Cargo.lock') }}
+        path: "~/.cache/bazel"
+        key: bazel-${{ hashFiles('WORKSPACE', 'cargo/Cargo.lock', '.bazelversion', '.bazelrc') }}
 
     - name: Build
       run: |
-        bazelisk build -s //...
+        bazelisk build //...
 
     - name: Format (buildifier)
       run: |
