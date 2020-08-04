@@ -116,9 +116,10 @@ jobs:
         path: |
           ~/.cache/bazel
           ~/.cache/bazelisk
+          ~/.cargo/bin
           ~/.cargo/git
           ~/.cargo/registry
-        key: test2-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'cargo/Cargo.lock') }}
+        key: test3-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'cargo/Cargo.lock') }}
 
     - name: List cache
       run: |
