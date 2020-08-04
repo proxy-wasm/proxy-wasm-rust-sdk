@@ -115,8 +115,9 @@ jobs:
       with:
         path: |
           ~/.cache/bazel
-          ~/.cargo
-        key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'cargo/Cargo.lock') }}
+          ~/.cargo/git
+          ~/.cargo/registry
+        key: test-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'cargo/Cargo.lock') }}
 
     - name: Build
       run: |
