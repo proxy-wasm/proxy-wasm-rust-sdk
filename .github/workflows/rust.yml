@@ -119,6 +119,11 @@ jobs:
           ~/.cargo/registry
         key: test-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'cargo/Cargo.lock') }}
 
+    - name: List cache
+      run: |
+          du -hs ~/.cache/bazel
+          du -hs ~/.cargo/*
+
     - name: Build
       run: |
         bazelisk build //...
