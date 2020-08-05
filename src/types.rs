@@ -64,8 +64,8 @@ pub enum MapType {
     HttpRequestTrailers = 1,
     HttpResponseHeaders = 2,
     HttpResponseTrailers = 3,
-    HttpCallResponseHeaders = 7,
-    HttpCallResponseTrailers = 8,
+    HttpCallResponseHeaders = 6,
+    HttpCallResponseTrailers = 7,
 }
 
 #[repr(u32)]
