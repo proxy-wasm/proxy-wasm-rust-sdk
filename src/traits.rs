@@ -184,6 +184,10 @@ pub trait HttpContext: Context {
         hostcalls::get_buffer(BufferType::HttpRequestBody, start, max_size).unwrap()
     }
 
+    fn set_http_request_body(&self, start: usize, size: usize, value: &[u8]) {
+        hostcalls::set_buffer(BufferType::HttpRequestBody, start, size, value).unwrap()
+    }
+
     fn on_http_request_trailers(&mut self, _num_trailers: usize) -> Action {
         Action::Continue
     }
@@ -242,6 +246,10 @@ pub trait HttpContext: Context {
 
     fn get_http_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
         hostcalls::get_buffer(BufferType::HttpResponseBody, start, max_size).unwrap()
+    }
+
+    fn set_http_response_body(&self, start: usize, size: usize, value: &[u8]) {
+        hostcalls::set_buffer(BufferType::HttpResponseBody, start, size, value).unwrap()
     }
 
     fn on_http_response_trailers(&mut self, _num_trailers: usize) -> Action {

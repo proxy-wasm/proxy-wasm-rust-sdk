@@ -128,6 +128,30 @@ pub fn get_buffer(
 }
 
 extern "C" {
+    fn proxy_set_buffer_bytes(
+        buffer_type: BufferType,
+        start: usize,
+        size: usize,
+        buffer_data: *const u8,
+        buffer_size: usize,
+    ) -> Status;
+}
+
+pub fn set_buffer(
+    buffer_type: BufferType,
+    start: usize,
+    size: usize,
+    value: &[u8],
+) -> Result<(), Status> {
+    unsafe {
+        match proxy_set_buffer_bytes(buffer_type, start, size, value.as_ptr(), value.len()) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
     fn proxy_get_header_map_pairs(
         map_type: MapType,
         return_map_data: *mut *mut u8,

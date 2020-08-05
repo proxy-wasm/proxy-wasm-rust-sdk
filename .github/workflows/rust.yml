@@ -26,6 +26,18 @@ on:
 
 jobs:
 
+  licenses:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Check licenses
+      run: |
+        go get -u github.com/google/addlicense
+        export PATH=$PATH:$(go env GOPATH)/bin
+        addlicense -check .
+
   stable:
     runs-on: ubuntu-latest
 
@@ -34,7 +46,7 @@ jobs:
 
     - name: Update Rust
       run: |
-        rustup update
+        rustup toolchain install stable --component clippy --component rustfmt
         rustup target add wasm32-unknown-unknown
 
     - name: Build
@@ -53,12 +65,6 @@ jobs:
     - name: Format (manifest)
       run: cargo verify-project
 
-    - name: Format (addlicense)
-      run: |
-        go get -u github.com/google/addlicense
-        export PATH=$PATH:$(go env GOPATH)/bin
-        addlicense -check .
-
     - name: Package (docs)
       run: cargo doc --no-deps --target=wasm32-unknown-unknown
 
@@ -73,8 +79,8 @@ jobs:
 
     - name: Update Rust
       run: |
-        rustup toolchain install nightly
-        rustup target add --toolchain nightly wasm32-unknown-unknown
+        rustup toolchain install nightly --component clippy --component rustfmt
+        rustup +nightly target add wasm32-unknown-unknown
 
     - name: Build
       env:
@@ -92,14 +98,47 @@ jobs:
     - name: Format (manifest)
       run: cargo +nightly verify-project
 
-    - name: Format (addlicense)
-      run: |
-        go get -u github.com/google/addlicense
-        export PATH=$PATH:$(go env GOPATH)/bin
-        addlicense -check .
-
     - name: Package (docs)
       run: cargo +nightly doc --no-deps --target=wasm32-unknown-unknown
 
     - name: Package (publish)
       run: cargo +nightly publish --dry-run --target=wasm32-unknown-unknown
+
+  bazel:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache/bazel
+          ~/.cache/bazelisk
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/bin
+          ~/.cargo/registry
+        key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'cargo/Cargo.lock') }}
+
+    - name: Build
+      run: |
+        bazelisk build //...
+
+    - name: Format (buildifier)
+      run: |
+        GO111MODULE=on go get -u github.com/bazelbuild/buildtools/buildifier@3.4.0
+        export PATH=$PATH:$(go env GOPATH)/bin
+        buildifier -mode=check WORKSPACE
+        buildifier -mode=check BUILD
+        buildifier -mode=check examples/BUILD
+
+    - name: Format (cargo raze)
+      run: |
+        cargo install cargo-raze --version 0.3.8
+        cp -p cargo/Cargo.lock .
+        rm -rf cargo/
+        cargo raze --output=cargo
+        mv Cargo.lock cargo/
+        git diff --exit-code
