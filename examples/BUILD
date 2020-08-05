@@ -36,3 +36,15 @@ rust_binary(
         "//cargo:log",
     ],
 )
+
+rust_binary(
+    name = "http_body",
+    srcs = ["http_body.rs"],
+    crate_type = "cdylib",
+    edition = "2018",
+    out_binary = True,
+    deps = [
+        "//:proxy_wasm",
+        "//cargo:log",
+    ],
+)
