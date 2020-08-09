@@ -24,6 +24,9 @@ on:
     branches:
     - master
 
+  schedule:
+    - cron: '0 0 * * *'
+
 jobs:
 
   licenses:
@@ -37,6 +40,32 @@ jobs:
         go get -u github.com/google/addlicense
         export PATH=$PATH:$(go env GOPATH)/bin
         addlicense -check .
+
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Run cargo audit
+      run: |
+        cp -p cargo/Cargo.lock .
+        cargo audit
+
+  outdated:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Run cargo outdated
+      run: cargo outdated --exit-code 1
+
+    - name: Check freshness of cargo/Cargo.lock
+      run: |
+        cargo generate-lockfile
+        mv Cargo.lock cargo/
+        git diff --exit-code
 
   stable:
     runs-on: ubuntu-latest
