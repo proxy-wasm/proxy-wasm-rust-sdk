@@ -15,7 +15,7 @@ alias(
 )
 alias(
     name = "hashbrown",
-    actual = "@raze__hashbrown__0_7_2//:hashbrown",
+    actual = "@raze__hashbrown__0_8_2//:hashbrown",
     tags = ["cargo-raze"],
 )
 alias(

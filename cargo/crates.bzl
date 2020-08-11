@@ -53,12 +53,12 @@ def raze_fetch_remote_crates():
     )
 
     _new_http_archive(
-        name = "raze__hashbrown__0_7_2",
-        url = "https://crates-io.s3-us-west-1.amazonaws.com/crates/hashbrown/hashbrown-0.7.2.crate",
+        name = "raze__hashbrown__0_8_2",
+        url = "https://crates-io.s3-us-west-1.amazonaws.com/crates/hashbrown/hashbrown-0.8.2.crate",
         type = "tar.gz",
-        sha256 = "96282e96bfcd3da0d3aa9938bedf1e50df3269b6db08b4876d2da0bb1a0841cf",
-        strip_prefix = "hashbrown-0.7.2",
-        build_file = Label("//cargo/remote:hashbrown-0.7.2.BUILD"),
+        sha256 = "e91b62f79061a0bc2e046024cb7ba44b08419ed238ecbd9adbd787434b9e8c25",
+        strip_prefix = "hashbrown-0.8.2",
+        build_file = Label("//cargo/remote:hashbrown-0.8.2.BUILD"),
     )
 
     _new_http_archive(
