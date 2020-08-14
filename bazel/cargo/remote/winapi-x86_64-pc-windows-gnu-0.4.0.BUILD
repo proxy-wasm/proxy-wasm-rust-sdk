@@ -6,7 +6,7 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 package(default_visibility = [
   # Public for visibility by "@raze__crate__version//" targets.
   #
-  # Prefer access through "//cargo", which limits external
+  # Prefer access through "//bazel/cargo", which limits external
   # visibility to explicit Cargo.toml dependencies.
   "//visibility:public",
 ])
