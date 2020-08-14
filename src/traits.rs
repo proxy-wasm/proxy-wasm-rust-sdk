@@ -136,6 +136,10 @@ pub trait StreamContext: Context {
         hostcalls::get_buffer(BufferType::DownstreamData, start, max_size).unwrap()
     }
 
+    fn set_downstream_data(&self, start: usize, size: usize, value: &[u8]) {
+        hostcalls::set_buffer(BufferType::DownstreamData, start, size, value).unwrap()
+    }
+
     fn on_downstream_close(&mut self, _peer_type: PeerType) {}
 
     fn on_upstream_data(&mut self, _data_size: usize, _end_of_stream: bool) -> Action {
@@ -144,6 +148,10 @@ pub trait StreamContext: Context {
 
     fn get_upstream_data(&self, start: usize, max_size: usize) -> Option<Bytes> {
         hostcalls::get_buffer(BufferType::UpstreamData, start, max_size).unwrap()
+    }
+
+    fn set_upstream_data(&self, start: usize, size: usize, value: &[u8]) {
+        hostcalls::set_buffer(BufferType::UpstreamData, start, size, value).unwrap()
     }
 
     fn on_upstream_close(&mut self, _peer_type: PeerType) {}
