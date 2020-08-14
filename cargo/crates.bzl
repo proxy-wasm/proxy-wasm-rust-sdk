@@ -44,12 +44,12 @@ def raze_fetch_remote_crates():
     )
 
     _new_http_archive(
-        name = "raze__chrono__0_4_13",
-        url = "https://crates-io.s3-us-west-1.amazonaws.com/crates/chrono/chrono-0.4.13.crate",
+        name = "raze__chrono__0_4_15",
+        url = "https://crates-io.s3-us-west-1.amazonaws.com/crates/chrono/chrono-0.4.15.crate",
         type = "tar.gz",
-        sha256 = "c74d84029116787153e02106bf53e66828452a4b325cc8652b788b5967c0a0b6",
-        strip_prefix = "chrono-0.4.13",
-        build_file = Label("//cargo/remote:chrono-0.4.13.BUILD"),
+        sha256 = "942f72db697d8767c22d46a598e01f2d3b475501ea43d0db4f16d90259182d0b",
+        strip_prefix = "chrono-0.4.15",
+        build_file = Label("//cargo/remote:chrono-0.4.15.BUILD"),
     )
 
     _new_http_archive(
