@@ -698,11 +698,11 @@ pub fn define_metric(metric_type: MetricType, name: &str) -> Result<u32, Status>
 }
 
 extern "C" {
-    fn proxy_get_metric(metric_id: u32, return_value: *mut i64) -> Status;
+    fn proxy_get_metric(metric_id: u32, return_value: *mut u64) -> Status;
 }
 
-pub fn get_metric(metric_id: u32) -> Result<i64, Status> {
-    let mut return_value: i64 = 0;
+pub fn get_metric(metric_id: u32) -> Result<u64, Status> {
+    let mut return_value: u64 = 0;
     unsafe {
         match proxy_get_metric(metric_id, &mut return_value) {
             Status::Ok => Ok(return_value),
@@ -713,10 +713,10 @@ pub fn get_metric(metric_id: u32) -> Result<i64, Status> {
 }
 
 extern "C" {
-    fn proxy_record_metric(metric_id: u32, value: i64) -> Status;
+    fn proxy_record_metric(metric_id: u32, value: u64) -> Status;
 }
 
-pub fn record_metric(metric_id: u32, value: i64) -> Result<(), Status> {
+pub fn record_metric(metric_id: u32, value: u64) -> Result<(), Status> {
     unsafe {
         match proxy_record_metric(metric_id, value) {
             Status::Ok => Ok(()),
