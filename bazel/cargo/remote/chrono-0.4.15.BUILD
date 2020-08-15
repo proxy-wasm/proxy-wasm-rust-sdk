@@ -6,13 +6,13 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 package(default_visibility = [
   # Public for visibility by "@raze__crate__version//" targets.
   #
-  # Prefer access through "//cargo", which limits external
+  # Prefer access through "//bazel/cargo", which limits external
   # visibility to explicit Cargo.toml dependencies.
   "//visibility:public",
 ])
 
 licenses([
-  "reciprocal", # MPL-2.0 from expression "MPL-2.0"
+  "notice", # MIT from expression "MIT OR Apache-2.0"
 ])
 
 load(
@@ -23,11 +23,15 @@ load(
 )
 
 
+# Unsupported target "chrono" with type "bench" omitted
 
 rust_library(
-    name = "memory_units",
+    name = "chrono",
     crate_type = "lib",
     deps = [
+        "@raze__num_integer__0_1_43//:num_integer",
+        "@raze__num_traits__0_2_12//:num_traits",
+        "@raze__time__0_1_43//:time",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
@@ -35,9 +39,15 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.4.0",
+    version = "0.4.15",
     tags = ["cargo-raze"],
     crate_features = [
+        "clock",
+        "default",
+        "std",
+        "time",
     ],
 )
 
+# Unsupported target "serde" with type "bench" omitted
+# Unsupported target "wasm" with type "test" omitted

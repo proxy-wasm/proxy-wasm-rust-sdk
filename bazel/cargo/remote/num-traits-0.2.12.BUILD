@@ -6,7 +6,7 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 package(default_visibility = [
   # Public for visibility by "@raze__crate__version//" targets.
   #
-  # Prefer access through "//cargo", which limits external
+  # Prefer access through "//bazel/cargo", which limits external
   # visibility to explicit Cargo.toml dependencies.
   "//visibility:public",
 ])
@@ -23,16 +23,13 @@ load(
 )
 
 
-# Unsupported target "average" with type "bench" omitted
-# Unsupported target "average" with type "test" omitted
 # Unsupported target "build-script-build" with type "custom-build" omitted
-# Unsupported target "gcd" with type "bench" omitted
+# Unsupported target "cast" with type "test" omitted
 
 rust_library(
-    name = "num_integer",
+    name = "num_traits",
     crate_type = "lib",
     deps = [
-        "@raze__num_traits__0_2_12//:num_traits",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
@@ -40,11 +37,9 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.1.43",
+    version = "0.2.12",
     tags = ["cargo-raze"],
     crate_features = [
     ],
 )
 
-# Unsupported target "roots" with type "bench" omitted
-# Unsupported target "roots" with type "test" omitted

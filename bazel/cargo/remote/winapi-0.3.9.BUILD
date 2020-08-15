@@ -6,7 +6,7 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 package(default_visibility = [
   # Public for visibility by "@raze__crate__version//" targets.
   #
-  # Prefer access through "//cargo", which limits external
+  # Prefer access through "//bazel/cargo", which limits external
   # visibility to explicit Cargo.toml dependencies.
   "//visibility:public",
 ])
@@ -26,7 +26,7 @@ load(
 # Unsupported target "build-script-build" with type "custom-build" omitted
 
 rust_library(
-    name = "winapi_x86_64_pc_windows_gnu",
+    name = "winapi",
     crate_type = "lib",
     deps = [
     ],
@@ -36,9 +36,19 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.4.0",
+    version = "0.3.9",
     tags = ["cargo-raze"],
     crate_features = [
+        "memoryapi",
+        "minwinbase",
+        "minwindef",
+        "ntdef",
+        "profileapi",
+        "std",
+        "synchapi",
+        "sysinfoapi",
+        "timezoneapi",
+        "winbase",
     ],
 )
 
