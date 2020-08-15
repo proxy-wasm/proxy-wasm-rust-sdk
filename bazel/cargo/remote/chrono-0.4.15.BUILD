@@ -39,7 +39,7 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.4.13",
+    version = "0.4.15",
     tags = ["cargo-raze"],
     crate_features = [
         "clock",
