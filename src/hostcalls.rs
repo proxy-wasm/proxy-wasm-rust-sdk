@@ -678,6 +678,70 @@ pub fn done() -> Result<(), Status> {
     }
 }
 
+extern "C" {
+    fn proxy_define_metric(
+        metric_type: MetricType,
+        name_data: *const u8,
+        name_size: usize,
+        return_id: *mut u32,
+    ) -> Status;
+}
+
+pub fn define_metric(metric_type: MetricType, name: &str) -> Result<u32, Status> {
+    let mut return_id: u32 = 0;
+    unsafe {
+        match proxy_define_metric(metric_type, name.as_ptr(), name.len(), &mut return_id) {
+            Status::Ok => Ok(return_id),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
+    fn proxy_get_metric(metric_id: u32, return_value: *mut u64) -> Status;
+}
+
+pub fn get_metric(metric_id: u32) -> Result<u64, Status> {
+    let mut return_value: u64 = 0;
+    unsafe {
+        match proxy_get_metric(metric_id, &mut return_value) {
+            Status::Ok => Ok(return_value),
+            Status::NotFound => Err(Status::NotFound),
+            Status::BadArgument => Err(Status::BadArgument),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
+    fn proxy_record_metric(metric_id: u32, value: u64) -> Status;
+}
+
+pub fn record_metric(metric_id: u32, value: u64) -> Result<(), Status> {
+    unsafe {
+        match proxy_record_metric(metric_id, value) {
+            Status::Ok => Ok(()),
+            Status::NotFound => Err(Status::NotFound),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
+    fn proxy_increment_metric(metric_id: u32, offset: i64) -> Status;
+}
+
+pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
+    unsafe {
+        match proxy_increment_metric(metric_id, offset) {
+            Status::Ok => Ok(()),
+            Status::NotFound => Err(Status::NotFound),
+            Status::BadArgument => Err(Status::BadArgument),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
 mod utils {
     use crate::types::Bytes;
     use std::convert::TryFrom;

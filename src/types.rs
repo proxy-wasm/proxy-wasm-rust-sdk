@@ -76,4 +76,12 @@ pub enum PeerType {
     Remote = 2,
 }
 
+#[repr(u32)]
+#[derive(Debug)]
+pub enum MetricType {
+    Counter = 0,
+    Gauge = 1,
+    Histogram = 2,
+}
+
 pub type Bytes = Vec<u8>;
