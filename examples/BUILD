@@ -8,8 +8,8 @@ rust_binary(
     out_binary = True,
     deps = [
         "//:proxy_wasm",
-        "//cargo:chrono",
-        "//cargo:log",
+        "//bazel/cargo:chrono",
+        "//bazel/cargo:log",
     ],
 )
 
@@ -21,7 +21,7 @@ rust_binary(
     out_binary = True,
     deps = [
         "//:proxy_wasm",
-        "//cargo:log",
+        "//bazel/cargo:log",
     ],
 )
 
@@ -33,7 +33,7 @@ rust_binary(
     out_binary = True,
     deps = [
         "//:proxy_wasm",
-        "//cargo:log",
+        "//bazel/cargo:log",
     ],
 )
 
@@ -45,6 +45,6 @@ rust_binary(
     out_binary = True,
     deps = [
         "//:proxy_wasm",
-        "//cargo:log",
+        "//bazel/cargo:log",
     ],
 )

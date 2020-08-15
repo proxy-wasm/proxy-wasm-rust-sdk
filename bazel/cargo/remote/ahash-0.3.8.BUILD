@@ -6,13 +6,13 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 package(default_visibility = [
   # Public for visibility by "@raze__crate__version//" targets.
   #
-  # Prefer access through "//cargo", which limits external
+  # Prefer access through "//bazel/cargo", which limits external
   # visibility to explicit Cargo.toml dependencies.
   "//visibility:public",
 ])
 
 licenses([
-  "notice", # Apache-2.0 from expression "Apache-2.0 OR MIT"
+  "notice", # MIT from expression "MIT OR Apache-2.0"
 ])
 
 load(
@@ -23,14 +23,12 @@ load(
 )
 
 
-# Unsupported target "bench" with type "bench" omitted
-# Unsupported target "build-script-build" with type "custom-build" omitted
+# Unsupported target "ahash" with type "bench" omitted
 
 rust_library(
-    name = "hashbrown",
+    name = "ahash",
     crate_type = "lib",
     deps = [
-        "@raze__ahash__0_3_8//:ahash",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
@@ -38,15 +36,13 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.8.2",
+    version = "0.3.8",
     tags = ["cargo-raze"],
     crate_features = [
-        "ahash",
-        "inline-more",
     ],
 )
 
-# Unsupported target "hasher" with type "test" omitted
-# Unsupported target "rayon" with type "test" omitted
-# Unsupported target "serde" with type "test" omitted
-# Unsupported target "set" with type "test" omitted
+# Unsupported target "bench" with type "test" omitted
+# Unsupported target "map" with type "bench" omitted
+# Unsupported target "map_tests" with type "test" omitted
+# Unsupported target "nopanic" with type "test" omitted

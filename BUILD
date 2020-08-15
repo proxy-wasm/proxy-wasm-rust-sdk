@@ -6,8 +6,8 @@ rust_library(
     edition = "2018",
     visibility = ["//visibility:public"],
     deps = [
-        "//cargo:hashbrown",
-        "//cargo:log",
-        "//cargo:wee_alloc",
+        "//bazel/cargo:hashbrown",
+        "//bazel/cargo:log",
+        "//bazel/cargo:wee_alloc",
     ],
 )

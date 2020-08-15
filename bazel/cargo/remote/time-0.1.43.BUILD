@@ -6,7 +6,7 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 package(default_visibility = [
   # Public for visibility by "@raze__crate__version//" targets.
   #
-  # Prefer access through "//cargo", which limits external
+  # Prefer access through "//bazel/cargo", which limits external
   # visibility to explicit Cargo.toml dependencies.
   "//visibility:public",
 ])
@@ -23,26 +23,22 @@ load(
 )
 
 
-# Unsupported target "ahash" with type "bench" omitted
 
 rust_library(
-    name = "ahash",
+    name = "time",
     crate_type = "lib",
     deps = [
+        "@raze__libc__0_2_74//:libc",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.3.8",
+    version = "0.1.43",
     tags = ["cargo-raze"],
     crate_features = [
     ],
 )
 
-# Unsupported target "bench" with type "test" omitted
-# Unsupported target "map" with type "bench" omitted
-# Unsupported target "map_tests" with type "test" omitted
-# Unsupported target "nopanic" with type "test" omitted

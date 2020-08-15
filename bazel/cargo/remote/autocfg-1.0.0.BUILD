@@ -6,13 +6,13 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 package(default_visibility = [
   # Public for visibility by "@raze__crate__version//" targets.
   #
-  # Prefer access through "//cargo", which limits external
+  # Prefer access through "//bazel/cargo", which limits external
   # visibility to explicit Cargo.toml dependencies.
   "//visibility:public",
 ])
 
 licenses([
-  "notice", # MIT from expression "MIT OR Apache-2.0"
+  "notice", # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 load(
@@ -23,10 +23,9 @@ load(
 )
 
 
-# Unsupported target "build-script-build" with type "custom-build" omitted
 
 rust_library(
-    name = "winapi",
+    name = "autocfg",
     crate_type = "lib",
     deps = [
     ],
@@ -36,19 +35,14 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.3.9",
+    version = "1.0.0",
     tags = ["cargo-raze"],
     crate_features = [
-        "memoryapi",
-        "minwinbase",
-        "minwindef",
-        "ntdef",
-        "profileapi",
-        "std",
-        "synchapi",
-        "sysinfoapi",
-        "timezoneapi",
-        "winbase",
     ],
 )
 
+# Unsupported target "integers" with type "example" omitted
+# Unsupported target "paths" with type "example" omitted
+# Unsupported target "rustflags" with type "test" omitted
+# Unsupported target "traits" with type "example" omitted
+# Unsupported target "versions" with type "example" omitted

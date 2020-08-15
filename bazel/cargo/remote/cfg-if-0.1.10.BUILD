@@ -6,7 +6,7 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 package(default_visibility = [
   # Public for visibility by "@raze__crate__version//" targets.
   #
-  # Prefer access through "//cargo", which limits external
+  # Prefer access through "//bazel/cargo", which limits external
   # visibility to explicit Cargo.toml dependencies.
   "//visibility:public",
 ])
@@ -25,20 +25,20 @@ load(
 
 
 rust_library(
-    name = "time",
+    name = "cfg_if",
     crate_type = "lib",
     deps = [
-        "@raze__libc__0_2_74//:libc",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.1.43",
+    version = "0.1.10",
     tags = ["cargo-raze"],
     crate_features = [
     ],
 )
 
+# Unsupported target "xcrate" with type "test" omitted
