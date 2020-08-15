@@ -706,6 +706,7 @@ pub fn get_metric(metric_id: u32) -> Result<u64, Status> {
     unsafe {
         match proxy_get_metric(metric_id, &mut return_value) {
             Status::Ok => Ok(return_value),
+            Status::NotFound => Err(Status::NotFound),
             Status::BadArgument => Err(Status::BadArgument),
             status => panic!("unexpected status: {}", status as u32),
         }
@@ -720,6 +721,7 @@ pub fn record_metric(metric_id: u32, value: u64) -> Result<(), Status> {
     unsafe {
         match proxy_record_metric(metric_id, value) {
             Status::Ok => Ok(()),
+            Status::NotFound => Err(Status::NotFound),
             status => panic!("unexpected status: {}", status as u32),
         }
     }
@@ -733,6 +735,8 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
     unsafe {
         match proxy_increment_metric(metric_id, offset) {
             Status::Ok => Ok(()),
+            Status::NotFound => Err(Status::NotFound),
+            Status::BadArgument => Err(Status::BadArgument),
             status => panic!("unexpected status: {}", status as u32),
         }
     }
