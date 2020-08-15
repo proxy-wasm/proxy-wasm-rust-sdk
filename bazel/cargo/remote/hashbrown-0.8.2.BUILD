@@ -6,13 +6,13 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 package(default_visibility = [
   # Public for visibility by "@raze__crate__version//" targets.
   #
-  # Prefer access through "//cargo", which limits external
+  # Prefer access through "//bazel/cargo", which limits external
   # visibility to explicit Cargo.toml dependencies.
   "//visibility:public",
 ])
 
 licenses([
-  "notice", # MIT from expression "MIT OR Apache-2.0"
+  "notice", # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 load(
@@ -23,26 +23,30 @@ load(
 )
 
 
+# Unsupported target "bench" with type "bench" omitted
 # Unsupported target "build-script-build" with type "custom-build" omitted
-# Unsupported target "filters" with type "test" omitted
 
 rust_library(
-    name = "log",
+    name = "hashbrown",
     crate_type = "lib",
     deps = [
-        "@raze__cfg_if__0_1_10//:cfg_if",
+        "@raze__ahash__0_3_8//:ahash",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
-        "--cfg=atomic_cas",
     ],
-    version = "0.4.11",
+    version = "0.8.2",
     tags = ["cargo-raze"],
     crate_features = [
+        "ahash",
+        "inline-more",
     ],
 )
 
-# Unsupported target "macros" with type "test" omitted
+# Unsupported target "hasher" with type "test" omitted
+# Unsupported target "rayon" with type "test" omitted
+# Unsupported target "serde" with type "test" omitted
+# Unsupported target "set" with type "test" omitted

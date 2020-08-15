@@ -22,7 +22,7 @@ opt-level = 3
 panic = "abort"
 
 [raze]
-workspace_path = "//cargo"
+workspace_path = "//bazel/cargo"
 target = "wasm32-unknown-unknown"
 genmode = "Remote"
 

@@ -6,13 +6,13 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 package(default_visibility = [
   # Public for visibility by "@raze__crate__version//" targets.
   #
-  # Prefer access through "//cargo", which limits external
+  # Prefer access through "//bazel/cargo", which limits external
   # visibility to explicit Cargo.toml dependencies.
   "//visibility:public",
 ])
 
 licenses([
-  "notice", # MIT from expression "MIT OR Apache-2.0"
+  "reciprocal", # MPL-2.0 from expression "MPL-2.0"
 ])
 
 load(
@@ -23,22 +23,26 @@ load(
 )
 
 
+# Unsupported target "build-script-build" with type "custom-build" omitted
 
 rust_library(
-    name = "cfg_if",
+    name = "wee_alloc",
     crate_type = "lib",
     deps = [
+        "@raze__cfg_if__0_1_10//:cfg_if",
+        "@raze__memory_units__0_4_0//:memory_units",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.1.10",
+    version = "0.4.5",
     tags = ["cargo-raze"],
     crate_features = [
+        "default",
+        "size_classes",
     ],
 )
 
-# Unsupported target "xcrate" with type "test" omitted
