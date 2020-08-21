@@ -85,3 +85,9 @@ pub enum MetricType {
 }
 
 pub type Bytes = Vec<u8>;
+
+pub enum ContextType {
+    RootContext = 0,
+    HttpContext = 1,
+    StreamContext = 2,
+}
