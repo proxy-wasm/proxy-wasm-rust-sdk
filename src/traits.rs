@@ -126,7 +126,11 @@ pub trait RootContext: Context {
         Box::new(EmptyHttpContext)
     }
 
-    fn create_stream_context(&self, _context_id: u32, _root_context_id: u32) -> Box<dyn StreamContext> {
+    fn create_stream_context(
+        &self,
+        _context_id: u32,
+        _root_context_id: u32,
+    ) -> Box<dyn StreamContext> {
         Box::new(EmptyStreamContext)
     }
 

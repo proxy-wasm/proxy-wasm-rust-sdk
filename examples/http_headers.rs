@@ -19,9 +19,7 @@ use proxy_wasm::types::*;
 #[no_mangle]
 pub fn _start() {
     proxy_wasm::set_log_level(LogLevel::Trace);
-    proxy_wasm::set_root_context(|_| -> Box<dyn RootContext> {
-        Box::new(HttpHeadersRoot)
-    });
+    proxy_wasm::set_root_context(|_| -> Box<dyn RootContext> { Box::new(HttpHeadersRoot) });
 }
 
 struct HttpHeadersRoot;
@@ -34,7 +32,9 @@ impl RootContext for HttpHeadersRoot {
     }
 
     fn create_http_context(&self, _context_id: u32, _root_context_id: u32) -> Box<dyn HttpContext> {
-        Box::new(HttpHeaders{context_id: _context_id})
+        Box::new(HttpHeaders {
+            context_id: _context_id,
+        })
     }
 }
 

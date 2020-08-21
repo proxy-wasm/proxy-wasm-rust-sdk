@@ -36,7 +36,6 @@ impl RootContext for HttpBodyRoot {
 
 impl Context for HttpBodyRoot {}
 
-
 impl Context for HttpBody {}
 
 impl HttpContext for HttpBody {
