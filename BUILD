@@ -7,7 +7,6 @@ config_setting(
     },
 )
 
-
 rust_library(
     name = "proxy_wasm",
     srcs = glob(["src/*.rs"]),
@@ -18,6 +17,6 @@ rust_library(
         "//bazel/cargo:log",
     ] + select({
         ":wasm": ["//bazel/cargo:wee_alloc"],
-        "//conditions:default": []
+        "//conditions:default": [],
     }),
 )
