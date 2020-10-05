@@ -1,5 +1,13 @@
 load("@io_bazel_rules_rust//rust:rust.bzl", "rust_library")
 
+config_setting(
+    name = "wasm",
+    values = {
+        "platforms": "@io_bazel_rules_rust//rust/platform:wasm",
+    },
+)
+
+
 rust_library(
     name = "proxy_wasm",
     srcs = glob(["src/*.rs"]),
@@ -8,6 +16,8 @@ rust_library(
     deps = [
         "//bazel/cargo:hashbrown",
         "//bazel/cargo:log",
-        "//bazel/cargo:wee_alloc",
-    ],
+    ] + select({
+        ":wasm": ["//bazel/cargo:wee_alloc"],
+        "//conditions:default": []
+    }),
 )

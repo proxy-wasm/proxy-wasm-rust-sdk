@@ -11,7 +11,9 @@ edition = "2018"
 [dependencies]
 hashbrown = { version = "0.8", default-features = false, features = ["ahash", "inline-more"] }
 log = "0.4"
-wee_alloc = "0.4"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies.wee_alloc]
+version = "0.4"
 
 [dev-dependencies]
 chrono = "0.4"
