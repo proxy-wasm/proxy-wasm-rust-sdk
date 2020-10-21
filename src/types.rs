@@ -31,20 +31,60 @@ pub enum LogLevel {
 
 #[repr(u32)]
 #[derive(Debug)]
-pub enum Action {
+pub enum FilterStatus {
     Continue = 0,
-    Pause = 1,
+    StopIteration = 1,
 }
 
 #[repr(u32)]
 #[derive(Debug)]
+pub enum FilterHeadersStatus {
+    Continue = 0,
+    StopIteration = 1,
+    ContinueAndEndStream = 2,
+    StopAllIterationAndBuffer = 3,
+    StopAllIterationAndWatermark = 4,
+}
+
+#[repr(u32)]
+#[derive(Debug)]
+pub enum FilterMetadataStatus {
+    Continue = 0,
+}
+
+#[repr(u32)]
+#[derive(Debug)]
+pub enum FilterTrailersStatus {
+    Continue = 0,
+    StopIteration = 1,
+}
+
+#[repr(u32)]
+#[derive(Debug)]
+pub enum FilterDataStatus {
+    Continue = 0,
+    StopIterationAndBuffer = 1,
+    StopIterationAndWatermark = 2,
+    StopIterationNoBuffer = 3,
+}
+
+#[repr(u32)]
+#[non_exhaustive]
+#[derive(Debug, Eq, PartialEq)]
 pub enum Status {
     Ok = 0,
     NotFound = 1,
     BadArgument = 2,
+    SerializationFailure = 3,
+    ParseFailure = 4,
+    BadExpression = 5,
+    InvalidMemoryAccess = 6,
     Empty = 7,
     CasMismatch = 8,
+    ResultMismatch = 9,
     InternalFailure = 10,
+    BrokenConnection = 11,
+    Unimplemented = 12,
 }
 
 #[repr(u32)]
@@ -55,6 +95,10 @@ pub enum BufferType {
     DownstreamData = 2,
     UpstreamData = 3,
     HttpCallResponseBody = 4,
+    GrpcReceiveBuffer = 5,
+    VmConfiguration = 6,
+    PluginConfiguration = 7,
+    CallData = 8,
 }
 
 #[repr(u32)]
@@ -64,6 +108,8 @@ pub enum MapType {
     HttpRequestTrailers = 1,
     HttpResponseHeaders = 2,
     HttpResponseTrailers = 3,
+    GrpcReceiveInitialMetadata = 4,
+    GrpcReceiveTrailingMetadata = 5,
     HttpCallResponseHeaders = 6,
     HttpCallResponseTrailers = 7,
 }

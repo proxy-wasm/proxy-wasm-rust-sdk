@@ -26,20 +26,20 @@ struct HttpBody;
 impl Context for HttpBody {}
 
 impl HttpContext for HttpBody {
-    fn on_http_response_headers(&mut self, _: usize) -> Action {
+    fn on_http_response_headers(&mut self, _: usize) -> FilterHeadersStatus {
         // If there is a Content-Length header and we change the length of
         // the body later, then clients will break. So remove it.
         // We must do this here, because once we exit this function we
         // can no longer modify the response headers.
         self.set_http_response_header("content-length", None);
-        Action::Continue
+        FilterHeadersStatus::Continue
     }
 
-    fn on_http_response_body(&mut self, body_size: usize, end_of_stream: bool) -> Action {
+    fn on_http_response_body(&mut self, body_size: usize, end_of_stream: bool) -> FilterDataStatus {
         if !end_of_stream {
             // Wait -- we'll be called again when the complete body is buffered
             // at the host side.
-            return Action::Pause;
+            return FilterDataStatus::StopIterationAndBuffer;
         }
 
         // Replace the message body if it contains the text "secret".
@@ -51,6 +51,6 @@ impl HttpContext for HttpBody {
                 self.set_http_response_body(0, body_size, &new_body.into_bytes());
             }
         }
-        Action::Continue
+        FilterDataStatus::Continue
     }
 }
