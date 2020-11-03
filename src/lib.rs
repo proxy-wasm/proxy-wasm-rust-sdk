@@ -16,7 +16,7 @@ pub mod hostcalls;
 pub mod traits;
 pub mod types;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(feature = "wee_alloc")]
 mod allocator;
 mod dispatcher;
 mod logger;
