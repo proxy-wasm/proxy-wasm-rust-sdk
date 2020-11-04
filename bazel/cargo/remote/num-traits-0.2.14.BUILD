@@ -23,12 +23,13 @@ load(
 )
 
 
+# Unsupported target "build-script-build" with type "custom-build" omitted
+# Unsupported target "cast" with type "test" omitted
 
 rust_library(
-    name = "time",
+    name = "num_traits",
     crate_type = "lib",
     deps = [
-        "@raze__libc__0_2_74//:libc",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
@@ -36,7 +37,7 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.1.43",
+    version = "0.2.14",
     tags = ["cargo-raze"],
     crate_features = [
     ],

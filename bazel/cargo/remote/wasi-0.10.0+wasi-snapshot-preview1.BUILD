@@ -12,7 +12,7 @@ package(default_visibility = [
 ])
 
 licenses([
-  "notice", # MIT from expression "MIT OR Apache-2.0"
+  "notice", # Apache-2.0 from expression "Apache-2.0 OR (Apache-2.0 OR MIT)"
 ])
 
 load(
@@ -23,10 +23,9 @@ load(
 )
 
 
-# Unsupported target "ahash" with type "bench" omitted
 
 rust_library(
-    name = "ahash",
+    name = "wasi",
     crate_type = "lib",
     deps = [
     ],
@@ -36,13 +35,11 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.3.8",
+    version = "0.10.0+wasi-snapshot-preview1",
     tags = ["cargo-raze"],
     crate_features = [
+        "default",
+        "std",
     ],
 )
 
-# Unsupported target "bench" with type "test" omitted
-# Unsupported target "map" with type "bench" omitted
-# Unsupported target "map_tests" with type "test" omitted
-# Unsupported target "nopanic" with type "test" omitted

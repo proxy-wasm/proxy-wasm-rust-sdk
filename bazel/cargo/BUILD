@@ -10,12 +10,12 @@ licenses([
 ])
 alias(
     name = "chrono",
-    actual = "@raze__chrono__0_4_15//:chrono",
+    actual = "@raze__chrono__0_4_19//:chrono",
     tags = ["cargo-raze"],
 )
 alias(
     name = "hashbrown",
-    actual = "@raze__hashbrown__0_8_2//:hashbrown",
+    actual = "@raze__hashbrown__0_9_1//:hashbrown",
     tags = ["cargo-raze"],
 )
 alias(
