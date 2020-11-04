@@ -39,16 +39,13 @@ rust_library(
     version = "0.3.9",
     tags = ["cargo-raze"],
     crate_features = [
-        "memoryapi",
         "minwinbase",
         "minwindef",
         "ntdef",
         "profileapi",
         "std",
-        "synchapi",
         "sysinfoapi",
         "timezoneapi",
-        "winbase",
     ],
 )
 

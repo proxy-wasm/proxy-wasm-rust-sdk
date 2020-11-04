@@ -8,6 +8,5 @@ rust_library(
     deps = [
         "//bazel/cargo:hashbrown",
         "//bazel/cargo:log",
-        "//bazel/cargo:wee_alloc",
     ],
 )

@@ -8,10 +8,13 @@ license = "Apache-2.0"
 repository = "https://github.com/proxy-wasm/proxy-wasm-rust-sdk"
 edition = "2018"
 
+[features]
+wee-alloc = ["wee_alloc"]
+
 [dependencies]
 hashbrown = "0.9"
 log = "0.4"
-wee_alloc = "0.4"
+wee_alloc = { version = "0.4", optional = true }
 
 [dev-dependencies]
 chrono = "0.4"
