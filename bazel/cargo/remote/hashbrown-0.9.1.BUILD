@@ -41,6 +41,7 @@ rust_library(
     tags = ["cargo-raze"],
     crate_features = [
         "ahash",
+        "default",
         "inline-more",
     ],
 )
