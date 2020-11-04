@@ -28,7 +28,7 @@
 
 # Updating dependencies
 
-When updating dependencies, You need to regenerate `BUILD` files to match updated `Cargo.toml`:
+When updating dependencies, you need to regenerate `BUILD` files to match updated `Cargo.toml`:
 ```
 cargo install cargo-raze --version 0.3.8
 rm -rf bazel/cargo/

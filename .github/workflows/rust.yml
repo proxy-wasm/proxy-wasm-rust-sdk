@@ -116,7 +116,7 @@ jobs:
         RUSTFLAGS: -D warnings -C link-args=-S
       run: cargo clippy --release --all-targets --target=wasm32-wasi
 
-    - name: Clippy (wasm32-wasi with wee-alloc))
+    - name: Clippy (wasm32-wasi with wee-alloc)
       env:
         RUSTFLAGS: -D warnings -C link-args=-S
       run: cargo clippy --release --all-targets --target=wasm32-wasi --features=wee-alloc
@@ -171,7 +171,7 @@ jobs:
         RUSTFLAGS: -D warnings -C link-args=-S
       run: cargo clippy --release --all-targets --target=wasm32-wasi
 
-    - name: Clippy (wasm32-wasi with wee-alloc))
+    - name: Clippy (wasm32-wasi with wee-alloc)
       env:
         RUSTFLAGS: -D warnings -C link-args=-S
       run: cargo clippy --release --all-targets --target=wasm32-wasi --features=wee-alloc
