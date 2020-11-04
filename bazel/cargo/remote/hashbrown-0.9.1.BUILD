@@ -12,7 +12,7 @@ package(default_visibility = [
 ])
 
 licenses([
-  "notice", # MIT from expression "MIT OR Apache-2.0"
+  "notice", # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 load(
@@ -23,25 +23,29 @@ load(
 )
 
 
-# Unsupported target "build-script-build" with type "custom-build" omitted
-# Unsupported target "const_fn" with type "test" omitted
+# Unsupported target "bench" with type "bench" omitted
 
 rust_library(
-    name = "libc",
+    name = "hashbrown",
     crate_type = "lib",
     deps = [
+        "@raze__ahash__0_4_6//:ahash",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.2.74",
+    version = "0.9.1",
     tags = ["cargo-raze"],
     crate_features = [
-        "default",
-        "std",
+        "ahash",
+        "inline-more",
     ],
 )
 
+# Unsupported target "hasher" with type "test" omitted
+# Unsupported target "rayon" with type "test" omitted
+# Unsupported target "serde" with type "test" omitted
+# Unsupported target "set" with type "test" omitted

@@ -23,12 +23,16 @@ load(
 )
 
 
+# Unsupported target "average" with type "bench" omitted
+# Unsupported target "average" with type "test" omitted
+# Unsupported target "build-script-build" with type "custom-build" omitted
+# Unsupported target "gcd" with type "bench" omitted
 
 rust_library(
-    name = "time",
+    name = "num_integer",
     crate_type = "lib",
     deps = [
-        "@raze__libc__0_2_74//:libc",
+        "@raze__num_traits__0_2_14//:num_traits",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
@@ -36,9 +40,11 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.1.43",
+    version = "0.1.44",
     tags = ["cargo-raze"],
     crate_features = [
     ],
 )
 
+# Unsupported target "roots" with type "bench" omitted
+# Unsupported target "roots" with type "test" omitted

@@ -23,26 +23,25 @@ load(
 )
 
 
-# Unsupported target "ahash" with type "bench" omitted
+# Unsupported target "build-script-build" with type "custom-build" omitted
+# Unsupported target "const_fn" with type "test" omitted
 
 rust_library(
-    name = "ahash",
+    name = "libc",
     crate_type = "lib",
     deps = [
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.3.8",
+    version = "0.2.80",
     tags = ["cargo-raze"],
     crate_features = [
+        "default",
+        "std",
     ],
 )
 
-# Unsupported target "bench" with type "test" omitted
-# Unsupported target "map" with type "bench" omitted
-# Unsupported target "map_tests" with type "test" omitted
-# Unsupported target "nopanic" with type "test" omitted

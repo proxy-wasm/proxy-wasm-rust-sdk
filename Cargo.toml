@@ -9,7 +9,7 @@ repository = "https://github.com/proxy-wasm/proxy-wasm-rust-sdk"
 edition = "2018"
 
 [dependencies]
-hashbrown = { version = "0.8", default-features = false, features = ["ahash", "inline-more"] }
+hashbrown = { version = "0.9", default-features = false, features = ["ahash", "inline-more"] }
 log = "0.4"
 wee_alloc = "0.4"
 

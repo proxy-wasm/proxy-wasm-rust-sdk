@@ -12,7 +12,7 @@ package(default_visibility = [
 ])
 
 licenses([
-  "notice", # Apache-2.0 from expression "Apache-2.0 OR MIT"
+  "notice", # MIT from expression "MIT OR Apache-2.0"
 ])
 
 load(
@@ -23,30 +23,35 @@ load(
 )
 
 
-# Unsupported target "bench" with type "bench" omitted
-# Unsupported target "build-script-build" with type "custom-build" omitted
+# Unsupported target "chrono" with type "bench" omitted
 
 rust_library(
-    name = "hashbrown",
+    name = "chrono",
     crate_type = "lib",
     deps = [
-        "@raze__ahash__0_3_8//:ahash",
+        "@raze__libc__0_2_80//:libc",
+        "@raze__num_integer__0_1_44//:num_integer",
+        "@raze__num_traits__0_2_14//:num_traits",
+        "@raze__time__0_1_44//:time",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.8.2",
+    version = "0.4.19",
     tags = ["cargo-raze"],
     crate_features = [
-        "ahash",
-        "inline-more",
+        "clock",
+        "default",
+        "libc",
+        "oldtime",
+        "std",
+        "time",
+        "winapi",
     ],
 )
 
-# Unsupported target "hasher" with type "test" omitted
-# Unsupported target "rayon" with type "test" omitted
-# Unsupported target "serde" with type "test" omitted
-# Unsupported target "set" with type "test" omitted
+# Unsupported target "serde" with type "bench" omitted
+# Unsupported target "wasm" with type "test" omitted
