@@ -16,7 +16,6 @@ pub mod hostcalls;
 pub mod traits;
 pub mod types;
 
-#[cfg(feature = "wee-alloc")]
 mod allocator;
 mod dispatcher;
 mod logger;
