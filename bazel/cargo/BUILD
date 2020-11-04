@@ -23,8 +23,3 @@ alias(
     actual = "@raze__log__0_4_11//:log",
     tags = ["cargo-raze"],
 )
-alias(
-    name = "wee_alloc",
-    actual = "@raze__wee_alloc__0_4_5//:wee_alloc",
-    tags = ["cargo-raze"],
-)

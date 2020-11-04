@@ -80,15 +80,6 @@ def raze_fetch_remote_crates():
     )
 
     _new_http_archive(
-        name = "raze__memory_units__0_4_0",
-        url = "https://crates-io.s3-us-west-1.amazonaws.com/crates/memory_units/memory_units-0.4.0.crate",
-        type = "tar.gz",
-        sha256 = "8452105ba047068f40ff7093dd1d9da90898e63dd61736462e9cdda6a90ad3c3",
-        strip_prefix = "memory_units-0.4.0",
-        build_file = Label("//bazel/cargo/remote:memory_units-0.4.0.BUILD"),
-    )
-
-    _new_http_archive(
         name = "raze__num_integer__0_1_44",
         url = "https://crates-io.s3-us-west-1.amazonaws.com/crates/num-integer/num-integer-0.1.44.crate",
         type = "tar.gz",
@@ -122,15 +113,6 @@ def raze_fetch_remote_crates():
         sha256 = "1a143597ca7c7793eff794def352d41792a93c481eb1042423ff7ff72ba2c31f",
         strip_prefix = "wasi-0.10.0+wasi-snapshot-preview1",
         build_file = Label("//bazel/cargo/remote:wasi-0.10.0+wasi-snapshot-preview1.BUILD"),
-    )
-
-    _new_http_archive(
-        name = "raze__wee_alloc__0_4_5",
-        url = "https://crates-io.s3-us-west-1.amazonaws.com/crates/wee_alloc/wee_alloc-0.4.5.crate",
-        type = "tar.gz",
-        sha256 = "dbb3b5a6b2bb17cb6ad44a2e68a43e8d2722c997da10e928665c72ec6c0a0b8e",
-        strip_prefix = "wee_alloc-0.4.5",
-        build_file = Label("//bazel/cargo/remote:wee_alloc-0.4.5.BUILD"),
     )
 
     _new_http_archive(
