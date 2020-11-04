@@ -8,9 +8,13 @@ rust_binary(
     out_binary = True,
     deps = [
         "//:proxy_wasm",
+        "//bazel/cargo:cfg_if",
         "//bazel/cargo:chrono",
         "//bazel/cargo:log",
-    ],
+    ] + select({
+        "@io_bazel_rules_rust//rust/platform:wasm32-unknown-unknown": [],
+        "//conditions:default": ["//bazel/cargo:getrandom"],
+    }),
 )
 
 rust_binary(
