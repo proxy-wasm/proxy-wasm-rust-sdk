@@ -23,13 +23,12 @@ load(
 )
 
 
-# Unsupported target "build-script-build" with type "custom-build" omitted
-# Unsupported target "const_fn" with type "test" omitted
 
 rust_library(
-    name = "libc",
+    name = "time",
     crate_type = "lib",
     deps = [
+        "@raze__libc__0_2_80//:libc",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
@@ -37,11 +36,9 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.2.74",
+    version = "0.1.44",
     tags = ["cargo-raze"],
     crate_features = [
-        "default",
-        "std",
     ],
 )
 
