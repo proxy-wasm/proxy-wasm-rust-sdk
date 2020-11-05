@@ -72,7 +72,6 @@ impl Counter {
     fn inc(&self) -> Result<(), Status> {
         self.add(1)
     }
-
     // Dead code just to show how it works
     #[allow(dead_code)]
     fn value(&self) -> Result<u64, Status> {
