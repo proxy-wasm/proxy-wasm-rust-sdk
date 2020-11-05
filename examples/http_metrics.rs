@@ -12,18 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::cmp::min;
 use log::error;
-use proxy_wasm::traits::*;
-use proxy_wasm::types::{Action, MetricType, LogLevel, Status};
 use proxy_wasm::hostcalls;
+use proxy_wasm::traits::*;
+use proxy_wasm::types::{Action, LogLevel, MetricType, Status};
+use std::cmp::min;
 
 #[no_mangle]
 pub fn _start() {
     proxy_wasm::set_log_level(LogLevel::Trace);
-    proxy_wasm::set_http_context(|_, _| -> Box<dyn HttpContext> {
-        Box::new(HttpMetrics)
-    });
+    proxy_wasm::set_http_context(|_, _| -> Box<dyn HttpContext> { Box::new(HttpMetrics) });
 }
 
 struct HttpMetrics;
@@ -32,10 +30,11 @@ impl Context for HttpMetrics {}
 
 impl HttpContext for HttpMetrics {
     fn on_http_request_headers(&mut self, _: usize) -> Action {
-        match counter("proxy_wasm_rust.request_counter"){
+        match counter("proxy_wasm_rust.request_counter") {
             Ok(metric) => {
+                // Ignore errors
                 metric.inc().ok();
-             } // Ignore errors in this case
+            }
             Err(err) => {
                 error!("Cannot get metric: {:?}", err);
             }
@@ -44,10 +43,11 @@ impl HttpContext for HttpMetrics {
     }
 
     fn on_http_response_headers(&mut self, _: usize) -> Action {
-        match counter("proxy_wasm_rust.response_counter"){
+        match counter("proxy_wasm_rust.response_counter") {
             Ok(metric) => {
+                // Ignore errors
                 metric.inc().ok();
-             } // Ignore errors in this case
+            }
             Err(err) => {
                 error!("Cannot get metric: {:?}", err);
             }
@@ -72,7 +72,7 @@ impl Counter {
     fn inc(&self) -> Result<(), Status> {
         self.add(1)
     }
-    
+
     // Dead code just to show how it works
     #[allow(dead_code)]
     fn value(&self) -> Result<u64, Status> {
