@@ -48,3 +48,15 @@ rust_binary(
         "//bazel/cargo:log",
     ],
 )
+
+rust_binary(
+    name = "http_metrics",
+    srcs = ["http_metrics.rs"],
+    crate_type = "cdylib",
+    edition = "2018",
+    out_binary = True,
+    deps = [
+        "//:proxy_wasm",
+        "//bazel/cargo:log",
+    ],
+)
