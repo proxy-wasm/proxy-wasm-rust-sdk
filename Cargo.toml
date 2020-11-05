@@ -24,12 +24,11 @@ lto = true
 opt-level = 3
 panic = "abort"
 
-[raze]
+[package.metadata.raze]
 workspace_path = "//bazel/cargo"
-target = "wasm32-unknown-unknown"
 genmode = "Remote"
 
-[raze.crates.log.'0.4.11']
+[package.metadata.raze.crates.log.'0.4.11']
 additional_flags = ["--cfg=atomic_cas"]
 
 [[example]]
