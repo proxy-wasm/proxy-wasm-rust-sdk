@@ -44,6 +44,13 @@ rust_library(
     edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
+        "--cfg=libc_priv_mod_use",
+        "--cfg=libc_union",
+        "--cfg=libc_const_size_of",
+        "--cfg=libc_align",
+        "--cfg=libc_core_cvoid",
+        "--cfg=libc_packedN",
+        "--cfg=libc_cfg_target_vendor",
     ],
     tags = [
         "cargo-raze",

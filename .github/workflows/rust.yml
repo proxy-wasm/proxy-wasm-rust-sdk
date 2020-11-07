@@ -59,8 +59,11 @@ jobs:
           ~/.cargo/registry
         key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.lock') }}
 
-    - name: Build
-      run: bazelisk build //...
+    - name: Build (wasm32-unknown-unknown)
+      run: bazelisk --bazelrc=/dev/null build --platforms=@io_bazel_rules_rust//rust/platform:wasm //...
+
+    - name: Build (wasm32-wasi)
+      run: bazelisk --bazelrc=/dev/null build --platforms=@io_bazel_rules_rust//rust/platform:wasi //...
 
     - name: Format (buildifier)
       run: |
