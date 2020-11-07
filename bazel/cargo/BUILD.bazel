@@ -13,8 +13,26 @@ licenses([
 
 # Aliased targets
 alias(
+    name = "cfg_if",
+    actual = "@raze__cfg_if__1_0_0//:cfg_if",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "chrono",
     actual = "@raze__chrono__0_4_19//:chrono",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "getrandom",
+    actual = "@raze__getrandom__0_2_0//:getrandom",
     tags = [
         "cargo-raze",
         "manual",
