@@ -32,19 +32,14 @@ panic = "abort"
 workspace_path = "//bazel/cargo"
 genmode = "Remote"
 
-[package.metadata.raze.crates.libc.'0.2.80']
-additional_flags = [
-  "--cfg=libc_priv_mod_use",
-  "--cfg=libc_union",
-  "--cfg=libc_const_size_of",
-  "--cfg=libc_align",
-  "--cfg=libc_core_cvoid",
-  "--cfg=libc_packedN",
-  "--cfg=libc_cfg_target_vendor",
-]
+[package.metadata.raze.crates.getrandom.'=0.2.0']
+gen_buildrs = true
 
-[package.metadata.raze.crates.log.'0.4.11']
-additional_flags = ["--cfg=atomic_cas"]
+[package.metadata.raze.crates.libc.'=0.2.80']
+gen_buildrs = true
+
+[package.metadata.raze.crates.log.'=0.4.11']
+gen_buildrs = true
 
 [[example]]
 name = "hello_world"
