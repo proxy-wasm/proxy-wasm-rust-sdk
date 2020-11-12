@@ -75,7 +75,7 @@ jobs:
 
     - name: Format (cargo raze)
       run: |
-        cargo install cargo-raze --git https://github.com/google/cargo-raze --rev cb9f85d22b1c81cceb9acaf1fa4336c5fc4e6bff
+        cargo install cargo-raze --version 0.7.0
         cp -p bazel/cargo/Cargo.lock .
         rm -rf bazel/cargo/
         cargo raze --output=bazel/cargo
