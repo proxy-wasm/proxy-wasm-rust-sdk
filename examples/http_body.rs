@@ -24,17 +24,17 @@ pub fn _start() {
 struct HttpBody;
 struct HttpBodyRoot;
 
+impl Context for HttpBodyRoot {}
+
 impl RootContext for HttpBodyRoot {
     fn get_type(&self) -> ContextType {
         ContextType::HttpContext
     }
 
-    fn create_http_context(&self, _context_id: u32, _root_context_id: u32) -> Box<dyn HttpContext> {
+    fn create_http_context(&self, _context_id: u32) -> Box<dyn HttpContext> {
         Box::new(HttpBody)
     }
 }
-
-impl Context for HttpBodyRoot {}
 
 impl Context for HttpBody {}
 

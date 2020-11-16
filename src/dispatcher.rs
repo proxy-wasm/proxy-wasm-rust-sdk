@@ -60,6 +60,17 @@ impl Dispatcher {
         self.new_root.set(Some(callback));
     }
 
+    fn register_callout(&self, token_id: u32) {
+        if self
+            .callouts
+            .borrow_mut()
+            .insert(token_id, self.active_id.get())
+            .is_some()
+        {
+            panic!("duplicate token_id")
+        }
+    }
+
     fn create_root_context(&self, context_id: u32) {
         let new_context = match self.new_root.get() {
             Some(f) => f(context_id),
@@ -77,7 +88,7 @@ impl Dispatcher {
 
     fn create_stream_context(&self, context_id: u32, root_context_id: u32) {
         let new_context = match self.roots.borrow().get(&root_context_id) {
-            Some(root_context) => root_context.create_stream_context(context_id, root_context_id),
+            Some(root_context) => root_context.create_stream_context(context_id),
             None => panic!("invalid root_context_id"),
         };
         if self
@@ -92,7 +103,7 @@ impl Dispatcher {
 
     fn create_http_context(&self, context_id: u32, root_context_id: u32) {
         let new_context = match self.roots.borrow().get(&root_context_id) {
-            Some(root_context) => root_context.create_http_context(context_id, root_context_id),
+            Some(root_context) => root_context.create_http_context(context_id),
             None => panic!("invalid root_context_id"),
         };
         if self
@@ -105,17 +116,6 @@ impl Dispatcher {
         }
     }
 
-    fn register_callout(&self, token_id: u32) {
-        if self
-            .callouts
-            .borrow_mut()
-            .insert(token_id, self.active_id.get())
-            .is_some()
-        {
-            panic!("duplicate token_id")
-        }
-    }
-
     fn on_create_context(&self, context_id: u32, root_context_id: u32) {
         if root_context_id == 0 {
             self.create_root_context(context_id);
@@ -125,10 +125,10 @@ impl Dispatcher {
                 ContextType::StreamContext => {
                     self.create_stream_context(context_id, root_context_id)
                 }
-                ContextType::RootContext => panic!("missing constructors"),
+                ContextType::RootContext => panic!("missing ContextType on root_context"),
             }
         } else {
-            panic!("missing constructors")
+            panic!("invalid root_context_id");
         }
     }
 

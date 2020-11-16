@@ -122,15 +122,11 @@ pub trait RootContext: Context {
 
     fn on_log(&mut self) {}
 
-    fn create_http_context(&self, _context_id: u32, _root_context_id: u32) -> Box<dyn HttpContext> {
+    fn create_http_context(&self, _context_id: u32) -> Box<dyn HttpContext> {
         Box::new(EmptyHttpContext)
     }
 
-    fn create_stream_context(
-        &self,
-        _context_id: u32,
-        _root_context_id: u32,
-    ) -> Box<dyn StreamContext> {
+    fn create_stream_context(&self, _context_id: u32) -> Box<dyn StreamContext> {
         Box::new(EmptyStreamContext)
     }
 
@@ -174,11 +170,6 @@ pub trait StreamContext: Context {
 
     fn on_log(&mut self) {}
 }
-
-struct EmptyHttpContext;
-
-impl HttpContext for EmptyHttpContext {}
-impl Context for EmptyHttpContext {}
 
 struct EmptyStreamContext;
 
@@ -329,3 +320,8 @@ pub trait HttpContext: Context {
 
     fn on_log(&mut self) {}
 }
+
+struct EmptyHttpContext;
+
+impl HttpContext for EmptyHttpContext {}
+impl Context for EmptyHttpContext {}
