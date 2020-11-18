@@ -56,12 +56,23 @@ pub enum ContextType {
 
 #[repr(u32)]
 #[derive(Debug)]
+pub enum StreamType {
+    HttpRequest = 0,
+    HttpResponse = 1,
+    Downstream = 2,
+    Upstream = 3,
+}
+
+#[repr(u32)]
+#[derive(Debug)]
 pub enum BufferType {
     HttpRequestBody = 0,
     HttpResponseBody = 1,
     DownstreamData = 2,
     UpstreamData = 3,
     HttpCallResponseBody = 4,
+    VmConfiguration = 6,
+    PluginConfiguration = 7,
 }
 
 #[repr(u32)]
