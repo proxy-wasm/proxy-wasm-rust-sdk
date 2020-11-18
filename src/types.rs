@@ -49,6 +49,14 @@ pub enum Status {
 
 #[repr(u32)]
 #[derive(Debug)]
+pub enum ContextType {
+    RootContext = 0,
+    HttpContext = 1,
+    StreamContext = 2,
+}
+
+#[repr(u32)]
+#[derive(Debug)]
 pub enum BufferType {
     HttpRequestBody = 0,
     HttpResponseBody = 1,
@@ -85,9 +93,3 @@ pub enum MetricType {
 }
 
 pub type Bytes = Vec<u8>;
-
-pub enum ContextType {
-    RootContext = 0,
-    HttpContext = 1,
-    StreamContext = 2,
-}

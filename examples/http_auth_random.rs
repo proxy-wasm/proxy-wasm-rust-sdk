@@ -23,7 +23,6 @@ pub fn _start() {
     proxy_wasm::set_root_context(|_| -> Box<dyn RootContext> { Box::new(HttpAuthRandomRoot) });
 }
 
-struct HttpAuthRandom;
 struct HttpAuthRandomRoot;
 
 impl Context for HttpAuthRandomRoot {}
@@ -37,6 +36,8 @@ impl RootContext for HttpAuthRandomRoot {
         Box::new(HttpAuthRandom)
     }
 }
+
+struct HttpAuthRandom;
 
 impl Context for HttpAuthRandom {
     fn on_http_call_response(&mut self, _: u32, _: usize, body_size: usize, _: usize) {

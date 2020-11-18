@@ -21,7 +21,6 @@ pub fn _start() {
     proxy_wasm::set_root_context(|_| -> Box<dyn RootContext> { Box::new(HttpBodyRoot) });
 }
 
-struct HttpBody;
 struct HttpBodyRoot;
 
 impl Context for HttpBodyRoot {}
@@ -35,6 +34,8 @@ impl RootContext for HttpBodyRoot {
         Box::new(HttpBody)
     }
 }
+
+struct HttpBody;
 
 impl Context for HttpBody {}
 
