@@ -25,24 +25,6 @@ pub fn _start() {
 
 struct HttpAuthRandom;
 
-impl Context for HttpAuthRandom {
-    fn on_http_call_response(&mut self, _: u32, _: usize, body_size: usize, _: usize) {
-        if let Some(body) = self.get_http_call_response_body(0, body_size) {
-            if !body.is_empty() && body[0] % 2 == 0 {
-                trace!("Access granted.");
-                self.resume_http_request();
-                return;
-            }
-        }
-        trace!("Access forbidden.");
-        self.send_http_response(
-            403,
-            vec![("Powered-By", "proxy-wasm")],
-            Some(b"Access forbidden.\n"),
-        );
-    }
-}
-
 impl HttpContext for HttpAuthRandom {
     fn on_http_request_headers(&mut self, _: usize) -> Action {
         self.dispatch_http_call(
@@ -63,5 +45,23 @@ impl HttpContext for HttpAuthRandom {
     fn on_http_response_headers(&mut self, _: usize) -> Action {
         self.set_http_response_header("Powered-By", Some("proxy-wasm"));
         Action::Continue
+    }
+}
+
+impl Context for HttpAuthRandom {
+    fn on_http_call_response(&mut self, _: u32, _: usize, body_size: usize, _: usize) {
+        if let Some(body) = self.get_http_call_response_body(0, body_size) {
+            if !body.is_empty() && body[0] % 2 == 0 {
+                trace!("Access granted.");
+                self.resume_http_request();
+                return;
+            }
+        }
+        trace!("Access forbidden.");
+        self.send_http_response(
+            403,
+            vec![("Powered-By", "proxy-wasm")],
+            Some(b"Access forbidden.\n"),
+        );
     }
 }

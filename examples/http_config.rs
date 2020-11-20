@@ -14,14 +14,13 @@
 
 use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
-use std::str;
 
 #[no_mangle]
 pub fn _start() {
     proxy_wasm::set_log_level(LogLevel::Trace);
     proxy_wasm::set_root_context(|_| -> Box<dyn RootContext> {
-        Box::new(HttpConfigHeaderRootContext {
-            header_content: "".to_string(),
+        Box::new(HttpConfigHeaderRoot {
+            header_content: String::new(),
         })
     });
 }
@@ -35,21 +34,20 @@ impl Context for HttpConfigHeader {}
 impl HttpContext for HttpConfigHeader {
     fn on_http_response_headers(&mut self, _num_headers: usize) -> Action {
         self.add_http_response_header("custom-header", self.header_content.as_str());
-
         Action::Continue
     }
 }
 
-struct HttpConfigHeaderRootContext {
+struct HttpConfigHeaderRoot {
     header_content: String,
 }
 
-impl Context for HttpConfigHeaderRootContext {}
+impl Context for HttpConfigHeaderRoot {}
 
-impl RootContext for HttpConfigHeaderRootContext {
+impl RootContext for HttpConfigHeaderRoot {
     fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
         if let Some(config_bytes) = self.get_configuration() {
-            self.header_content = str::from_utf8(config_bytes.as_ref()).unwrap().to_owned()
+            self.header_content = String::from_utf8(config_bytes).unwrap()
         }
         true
     }
