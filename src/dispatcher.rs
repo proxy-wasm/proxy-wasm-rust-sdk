@@ -157,8 +157,12 @@ impl Dispatcher {
             self.create_stream_context(context_id, root_context_id);
         } else if let Some(root_context) = self.roots.borrow().get(&root_context_id) {
             match root_context.get_type() {
-                Some(ContextType::HttpContext) => self.create_http_context(context_id, root_context_id),
-                Some(ContextType::StreamContext) => self.create_stream_context(context_id, root_context_id),
+                Some(ContextType::HttpContext) => {
+                    self.create_http_context(context_id, root_context_id)
+                }
+                Some(ContextType::StreamContext) => {
+                    self.create_stream_context(context_id, root_context_id)
+                }
                 None => panic!("missing ContextType on root_context"),
             }
         } else {

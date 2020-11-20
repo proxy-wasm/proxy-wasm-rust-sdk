@@ -12,28 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::str;
 use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
+use std::str;
 
 #[no_mangle]
 pub fn _start() {
     proxy_wasm::set_log_level(LogLevel::Trace);
     proxy_wasm::set_root_context(|_| -> Box<dyn RootContext> {
-        Box::new(HttpConfigHeaderRootContext{
+        Box::new(HttpConfigHeaderRootContext {
             header_content: "".to_string(),
         })
     });
 }
 
-struct HttpConfigHeader{
-    header_content: String
+struct HttpConfigHeader {
+    header_content: String,
 }
 
 impl Context for HttpConfigHeader {}
 
 impl HttpContext for HttpConfigHeader {
-
     fn on_http_response_headers(&mut self, _num_headers: usize) -> Action {
         self.add_http_response_header("custom-header", self.header_content.as_str());
 
@@ -42,13 +41,12 @@ impl HttpContext for HttpConfigHeader {
 }
 
 struct HttpConfigHeaderRootContext {
-    header_content: String
+    header_content: String,
 }
 
 impl Context for HttpConfigHeaderRootContext {}
 
 impl RootContext for HttpConfigHeaderRootContext {
-    
     fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
         if let Some(config_bytes) = self.get_configuration() {
             self.header_content = str::from_utf8(config_bytes.as_ref()).unwrap().to_owned()
@@ -57,7 +55,7 @@ impl RootContext for HttpConfigHeaderRootContext {
     }
 
     fn create_http_context(&self, _context_id: u32) -> Option<Box<dyn HttpContext>> {
-        Some(Box::new(HttpConfigHeader{
+        Some(Box::new(HttpConfigHeader {
             header_content: self.header_content.clone(),
         }))
     }
@@ -65,5 +63,4 @@ impl RootContext for HttpConfigHeaderRootContext {
     fn get_type(&self) -> Option<ContextType> {
         Some(ContextType::HttpContext)
     }
-
 }
