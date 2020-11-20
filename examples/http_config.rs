@@ -49,10 +49,6 @@ impl Context for HttpConfigHeaderRootContext {}
 
 impl RootContext for HttpConfigHeaderRootContext {
     
-    fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
-        true
-    }
-
     fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
         if let Some(config_bytes) = self.get_configuration() {
             self.header_content = str::from_utf8(config_bytes.as_ref()).unwrap().to_owned()
@@ -60,14 +56,14 @@ impl RootContext for HttpConfigHeaderRootContext {
         true
     }
 
-    fn create_http_context(&self, _context_id: u32) -> Box<dyn HttpContext> {
-        Box::new(HttpConfigHeader{
+    fn create_http_context(&self, _context_id: u32) -> Option<Box<dyn HttpContext>> {
+        Some(Box::new(HttpConfigHeader{
             header_content: self.header_content.clone(),
-        })
+        }))
     }
 
-    fn get_type(&self) -> ContextType {
-        ContextType::HttpContext
+    fn get_type(&self) -> Option<ContextType> {
+        Some(ContextType::HttpContext)
     }
 
 }

@@ -50,9 +50,8 @@ pub enum Status {
 #[repr(u32)]
 #[derive(Debug)]
 pub enum ContextType {
-    RootContext = 0,
-    HttpContext = 1,
-    StreamContext = 2,
+    HttpContext = 0,
+    StreamContext = 1,
 }
 
 #[repr(u32)]

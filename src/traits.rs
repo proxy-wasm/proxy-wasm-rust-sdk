@@ -122,16 +122,16 @@ pub trait RootContext: Context {
 
     fn on_log(&mut self) {}
 
-    fn create_http_context(&self, _context_id: u32) -> Box<dyn HttpContext> {
-        Box::new(EmptyHttpContext)
+    fn create_http_context(&self, _context_id: u32) -> Option<Box<dyn HttpContext>> {
+        None
     }
 
-    fn create_stream_context(&self, _context_id: u32) -> Box<dyn StreamContext> {
-        Box::new(EmptyStreamContext)
+    fn create_stream_context(&self, _context_id: u32) -> Option<Box<dyn StreamContext>> {
+        None
     }
 
-    fn get_type(&self) -> ContextType {
-        ContextType::RootContext
+    fn get_type(&self) -> Option<ContextType> {
+        None
     }
 }
 
@@ -170,11 +170,6 @@ pub trait StreamContext: Context {
 
     fn on_log(&mut self) {}
 }
-
-struct EmptyStreamContext;
-
-impl StreamContext for EmptyStreamContext {}
-impl Context for EmptyStreamContext {}
 
 pub trait HttpContext: Context {
     fn on_http_request_headers(&mut self, _num_headers: usize) -> Action {
@@ -320,8 +315,3 @@ pub trait HttpContext: Context {
 
     fn on_log(&mut self) {}
 }
-
-struct EmptyHttpContext;
-
-impl HttpContext for EmptyHttpContext {}
-impl Context for EmptyHttpContext {}

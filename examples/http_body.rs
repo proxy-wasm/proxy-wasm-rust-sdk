@@ -26,12 +26,12 @@ struct HttpBodyRoot;
 impl Context for HttpBodyRoot {}
 
 impl RootContext for HttpBodyRoot {
-    fn get_type(&self) -> ContextType {
-        ContextType::HttpContext
+    fn get_type(&self) -> Option<ContextType> {
+        Some(ContextType::HttpContext)
     }
 
-    fn create_http_context(&self, _context_id: u32) -> Box<dyn HttpContext> {
-        Box::new(HttpBody)
+    fn create_http_context(&self, _context_id: u32) -> Option<Box<dyn HttpContext>> {
+        Some(Box::new(HttpBody))
     }
 }
 

@@ -27,14 +27,14 @@ struct HttpHeadersRoot;
 impl Context for HttpHeadersRoot {}
 
 impl RootContext for HttpHeadersRoot {
-    fn get_type(&self) -> ContextType {
-        ContextType::HttpContext
+    fn get_type(&self) -> Option<ContextType> {
+        Some(ContextType::HttpContext)
     }
 
-    fn create_http_context(&self, _context_id: u32) -> Box<dyn HttpContext> {
-        Box::new(HttpHeaders {
+    fn create_http_context(&self, _context_id: u32) -> Option<Box<dyn HttpContext>> {
+        Some(Box::new(HttpHeaders {
             context_id: _context_id,
-        })
+        }))
     }
 }
 

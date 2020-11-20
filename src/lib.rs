@@ -28,5 +28,13 @@ pub fn set_root_context(callback: types::NewRootContext) {
     dispatcher::set_root_context(callback);
 }
 
+pub fn set_stream_context(callback: types::NewStreamContext) {
+    dispatcher::set_stream_context(callback);
+}
+
+pub fn set_http_context(callback: types::NewHttpContext) {
+    dispatcher::set_http_context(callback);
+}
+
 #[no_mangle]
 pub extern "C" fn proxy_abi_version_0_1_0() {}

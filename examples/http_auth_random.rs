@@ -20,21 +20,7 @@ use std::time::Duration;
 #[no_mangle]
 pub fn _start() {
     proxy_wasm::set_log_level(LogLevel::Trace);
-    proxy_wasm::set_root_context(|_| -> Box<dyn RootContext> { Box::new(HttpAuthRandomRoot) });
-}
-
-struct HttpAuthRandomRoot;
-
-impl Context for HttpAuthRandomRoot {}
-
-impl RootContext for HttpAuthRandomRoot {
-    fn get_type(&self) -> ContextType {
-        ContextType::HttpContext
-    }
-
-    fn create_http_context(&self, _context_id: u32) -> Box<dyn HttpContext> {
-        Box::new(HttpAuthRandom)
-    }
+    proxy_wasm::set_http_context(|_, _| -> Box<dyn HttpContext> { Box::new(HttpAuthRandom) });
 }
 
 struct HttpAuthRandom;
