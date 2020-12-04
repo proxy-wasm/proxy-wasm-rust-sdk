@@ -20,9 +20,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Added support for building for `wasm32-wasi` target.
 - Added support for metrics.
-- Added support for setting network buffers.
 - Added support for `RootContext` to create child contexts for streams.
   Thanks [@dgn](https://github.com/dgn)!
+- Added support for setting network buffers.
 
 ## [0.1.2] - 2020-08-05
 
