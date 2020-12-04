@@ -26,11 +26,11 @@
 + [Extending Envoy with WASM and Rust](https://antweiss.com/blog/extending-envoy-with-wasm-and-rust/)
 + [Extending Istio with Rust and WebAssembly](https://blog.red-badger.com/extending-istio-with-rust-and-webassembly)
 
-# Updating dependencies
+## Updating dependencies
 
-When updating dependencies, you need to regenerate `BUILD` files to match updated `Cargo.toml`:
+When updating dependencies, you need to regenerate Bazel `BUILD` files to match updated `Cargo.toml`:
 ```
-cargo install cargo-raze --git https://github.com/google/cargo-raze --rev cb9f85d22b1c81cceb9acaf1fa4336c5fc4e6bff
+cargo install cargo-raze --version 0.7.0
 rm -rf bazel/cargo/
 cargo generate-lockfile
 cargo raze --output=bazel/cargo
