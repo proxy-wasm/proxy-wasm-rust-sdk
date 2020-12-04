@@ -121,6 +121,18 @@ pub trait RootContext: Context {
     fn on_queue_ready(&mut self, _queue_id: u32) {}
 
     fn on_log(&mut self) {}
+
+    fn create_http_context(&self, _context_id: u32) -> Option<Box<dyn HttpContext>> {
+        None
+    }
+
+    fn create_stream_context(&self, _context_id: u32) -> Option<Box<dyn StreamContext>> {
+        None
+    }
+
+    fn get_type(&self) -> Option<ContextType> {
+        None
+    }
 }
 
 pub trait StreamContext: Context {

@@ -18,7 +18,21 @@ use proxy_wasm::types::*;
 #[no_mangle]
 pub fn _start() {
     proxy_wasm::set_log_level(LogLevel::Trace);
-    proxy_wasm::set_http_context(|_, _| -> Box<dyn HttpContext> { Box::new(HttpBody) });
+    proxy_wasm::set_root_context(|_| -> Box<dyn RootContext> { Box::new(HttpBodyRoot) });
+}
+
+struct HttpBodyRoot;
+
+impl Context for HttpBodyRoot {}
+
+impl RootContext for HttpBodyRoot {
+    fn get_type(&self) -> Option<ContextType> {
+        Some(ContextType::HttpContext)
+    }
+
+    fn create_http_context(&self, _context_id: u32) -> Option<Box<dyn HttpContext>> {
+        Some(Box::new(HttpBody))
+    }
 }
 
 struct HttpBody;

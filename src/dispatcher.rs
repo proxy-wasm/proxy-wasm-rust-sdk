@@ -80,6 +80,17 @@ impl Dispatcher {
         self.new_http_stream.set(Some(callback));
     }
 
+    fn register_callout(&self, token_id: u32) {
+        if self
+            .callouts
+            .borrow_mut()
+            .insert(token_id, self.active_id.get())
+            .is_some()
+        {
+            panic!("duplicate token_id")
+        }
+    }
+
     fn create_root_context(&self, context_id: u32) {
         let new_context = match self.new_root.get() {
             Some(f) => f(context_id),
@@ -96,12 +107,15 @@ impl Dispatcher {
     }
 
     fn create_stream_context(&self, context_id: u32, root_context_id: u32) {
-        if !self.roots.borrow().contains_key(&root_context_id) {
-            panic!("invalid root_context_id")
-        }
-        let new_context = match self.new_stream.get() {
-            Some(f) => f(context_id, root_context_id),
-            None => panic!("missing constructor"),
+        let new_context = match self.roots.borrow().get(&root_context_id) {
+            Some(root_context) => match self.new_stream.get() {
+                Some(f) => f(context_id, root_context_id),
+                None => match root_context.create_stream_context(context_id) {
+                    Some(stream_context) => stream_context,
+                    None => panic!("create_stream_context returned None"),
+                },
+            },
+            None => panic!("invalid root_context_id"),
         };
         if self
             .streams
@@ -114,12 +128,15 @@ impl Dispatcher {
     }
 
     fn create_http_context(&self, context_id: u32, root_context_id: u32) {
-        if !self.roots.borrow().contains_key(&root_context_id) {
-            panic!("invalid root_context_id")
-        }
-        let new_context = match self.new_http_stream.get() {
-            Some(f) => f(context_id, root_context_id),
-            None => panic!("missing constructor"),
+        let new_context = match self.roots.borrow().get(&root_context_id) {
+            Some(root_context) => match self.new_http_stream.get() {
+                Some(f) => f(context_id, root_context_id),
+                None => match root_context.create_http_context(context_id) {
+                    Some(stream_context) => stream_context,
+                    None => panic!("create_http_context returned None"),
+                },
+            },
+            None => panic!("invalid root_context_id"),
         };
         if self
             .http_streams
@@ -131,26 +148,25 @@ impl Dispatcher {
         }
     }
 
-    fn register_callout(&self, token_id: u32) {
-        if self
-            .callouts
-            .borrow_mut()
-            .insert(token_id, self.active_id.get())
-            .is_some()
-        {
-            panic!("duplicate token_id")
-        }
-    }
-
     fn on_create_context(&self, context_id: u32, root_context_id: u32) {
         if root_context_id == 0 {
-            self.create_root_context(context_id)
+            self.create_root_context(context_id);
         } else if self.new_http_stream.get().is_some() {
             self.create_http_context(context_id, root_context_id);
         } else if self.new_stream.get().is_some() {
             self.create_stream_context(context_id, root_context_id);
+        } else if let Some(root_context) = self.roots.borrow().get(&root_context_id) {
+            match root_context.get_type() {
+                Some(ContextType::HttpContext) => {
+                    self.create_http_context(context_id, root_context_id)
+                }
+                Some(ContextType::StreamContext) => {
+                    self.create_stream_context(context_id, root_context_id)
+                }
+                None => panic!("missing ContextType on root_context"),
+            }
         } else {
-            panic!("missing constructors")
+            panic!("invalid root_context_id and missing constructors");
         }
     }
 

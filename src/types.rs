@@ -49,6 +49,13 @@ pub enum Status {
 
 #[repr(u32)]
 #[derive(Debug)]
+pub enum ContextType {
+    HttpContext = 0,
+    StreamContext = 1,
+}
+
+#[repr(u32)]
+#[derive(Debug)]
 pub enum BufferType {
     HttpRequestBody = 0,
     HttpResponseBody = 1,
