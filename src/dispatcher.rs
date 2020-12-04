@@ -361,22 +361,24 @@ impl Dispatcher {
         body_size: usize,
         num_trailers: usize,
     ) {
-        if let Some(context_id) = self.callouts.borrow_mut().remove(&token_id) {
-            if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
-                self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
-                http_stream.on_http_call_response(token_id, num_headers, body_size, num_trailers)
-            } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
-                self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
-                stream.on_http_call_response(token_id, num_headers, body_size, num_trailers)
-            } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
-                self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
-                root.on_http_call_response(token_id, num_headers, body_size, num_trailers)
-            }
-        } else {
-            panic!("invalid token_id")
+        let context_id = self
+            .callouts
+            .borrow_mut()
+            .remove(&token_id)
+            .expect("invalid token_id");
+
+        if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
+            self.active_id.set(context_id);
+            hostcalls::set_effective_context(context_id).unwrap();
+            http_stream.on_http_call_response(token_id, num_headers, body_size, num_trailers)
+        } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
+            self.active_id.set(context_id);
+            hostcalls::set_effective_context(context_id).unwrap();
+            stream.on_http_call_response(token_id, num_headers, body_size, num_trailers)
+        } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
+            self.active_id.set(context_id);
+            hostcalls::set_effective_context(context_id).unwrap();
+            root.on_http_call_response(token_id, num_headers, body_size, num_trailers)
         }
     }
 }
