@@ -32,7 +32,7 @@ struct HttpConfigHeader {
 impl Context for HttpConfigHeader {}
 
 impl HttpContext for HttpConfigHeader {
-    fn on_http_response_headers(&mut self, _num_headers: usize) -> Action {
+    fn on_http_response_headers(&mut self, _: usize) -> Action {
         self.add_http_response_header("custom-header", self.header_content.as_str());
         Action::Continue
     }
@@ -45,14 +45,14 @@ struct HttpConfigHeaderRoot {
 impl Context for HttpConfigHeaderRoot {}
 
 impl RootContext for HttpConfigHeaderRoot {
-    fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
+    fn on_configure(&mut self, _: usize) -> bool {
         if let Some(config_bytes) = self.get_configuration() {
             self.header_content = String::from_utf8(config_bytes).unwrap()
         }
         true
     }
 
-    fn create_http_context(&self, _context_id: u32) -> Option<Box<dyn HttpContext>> {
+    fn create_http_context(&self, _: u32) -> Option<Box<dyn HttpContext>> {
         Some(Box::new(HttpConfigHeader {
             header_content: self.header_content.clone(),
         }))
