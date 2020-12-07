@@ -30,7 +30,7 @@ impl RootContext for HttpBodyRoot {
         Some(ContextType::HttpContext)
     }
 
-    fn create_http_context(&self, _context_id: u32) -> Option<Box<dyn HttpContext>> {
+    fn create_http_context(&self, _: u32) -> Option<Box<dyn HttpContext>> {
         Some(Box::new(HttpBody))
     }
 }

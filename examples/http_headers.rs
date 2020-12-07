@@ -31,10 +31,8 @@ impl RootContext for HttpHeadersRoot {
         Some(ContextType::HttpContext)
     }
 
-    fn create_http_context(&self, _context_id: u32) -> Option<Box<dyn HttpContext>> {
-        Some(Box::new(HttpHeaders {
-            context_id: _context_id,
-        }))
+    fn create_http_context(&self, context_id: u32) -> Option<Box<dyn HttpContext>> {
+        Some(Box::new(HttpHeaders { context_id }))
     }
 }
 
