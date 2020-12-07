@@ -35,7 +35,7 @@ genmode = "Remote"
 [package.metadata.raze.crates.getrandom.'=0.2.0']
 gen_buildrs = true
 
-[package.metadata.raze.crates.libc.'=0.2.80']
+[package.metadata.raze.crates.libc.'=0.2.81']
 gen_buildrs = true
 
 [package.metadata.raze.crates.log.'=0.4.11']
