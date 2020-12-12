@@ -13,12 +13,12 @@ def raze_fetch_remote_crates():
     """This function defines a collection of repos and should be called in a WORKSPACE file"""
     maybe(
         http_archive,
-        name = "raze__ahash__0_4_6",
-        url = "https://crates.io/api/v1/crates/ahash/0.4.6/download",
+        name = "raze__ahash__0_4_7",
+        url = "https://crates.io/api/v1/crates/ahash/0.4.7/download",
         type = "tar.gz",
-        sha256 = "f6789e291be47ace86a60303502173d84af8327e3627ecf334356ee0f87a164c",
-        strip_prefix = "ahash-0.4.6",
-        build_file = Label("//bazel/cargo/remote:BUILD.ahash-0.4.6.bazel"),
+        sha256 = "739f4a8db6605981345c5654f3a85b056ce52f37a39d34da03f25bf2151ea16e",
+        strip_prefix = "ahash-0.4.7",
+        build_file = Label("//bazel/cargo/remote:BUILD.ahash-0.4.7.bazel"),
     )
 
     maybe(
