@@ -52,13 +52,9 @@ impl RootContext for HttpConfigHeaderRoot {
         true
     }
 
-    fn create_http_context(&self, _: u32) -> Option<Box<dyn HttpContext>> {
-        Some(Box::new(HttpConfigHeader {
+    fn on_create_child_context(&mut self, _context_id: u32) -> Option<ChildContext> {
+        Some(ChildContext::HttpContext(Box::new(HttpConfigHeader {
             header_content: self.header_content.clone(),
-        }))
-    }
-
-    fn get_type(&self) -> Option<ContextType> {
-        Some(ContextType::HttpContext)
+        })))
     }
 }
