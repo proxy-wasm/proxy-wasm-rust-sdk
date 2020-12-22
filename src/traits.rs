@@ -122,6 +122,12 @@ pub trait RootContext: Context {
 
     fn on_log(&mut self) {}
 
+    fn on_create_child_context(&mut self, _context_id: u32) -> Option<ChildContext> {
+        // on_create_child_context has higher priority than any other methods
+        // for creating non root contexts
+        None
+    }
+
     fn create_http_context(&self, _context_id: u32) -> Option<Box<dyn HttpContext>> {
         None
     }

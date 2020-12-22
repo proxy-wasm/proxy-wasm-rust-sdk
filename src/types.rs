@@ -18,6 +18,11 @@ pub type NewRootContext = fn(context_id: u32) -> Box<dyn RootContext>;
 pub type NewStreamContext = fn(context_id: u32, root_context_id: u32) -> Box<dyn StreamContext>;
 pub type NewHttpContext = fn(context_id: u32, root_context_id: u32) -> Box<dyn HttpContext>;
 
+pub enum ChildContext {
+    StreamContext(Box<dyn StreamContext>),
+    HttpContext(Box<dyn HttpContext>),
+}
+
 #[repr(u32)]
 #[derive(Debug)]
 pub enum LogLevel {
