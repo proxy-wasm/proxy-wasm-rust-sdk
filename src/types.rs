@@ -15,8 +15,6 @@
 use crate::traits::*;
 
 pub type NewRootContext = fn(context_id: u32) -> Box<dyn RootContext>;
-pub type NewStreamContext = fn(context_id: u32, root_context_id: u32) -> Box<dyn StreamContext>;
-pub type NewHttpContext = fn(context_id: u32, root_context_id: u32) -> Box<dyn HttpContext>;
 
 pub enum ChildContext {
     StreamContext(Box<dyn StreamContext>),
@@ -50,13 +48,6 @@ pub enum Status {
     Empty = 7,
     CasMismatch = 8,
     InternalFailure = 10,
-}
-
-#[repr(u32)]
-#[derive(Debug)]
-pub enum ContextType {
-    HttpContext = 0,
-    StreamContext = 1,
 }
 
 #[repr(u32)]
