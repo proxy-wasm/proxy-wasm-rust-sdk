@@ -51,11 +51,11 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.0",
+    version = "0.2.2",
     visibility = ["//visibility:private"],
     deps = [
     ] + selects.with_or({
-        # cfg(all(target_arch = "wasm32", target_os = "unknown", not(cargo_web)))
+        # cfg(all(target_arch = "wasm32", target_os = "unknown"))
         (
             "@io_bazel_rules_rust//rust/platform:wasm32-unknown-unknown",
         ): [
@@ -111,13 +111,13 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.0",
+    version = "0.2.2",
     # buildifier: leave-alone
     deps = [
         ":getrandom_build_script",
-        "@raze__cfg_if__0_1_10//:cfg_if",
+        "@raze__cfg_if__1_0_0//:cfg_if",
     ] + selects.with_or({
-        # cfg(all(target_arch = "wasm32", target_os = "unknown", not(cargo_web)))
+        # cfg(all(target_arch = "wasm32", target_os = "unknown"))
         (
             "@io_bazel_rules_rust//rust/platform:wasm32-unknown-unknown",
         ): [
@@ -128,7 +128,7 @@ rust_library(
         (
             "@io_bazel_rules_rust//rust/platform:wasm32-wasi",
         ): [
-            "@raze__wasi__0_9_0_wasi_snapshot_preview1//:wasi",
+            "@raze__wasi__0_10_2_wasi_snapshot_preview1//:wasi",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -150,8 +150,14 @@ rust_library(
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-freebsd",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@raze__libc__0_2_81//:libc",
+            "@raze__libc__0_2_85//:libc",
         ],
         "//conditions:default": [],
     }),
 )
+
+# Unsupported target "custom" with type "test" omitted
+
+# Unsupported target "normal" with type "test" omitted
+
+# Unsupported target "rdrand" with type "test" omitted

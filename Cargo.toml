@@ -32,13 +32,13 @@ panic = "abort"
 workspace_path = "//bazel/cargo"
 genmode = "Remote"
 
-[package.metadata.raze.crates.getrandom.'=0.2.0']
+[package.metadata.raze.crates.getrandom.'=0.2.2']
 gen_buildrs = true
 
-[package.metadata.raze.crates.libc.'=0.2.81']
+[package.metadata.raze.crates.libc.'=0.2.85']
 gen_buildrs = true
 
-[package.metadata.raze.crates.log.'=0.4.11']
+[package.metadata.raze.crates.log.'=0.4.14']
 gen_buildrs = true
 
 [[example]]

@@ -32,7 +32,7 @@ alias(
 
 alias(
     name = "getrandom",
-    actual = "@raze__getrandom__0_2_0//:getrandom",
+    actual = "@raze__getrandom__0_2_2//:getrandom",
     tags = [
         "cargo-raze",
         "manual",
@@ -50,7 +50,7 @@ alias(
 
 alias(
     name = "log",
-    actual = "@raze__log__0_4_11//:log",
+    actual = "@raze__log__0_4_14//:log",
     tags = [
         "cargo-raze",
         "manual",
