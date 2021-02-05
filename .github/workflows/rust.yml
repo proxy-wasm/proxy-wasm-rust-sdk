@@ -57,7 +57,7 @@ jobs:
           ~/.cargo/.crates2.json
           ~/.cargo/bin
           ~/.cargo/registry
-        key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Build (wasm32-unknown-unknown)
       run: bazelisk --bazelrc=/dev/null build --platforms=@io_bazel_rules_rust//rust/platform:wasm //...
@@ -206,5 +206,5 @@ jobs:
 
     - name: Run cargo audit
       run: |
-        cp -p bazel/cargo/Cargo.lock .
+        cp -p bazel/cargo/Cargo.raze.lock .
         cargo audit

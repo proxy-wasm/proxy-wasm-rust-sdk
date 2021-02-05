@@ -32,5 +32,4 @@ When updating dependencies, you need to regenerate Bazel `BUILD` files to match 
 ```
 cargo install cargo-raze --version 0.9.2
 cargo raze --generate-lockfile --output=bazel/cargo
-mv Cargo.lock bazel/cargo/
 ```
