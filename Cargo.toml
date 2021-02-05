@@ -29,6 +29,7 @@ opt-level = 3
 panic = "abort"
 
 [package.metadata.raze]
+rust_rules_workspace_name = "rules_rust"
 package_aliases_dir = "bazel/cargo"
 workspace_path = "//bazel/cargo"
 genmode = "Remote"

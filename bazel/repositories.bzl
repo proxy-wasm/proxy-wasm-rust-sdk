@@ -16,8 +16,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 def proxy_wasm_rust_sdk_repositories():
     http_archive(
-        name = "io_bazel_rules_rust",
-        sha256 = "5cb2fbcc3debebc7b68f5f66c1b7ef741bdcca87c70594de688d4518538c36c8",
-        strip_prefix = "rules_rust-aa7c6938cf1cc2973bc065c7532f89874bf09818",
-        url = "https://github.com/bazelbuild/rules_rust/archive/aa7c6938cf1cc2973bc065c7532f89874bf09818.tar.gz",
+        name = "rules_rust",
+        sha256 = "f2d9f804e1a8042a41ad41e1aeeca55ad0fc2d294ecd52e34ef8c63f7ce350fd",
+        strip_prefix = "rules_rust-3b02397bde43b1eeee1528227ceb3da6c6bdadd6",
+        url = "https://github.com/bazelbuild/rules_rust/archive/3b02397bde43b1eeee1528227ceb3da6c6bdadd6.tar.gz",
     )
