@@ -57,7 +57,7 @@ jobs:
           ~/.cargo/.crates2.json
           ~/.cargo/bin
           ~/.cargo/registry
-        key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Build (wasm32-unknown-unknown)
       run: bazelisk --bazelrc=/dev/null build --platforms=@io_bazel_rules_rust//rust/platform:wasm //...
@@ -75,11 +75,9 @@ jobs:
 
     - name: Format (cargo raze)
       run: |
-        cargo install cargo-raze --version 0.7.0
-        cp -p bazel/cargo/Cargo.lock .
         rm -rf bazel/cargo/
-        cargo raze --output=bazel/cargo
-        mv Cargo.lock bazel/cargo/
+        cargo install cargo-raze --version 0.9.2
+        cargo raze --generate-lockfile --output=bazel/cargo
         git diff --exit-code
 
   stable:
@@ -200,12 +198,6 @@ jobs:
     - name: Run cargo outdated
       run: cargo outdated --root-deps-only --exit-code 1
 
-    - name: Check freshness of bazel/cargo/Cargo.lock
-      run: |
-        cargo generate-lockfile
-        mv Cargo.lock bazel/cargo/
-        git diff --exit-code
-
   audit:
     runs-on: ubuntu-latest
 
@@ -214,5 +206,5 @@ jobs:
 
     - name: Run cargo audit
       run: |
-        cp -p bazel/cargo/Cargo.lock .
+        cp -p bazel/cargo/Cargo.raze.lock .
         cargo audit

@@ -30,9 +30,6 @@
 
 When updating dependencies, you need to regenerate Bazel `BUILD` files to match updated `Cargo.toml`:
 ```
-cargo install cargo-raze --version 0.7.0
-rm -rf bazel/cargo/
-cargo generate-lockfile
-cargo raze --output=bazel/cargo
-mv Cargo.lock bazel/cargo/
+cargo install cargo-raze --version 0.9.2
+cargo raze --generate-lockfile --output=bazel/cargo
 ```
