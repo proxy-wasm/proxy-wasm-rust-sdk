@@ -1,6 +1,6 @@
 # Build examples with Bazel
 
-To build the all examples:
+To build all the examples:
 ```shell
 bazel build //...
 ```
