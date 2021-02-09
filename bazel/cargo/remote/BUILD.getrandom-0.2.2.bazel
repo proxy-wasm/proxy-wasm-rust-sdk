@@ -154,7 +154,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@raze__libc__0_2_85//:libc",
+            "@raze__libc__0_2_86//:libc",
         ],
         "//conditions:default": [],
     }),
