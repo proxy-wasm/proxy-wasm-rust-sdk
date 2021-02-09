@@ -75,9 +75,11 @@ jobs:
 
     - name: Format (cargo raze)
       run: |
+        mv bazel/cargo/Cargo.raze.lock Cargo.lock
         rm -rf bazel/cargo/
         cargo install cargo-raze --version 0.9.2
-        cargo raze --generate-lockfile --output=bazel/cargo
+        cargo raze --output=bazel/cargo
+        mv Cargo.lock bazel/cargo/Cargo.raze.lock
         git diff --exit-code
 
   stable:
@@ -197,6 +199,12 @@ jobs:
 
     - name: Run cargo outdated
       run: cargo outdated --root-deps-only --exit-code 1
+
+    - name: Check freshness of bazel/cargo/Cargo.raze.lock
+      run: |
+        cargo generate-lockfile
+        mv Cargo.lock bazel/cargo/Cargo.raze.lock
+        git diff --exit-code
 
   audit:
     runs-on: ubuntu-latest
