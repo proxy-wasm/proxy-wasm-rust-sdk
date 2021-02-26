@@ -33,6 +33,14 @@ pub trait Context {
         hostcalls::get_shared_data(key).unwrap()
     }
 
+    fn call_foreign_function(
+        &self,
+        function_name: &str,
+        arguments: Option<&[u8]>,
+    ) -> Option<Bytes> {
+        hostcalls::call_foreign_function(function_name, arguments).unwrap()
+    }
+
     fn set_shared_data(
         &self,
         key: &str,
