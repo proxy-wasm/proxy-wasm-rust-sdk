@@ -12,17 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@cargo_raze//:repositories.bzl", "cargo_raze_repositories")
-load("@cargo_raze//:transitive_deps.bzl", "cargo_raze_transitive_deps")
 load("@proxy_wasm_rust_sdk//bazel/cargo:crates.bzl", "raze_fetch_remote_crates")
-load("@rules_foreign_cc//:workspace_definitions.bzl", "rules_foreign_cc_dependencies")
 load("@rules_rust//rust:repositories.bzl", "rust_repositories")
 
 def proxy_wasm_rust_sdk_dependencies():
     rust_repositories()
     raze_fetch_remote_crates()
-
-def proxy_wasm_rust_sdk_cargo_raze_dependencies():
-    rules_foreign_cc_dependencies()
-    cargo_raze_repositories()
-    cargo_raze_transitive_deps()
