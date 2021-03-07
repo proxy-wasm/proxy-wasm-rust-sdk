@@ -13,9 +13,11 @@
 # limitations under the License.
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 def proxy_wasm_rust_sdk_repositories():
-    http_archive(
+    maybe(
+        http_archive,
         name = "rules_rust",
         sha256 = "f2d9f804e1a8042a41ad41e1aeeca55ad0fc2d294ecd52e34ef8c63f7ce350fd",
         strip_prefix = "rules_rust-3b02397bde43b1eeee1528227ceb3da6c6bdadd6",

@@ -60,10 +60,10 @@ jobs:
         key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Build (wasm32-unknown-unknown)
-      run: bazelisk --bazelrc=/dev/null build --platforms=@rules_rust//rust/platform:wasm //...
+      run: bazelisk --noworkspace_rc build --platforms=@rules_rust//rust/platform:wasm //...
 
     - name: Build (wasm32-wasi)
-      run: bazelisk --bazelrc=/dev/null build --platforms=@rules_rust//rust/platform:wasi //...
+      run: bazelisk --noworkspace_rc build --platforms=@rules_rust//rust/platform:wasi //...
 
     - name: Format (buildifier)
       run: |
@@ -76,9 +76,7 @@ jobs:
     - name: Format (cargo raze)
       run: |
         mv bazel/cargo/Cargo.raze.lock Cargo.lock
-        rm -rf bazel/cargo/
-        cargo install cargo-raze --version 0.9.2
-        cargo raze --output=bazel/cargo
+        bazelisk --noworkspace_rc run @cargo_raze//:raze -- --manifest-path=$(pwd)/Cargo.toml
         mv Cargo.lock bazel/cargo/Cargo.raze.lock
         git diff --exit-code
 
