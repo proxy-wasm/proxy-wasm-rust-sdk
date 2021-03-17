@@ -56,7 +56,7 @@ cargo_build_script(
     version = "0.7.2",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__version_check__0_9_2//:version_check",
+        "@raze__version_check__0_9_3//:version_check",
     ] + selects.with_or({
         # cfg(any(target_os = "linux", target_os = "android", target_os = "windows", target_os = "macos", target_os = "ios", target_os = "freebsd", target_os = "openbsd", target_os = "netbsd", target_os = "dragonfly", target_os = "solaris", target_os = "illumos", target_os = "fuchsia", target_os = "redox", target_os = "cloudabi", target_os = "haiku", target_os = "vxworks", target_os = "emscripten", target_os = "wasi"))
         (
