@@ -198,12 +198,6 @@ jobs:
     - name: Run cargo outdated
       run: cargo outdated --root-deps-only --exit-code 1
 
-    - name: Check freshness of bazel/cargo/Cargo.raze.lock
-      run: |
-        cargo generate-lockfile
-        mv Cargo.lock bazel/cargo/Cargo.raze.lock
-        git diff --exit-code
-
   audit:
     runs-on: ubuntu-latest
 
