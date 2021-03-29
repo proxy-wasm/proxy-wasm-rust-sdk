@@ -41,7 +41,7 @@ alias(
 
 alias(
     name = "hashbrown",
-    actual = "@raze__hashbrown__0_11_1//:hashbrown",
+    actual = "@raze__hashbrown__0_11_2//:hashbrown",
     tags = [
         "cargo-raze",
         "manual",
