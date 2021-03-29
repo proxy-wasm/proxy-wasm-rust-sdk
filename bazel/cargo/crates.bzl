@@ -63,22 +63,22 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__hashbrown__0_11_1",
-        url = "https://crates.io/api/v1/crates/hashbrown/0.11.1/download",
+        name = "raze__hashbrown__0_11_2",
+        url = "https://crates.io/api/v1/crates/hashbrown/0.11.2/download",
         type = "tar.gz",
-        sha256 = "a3de7a9a685bb301f5cb29587f13833270c59e7d2c6f457a66372996afad4504",
-        strip_prefix = "hashbrown-0.11.1",
-        build_file = Label("//bazel/cargo/remote:BUILD.hashbrown-0.11.1.bazel"),
+        sha256 = "ab5ef0d4909ef3724cc8cce6ccc8572c5c817592e9285f5464f8e86f8bd3726e",
+        strip_prefix = "hashbrown-0.11.2",
+        build_file = Label("//bazel/cargo/remote:BUILD.hashbrown-0.11.2.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "raze__libc__0_2_90",
-        url = "https://crates.io/api/v1/crates/libc/0.2.90/download",
+        name = "raze__libc__0_2_91",
+        url = "https://crates.io/api/v1/crates/libc/0.2.91/download",
         type = "tar.gz",
-        sha256 = "ba4aede83fc3617411dc6993bc8c70919750c1c257c6ca6a502aed6e0e2394ae",
-        strip_prefix = "libc-0.2.90",
-        build_file = Label("//bazel/cargo/remote:BUILD.libc-0.2.90.bazel"),
+        sha256 = "8916b1f6ca17130ec6568feccee27c156ad12037880833a3b842a823236502e7",
+        strip_prefix = "libc-0.2.91",
+        build_file = Label("//bazel/cargo/remote:BUILD.libc-0.2.91.bazel"),
     )
 
     maybe(
