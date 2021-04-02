@@ -1,3 +1,6 @@
 /bazel-*
 /target
 /Cargo.lock
+
+# generated Proto codes
+examples/grpc_call/helloworld.rs
