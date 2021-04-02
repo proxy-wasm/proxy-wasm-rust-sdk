@@ -42,6 +42,7 @@ cargo_build_script(
     build_script_env = {
     },
     crate_features = [
+        "std",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -103,6 +104,7 @@ rust_library(
     aliases = {
     },
     crate_features = [
+        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
