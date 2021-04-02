@@ -133,7 +133,7 @@ jobs:
       run: cargo doc --no-deps --target=wasm32-unknown-unknown
 
     - name: Package (publish)
-      run: cargo publish --dry-run --target=wasm32-unknown-unknown
+      run: cargo publish --dry-run --target=wasm32-unknown-unknown --no-verify
 
   nightly:
     runs-on: ubuntu-latest
@@ -189,7 +189,7 @@ jobs:
       run: cargo doc --no-deps --target=wasm32-unknown-unknown
 
     - name: Package (publish)
-      run: cargo publish --dry-run --target=wasm32-unknown-unknown
+      run: cargo publish --dry-run --target=wasm32-unknown-unknown --no-verify
 
   outdated:
     runs-on: ubuntu-latest
