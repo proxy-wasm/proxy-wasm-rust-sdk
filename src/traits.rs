@@ -90,6 +90,29 @@ pub trait Context {
         hostcalls::get_map(MapType::HttpCallResponseTrailers).unwrap()
     }
 
+    fn dispatch_grpc_call(
+        &self,
+        cluster_name: &str,
+        service_name: &str,
+        method_name: &str,
+        initial_metadata: &str,
+        message: &str,
+        timeout: Duration,
+    ) -> Result<u32, Status> {
+        hostcalls::dispatch_grpc_call(
+            cluster_name,
+            service_name,
+            method_name,
+            initial_metadata,
+            message,
+            timeout,
+        )
+    }
+
+    fn on_grpc_receive(&mut self, _token_id: u32, _response_size: usize) {}
+
+    fn on_grpc_close(&mut self, _token_id: u32, _status_code: u32) {}
+
     fn on_done(&mut self) -> bool {
         true
     }

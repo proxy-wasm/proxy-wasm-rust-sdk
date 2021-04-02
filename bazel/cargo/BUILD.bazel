@@ -57,6 +57,15 @@ alias(
     ],
 )
 
+alias(
+    name = "protobuf",
+    actual = "@raze__protobuf__2_22_1//:protobuf",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
 # Export file for Stardoc support
 exports_files(
     [

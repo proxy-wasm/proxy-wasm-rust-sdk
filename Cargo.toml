@@ -19,6 +19,10 @@ wee_alloc = { version = "0.4", optional = true }
 [dev-dependencies]
 cfg-if = "1.0"
 chrono = "0.4"
+protobuf = "2"
+
+[build-dependencies]
+protoc-rust = "2.0"
 
 [target.'cfg(not(all(target_arch = "wasm32", target_os = "unknown")))'.dev-dependencies]
 getrandom = "0.2"
@@ -56,4 +60,9 @@ crate-type = ["cdylib"]
 [[example]]
 name = "http_config"
 path = "examples/http_config.rs"
+crate-type = ["cdylib"]
+
+[[example]]
+name = "grpc_call"
+path = "examples/grpc_call/main.rs"
 crate-type = ["cdylib"]

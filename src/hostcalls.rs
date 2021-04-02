@@ -652,6 +652,58 @@ pub fn dispatch_http_call(
 }
 
 extern "C" {
+    fn proxy_grpc_call(
+        grpc_service: *const u8,
+        grpc_service_size: usize, // TODO(shikugawa): remove grpc_service after next ABI released.
+        service_name_data: *const u8,
+        service_name_size: usize,
+        method_name_data: *const u8,
+        method_name_size: usize,
+        initial_metadata_data: *const u8,
+        initial_metadata_size: usize,
+        request_data_data: *const u8,
+        request_data_size: usize,
+        timeout_milliseconds: u32,
+        return_callout_id: *mut u32,
+    ) -> Status;
+}
+
+pub fn dispatch_grpc_call(
+    cluster_name: &str,
+    service_name: &str,
+    method_name: &str,
+    initial_metadata: &str,
+    message: &str,
+    timeout: Duration,
+) -> Result<u32, Status> {
+    unsafe {
+        let mut return_callout_id = 0;
+        match proxy_grpc_call(
+            cluster_name.as_ptr(),
+            cluster_name.len(),
+            service_name.as_ptr(),
+            service_name.len(),
+            method_name.as_ptr(),
+            method_name.len(),
+            initial_metadata.as_ptr(),
+            initial_metadata.len(),
+            message.as_ptr(),
+            message.len(),
+            timeout.as_millis() as u32,
+            &mut return_callout_id,
+        ) {
+            Status::Ok => {
+                dispatcher::register_grpc_callout(return_callout_id);
+                Ok(return_callout_id)
+            }
+            Status::ParseFailure => Err(Status::ParseFailure),
+            Status::InternalFailure => Err(Status::InternalFailure),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
     fn proxy_set_effective_context(context_id: u32) -> Status;
 }
 

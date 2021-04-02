@@ -123,6 +123,15 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "raze__protobuf__2_22_1",
+        url = "https://crates.io/api/v1/crates/protobuf/2.22.1/download",
+        type = "tar.gz",
+        strip_prefix = "protobuf-2.22.1",
+        build_file = Label("//bazel/cargo/remote:BUILD.protobuf-2.22.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "raze__time__0_1_43",
         url = "https://crates.io/api/v1/crates/time/0.1.43/download",
         type = "tar.gz",

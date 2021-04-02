@@ -88,6 +88,7 @@ jobs:
 
     - name: Update Rust
       run: |
+        sudo apt install -y protobuf-compiler
         rustup toolchain install stable --component clippy --component rustfmt
         rustup target add wasm32-unknown-unknown
         rustup target add wasm32-wasi
@@ -142,6 +143,7 @@ jobs:
 
     - name: Update Rust
       run: |
+        sudo apt install -y protobuf-compiler
         rustup toolchain install nightly --component clippy --component rustfmt
         rustup +nightly target add wasm32-unknown-unknown
         rustup +nightly target add wasm32-wasi
