@@ -42,9 +42,6 @@ cargo_build_script(
     build_script_env = {
     },
     crate_features = [
-        "errhandlingapi",
-        "fileapi",
-        "handleapi",
         "minwinbase",
         "minwindef",
         "ntdef",
@@ -52,8 +49,6 @@ cargo_build_script(
         "std",
         "sysinfoapi",
         "timezoneapi",
-        "winbase",
-        "winerror",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -75,9 +70,6 @@ rust_library(
     name = "winapi",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "errhandlingapi",
-        "fileapi",
-        "handleapi",
         "minwinbase",
         "minwindef",
         "ntdef",
@@ -85,8 +77,6 @@ rust_library(
         "std",
         "sysinfoapi",
         "timezoneapi",
-        "winbase",
-        "winerror",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
