@@ -652,6 +652,98 @@ pub fn dispatch_http_call(
 }
 
 extern "C" {
+    fn proxy_grpc_stream(
+        grpc_service: *const u8,
+        grpc_service_size: usize, // TODO(shikugawa): remove grpc_service after next ABI released.
+        service_name_data: *const u8,
+        service_name_size: usize,
+        method_name_data: *const u8,
+        method_name_size: usize,
+        initial_metadata_data: *const u8,
+        initial_metadata_size: usize,
+        return_callout_id: *mut u32,
+    ) -> Status;
+}
+
+pub fn create_grpc_stream(
+    cluster_name: &str,
+    service_name: &str,
+    method_name: &str,
+    initial_metadata: &str,
+) -> Result<u32, Status> {
+    unsafe {
+        let mut return_callout_id = 0;
+        match proxy_grpc_stream(
+            cluster_name.as_ptr(),
+            cluster_name.len(),
+            service_name.as_ptr(),
+            service_name.len(),
+            method_name.as_ptr(),
+            method_name.len(),
+            initial_metadata.as_ptr(),
+            initial_metadata.len(),
+            &mut return_callout_id,
+        ) {
+            Status::Ok => {
+                dispatcher::register_grpc_stream(return_callout_id);
+                Ok(return_callout_id)
+            }
+            Status::ParseFailure => Err(Status::ParseFailure),
+            Status::InternalFailure => Err(Status::InternalFailure),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
+    fn proxy_grpc_send(
+        token: u32,
+        message_ptr: *const u8,
+        message_len: usize,
+        end_stream: bool,
+    ) -> Status;
+}
+
+pub fn grpc_send(token: u32, message: &str, end_stream: bool) -> Result<(), Status> {
+    unsafe {
+        match proxy_grpc_send(token, message.as_ptr(), message.len(), end_stream) {
+            Status::Ok => Ok(()),
+            Status::BadArgument => Err(Status::BadArgument),
+            Status::NotFound => Err(Status::NotFound),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
+    fn proxy_grpc_cancel(token_id: u32) -> Status;
+}
+
+pub fn grpc_cancel(token_id: u32) -> Result<(), Status> {
+    unsafe {
+        match proxy_grpc_cancel(token_id) {
+            Status::Ok => Ok(()),
+            Status::NotFound => Err(Status::NotFound),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
+    fn proxy_grpc_close(token_id: u32) -> Status;
+}
+
+pub fn grpc_close(token_id: u32) -> Result<(), Status> {
+    unsafe {
+        match proxy_grpc_close(token_id) {
+            Status::Ok => Ok(()),
+            Status::NotFound => Err(Status::NotFound),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
     fn proxy_set_effective_context(context_id: u32) -> Status;
 }
 

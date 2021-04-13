@@ -90,6 +90,36 @@ pub trait Context {
         hostcalls::get_map(MapType::HttpCallResponseTrailers).unwrap()
     }
 
+    fn create_grpc_stream(
+        &self,
+        cluster_name: &str,
+        service_name: &str,
+        method_name: &str,
+        initial_metadata: &str,
+    ) -> Result<u32, Status> {
+        hostcalls::create_grpc_stream(cluster_name, service_name, method_name, initial_metadata)
+    }
+
+    fn grpc_send(&self, token_id: u32, message: &str, end_stream: bool) -> Result<(), Status> {
+        hostcalls::grpc_send(token_id, message, end_stream)
+    }
+
+    fn grpc_cancel(&self, token_id: u32) -> Result<(), Status> {
+        hostcalls::grpc_cancel(token_id)
+    }
+
+    fn grpc_close(&self, token_id: u32) -> Result<(), Status> {
+        hostcalls::grpc_close(token_id)
+    }
+
+    fn on_grpc_receive_initial_metadata(&mut self, _token_id: u32, _headers: u32) {}
+
+    fn on_grpc_receive_trailing_metadata(&mut self, _token_id: u32, _trailers: u32) {}
+
+    fn on_grpc_receive(&mut self, _token_id: u32, _response_size: usize) {}
+
+    fn on_grpc_close(&mut self, _token_id: u32, _status_code: u32) {}
+
     fn on_done(&mut self) -> bool {
         true
     }

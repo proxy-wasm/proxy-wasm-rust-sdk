@@ -38,6 +38,10 @@ pub(crate) fn register_callout(token_id: u32) {
     DISPATCHER.with(|dispatcher| dispatcher.register_callout(token_id));
 }
 
+pub(crate) fn register_grpc_stream(token_id: u32) {
+    DISPATCHER.with(|dispatcher| dispatcher.register_grpc_stream(token_id));
+}
+
 struct NoopRoot;
 
 impl Context for NoopRoot {}
@@ -52,6 +56,7 @@ struct Dispatcher {
     http_streams: RefCell<HashMap<u32, Box<dyn HttpContext>>>,
     active_id: Cell<u32>,
     callouts: RefCell<HashMap<u32, u32>>,
+    grpc_stream_callouts: RefCell<HashMap<u32, u32>>,
 }
 
 impl Dispatcher {
@@ -65,6 +70,7 @@ impl Dispatcher {
             http_streams: RefCell::new(HashMap::new()),
             active_id: Cell::new(0),
             callouts: RefCell::new(HashMap::new()),
+            grpc_stream_callouts: RefCell::new(HashMap::new()),
         }
     }
 
@@ -83,6 +89,17 @@ impl Dispatcher {
     fn register_callout(&self, token_id: u32) {
         if self
             .callouts
+            .borrow_mut()
+            .insert(token_id, self.active_id.get())
+            .is_some()
+        {
+            panic!("duplicate token_id")
+        }
+    }
+
+    fn register_grpc_stream(&self, token_id: u32) {
+        if self
+            .grpc_stream_callouts
             .borrow_mut()
             .insert(token_id, self.active_id.get())
             .is_some()
@@ -167,6 +184,99 @@ impl Dispatcher {
             }
         } else {
             panic!("invalid root_context_id and missing constructors");
+        }
+    }
+
+    fn on_grpc_receive_initial_metadata(&self, token_id: u32, headers: u32) {
+        let context_id = self
+            .grpc_stream_callouts
+            .borrow_mut()
+            .get(&token_id)
+            .expect("invalid token_id")
+            .clone();
+
+        if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
+            self.active_id.set(context_id);
+            hostcalls::set_effective_context(context_id).unwrap();
+            http_stream.on_grpc_receive_initial_metadata(token_id, headers);
+        } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
+            self.active_id.set(context_id);
+            hostcalls::set_effective_context(context_id).unwrap();
+            stream.on_grpc_receive_initial_metadata(token_id, headers);
+        } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
+            self.active_id.set(context_id);
+            hostcalls::set_effective_context(context_id).unwrap();
+            root.on_grpc_receive_initial_metadata(token_id, headers);
+        }
+    }
+
+    fn on_grpc_receive_trailing_metadata(&self, token_id: u32, trailers: u32) {
+        let context_id = self
+            .grpc_stream_callouts
+            .borrow_mut()
+            .get(&token_id)
+            .expect("invalid token_id")
+            .clone();
+
+        if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
+            self.active_id.set(context_id);
+            hostcalls::set_effective_context(context_id).unwrap();
+            http_stream.on_grpc_receive_trailing_metadata(token_id, trailers);
+        } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
+            self.active_id.set(context_id);
+            hostcalls::set_effective_context(context_id).unwrap();
+            stream.on_grpc_receive_trailing_metadata(token_id, trailers);
+        } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
+            self.active_id.set(context_id);
+            hostcalls::set_effective_context(context_id).unwrap();
+            root.on_grpc_receive_trailing_metadata(token_id, trailers);
+        }
+    }
+
+    fn on_grpc_receive(&self, token_id: u32, response_size: usize) {
+        // TODO(shikugawa): migrate with gRPC callout tokens
+        let context_id = self
+            .grpc_stream_callouts
+            .borrow_mut()
+            .get(&token_id)
+            .expect("invalid token_id")
+            .clone();
+
+        if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
+            self.active_id.set(context_id);
+            hostcalls::set_effective_context(context_id).unwrap();
+            http_stream.on_grpc_receive(token_id, response_size);
+        } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
+            self.active_id.set(context_id);
+            hostcalls::set_effective_context(context_id).unwrap();
+            stream.on_grpc_receive(token_id, response_size);
+        } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
+            self.active_id.set(context_id);
+            hostcalls::set_effective_context(context_id).unwrap();
+            root.on_grpc_receive(token_id, response_size);
+        }
+    }
+
+    fn on_grpc_close(&self, token_id: u32, status_code: u32) {
+        // TODO(shikugawa): migrate with gRPC callout tokens
+        let context_id = self
+            .grpc_stream_callouts
+            .borrow_mut()
+            .remove(&token_id)
+            .expect("invalid token_id");
+
+        if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
+            self.active_id.set(context_id);
+            hostcalls::set_effective_context(context_id).unwrap();
+            http_stream.on_grpc_close(token_id, status_code);
+        } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
+            self.active_id.set(context_id);
+            hostcalls::set_effective_context(context_id).unwrap();
+            stream.on_grpc_close(token_id, status_code);
+        } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
+            self.active_id.set(context_id);
+            hostcalls::set_effective_context(context_id).unwrap();
+            root.on_grpc_close(token_id, status_code);
         }
     }
 
@@ -508,4 +618,32 @@ pub extern "C" fn proxy_on_http_call_response(
     DISPATCHER.with(|dispatcher| {
         dispatcher.on_http_call_response(token_id, num_headers, body_size, num_trailers)
     })
+}
+
+#[no_mangle]
+pub extern "C" fn proxy_on_grpc_receive_initial_metadata(
+    _context_id: u32,
+    token_id: u32,
+    headers: u32,
+) {
+    DISPATCHER.with(|dispatcher| dispatcher.on_grpc_receive_initial_metadata(token_id, headers))
+}
+
+#[no_mangle]
+pub extern "C" fn proxy_on_grpc_receive_trailing_metadata(
+    _context_id: u32,
+    token_id: u32,
+    trailers: u32,
+) {
+    DISPATCHER.with(|dispatcher| dispatcher.on_grpc_receive_trailing_metadata(token_id, trailers))
+}
+
+#[no_mangle]
+pub extern "C" fn proxy_on_grpc_receive(_context_id: u32, token_id: u32, response_size: usize) {
+    DISPATCHER.with(|dispatcher| dispatcher.on_grpc_receive(token_id, response_size))
+}
+
+#[no_mangle]
+pub extern "C" fn proxy_on_grpc_close(_context_id: u32, token_id: u32, status_code: u32) {
+    DISPATCHER.with(|dispatcher| dispatcher.on_grpc_close(token_id, status_code))
 }
