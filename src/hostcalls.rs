@@ -653,42 +653,43 @@ pub fn dispatch_http_call(
 
 extern "C" {
     fn proxy_grpc_call(
-        grpc_service: *const u8,
-        grpc_service_size: usize, // TODO(shikugawa): remove grpc_service after next ABI released.
+        upstream_data: *const u8,
+        upstream_size: usize, // TODO(shikugawa): remove grpc_service after next ABI released.
         service_name_data: *const u8,
         service_name_size: usize,
         method_name_data: *const u8,
         method_name_size: usize,
         initial_metadata_data: *const u8,
         initial_metadata_size: usize,
-        request_data_data: *const u8,
-        request_data_size: usize,
+        message_data_data: *const u8,
+        message_data_size: usize,
         timeout_milliseconds: u32,
         return_callout_id: *mut u32,
     ) -> Status;
 }
 
 pub fn dispatch_grpc_call(
-    cluster_name: &str,
+    upstream_name: &str,
     service_name: &str,
     method_name: &str,
-    initial_metadata: &str,
-    message: &str,
+    initial_metadata: Vec<(&str, &str)>,
+    message: Option<&[u8]>,
     timeout: Duration,
 ) -> Result<u32, Status> {
+    let mut return_callout_id = 0;
+    let serialized_initial_metadata = utils::serialize_map(initial_metadata);
     unsafe {
-        let mut return_callout_id = 0;
         match proxy_grpc_call(
-            cluster_name.as_ptr(),
-            cluster_name.len(),
+            upstream_name.as_ptr(),
+            upstream_name.len(),
             service_name.as_ptr(),
             service_name.len(),
             method_name.as_ptr(),
             method_name.len(),
-            initial_metadata.as_ptr(),
-            initial_metadata.len(),
-            message.as_ptr(),
-            message.len(),
+            serialized_initial_metadata.as_ptr(),
+            serialized_initial_metadata.len(),
+            message.map_or(null(), |message| message.as_ptr()),
+            message.map_or(0, |message| message.len()),
             timeout.as_millis() as u32,
             &mut return_callout_id,
         ) {

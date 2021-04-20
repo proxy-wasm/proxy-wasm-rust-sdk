@@ -92,15 +92,15 @@ pub trait Context {
 
     fn dispatch_grpc_call(
         &self,
-        cluster_name: &str,
+        upstream_name: &str,
         service_name: &str,
         method_name: &str,
-        initial_metadata: &str,
-        message: &str,
+        initial_metadata: Vec<(&str, &str)>,
+        message: Option<&[u8]>,
         timeout: Duration,
     ) -> Result<u32, Status> {
         hostcalls::dispatch_grpc_call(
-            cluster_name,
+            upstream_name,
             service_name,
             method_name,
             initial_metadata,
@@ -109,9 +109,7 @@ pub trait Context {
         )
     }
 
-    fn on_grpc_receive(&mut self, _token_id: u32, _response_size: usize) {}
-
-    fn on_grpc_close(&mut self, _token_id: u32, _status_code: u32) {}
+    fn on_grpc_call_response(&mut self, _token_id: u32, _status_code: u32, _response_size: usize) {}
 
     fn on_done(&mut self) -> bool {
         true

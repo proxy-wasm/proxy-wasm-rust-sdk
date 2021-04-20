@@ -399,7 +399,7 @@ impl Dispatcher {
         }
     }
 
-    fn on_grpc_receive(&self, token_id: u32, response_size: usize) {
+    fn on_grpc_call_response(&self, token_id: u32, status_code: u32, response_size: usize) {
         let context_id = self
             .grpc_callouts
             .borrow_mut()
@@ -409,37 +409,15 @@ impl Dispatcher {
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
             hostcalls::set_effective_context(context_id).unwrap();
-            http_stream.on_grpc_receive(token_id, response_size);
+            http_stream.on_grpc_call_response(token_id, status_code, response_size);
         } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
             hostcalls::set_effective_context(context_id).unwrap();
-            stream.on_grpc_receive(token_id, response_size);
+            stream.on_grpc_call_response(token_id, status_code, response_size);
         } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
             hostcalls::set_effective_context(context_id).unwrap();
-            root.on_grpc_receive(token_id, response_size);
-        }
-    }
-
-    fn on_grpc_close(&self, token_id: u32, status_code: u32) {
-        let context_id = self
-            .grpc_callouts
-            .borrow_mut()
-            .remove(&token_id)
-            .expect("invalid token_id");
-
-        if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
-            self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            http_stream.on_grpc_close(token_id, status_code);
-        } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
-            self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            stream.on_grpc_close(token_id, status_code);
-        } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
-            self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            root.on_grpc_close(token_id, status_code);
+            root.on_grpc_call_response(token_id, status_code, response_size);
         }
     }
 }
@@ -573,10 +551,10 @@ pub extern "C" fn proxy_on_http_call_response(
 
 #[no_mangle]
 pub extern "C" fn proxy_on_grpc_receive(_context_id: u32, token_id: u32, response_size: usize) {
-    DISPATCHER.with(|dispatcher| dispatcher.on_grpc_receive(token_id, response_size))
+    DISPATCHER.with(|dispatcher| dispatcher.on_grpc_call_response(token_id, 0, response_size))
 }
 
 #[no_mangle]
 pub extern "C" fn proxy_on_grpc_close(_context_id: u32, token_id: u32, status_code: u32) {
-    DISPATCHER.with(|dispatcher| dispatcher.on_grpc_close(token_id, status_code))
+    DISPATCHER.with(|dispatcher| dispatcher.on_grpc_call_response(token_id, status_code, 0))
 }
