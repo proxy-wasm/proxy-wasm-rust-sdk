@@ -15,6 +15,7 @@
 use crate::hostcalls;
 use crate::traits::*;
 use crate::types::*;
+use core::panic;
 use hashbrown::HashMap;
 use std::cell::{Cell, RefCell};
 
@@ -416,6 +417,7 @@ impl Dispatcher {
             }
         } else {
             // TODO(shikugawa): Try to check grpc stream tokens here
+            panic!("invalid token_id")
         }
     }
 
@@ -436,6 +438,7 @@ impl Dispatcher {
             }
         } else {
             // TODO(shikugawa): Try to check grpc stream tokens here
+            panic!("invalid token_id")
         }
     }
 }

@@ -95,7 +95,7 @@ pub trait Context {
         upstream_name: &str,
         service_name: &str,
         method_name: &str,
-        initial_metadata: Vec<(&str, &str)>,
+        initial_metadata: Vec<(&str, &[u8])>,
         message: Option<&[u8]>,
         timeout: Duration,
     ) -> Result<u32, Status> {
