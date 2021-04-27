@@ -109,19 +109,11 @@ pub trait Context {
         )
     }
 
-    fn grpc_cancel(&self, token_id: u32) -> Result<(), Status> {
-        hostcalls::grpc_cancel(token_id)
-    }
-
-    fn grpc_close(&self, token_id: u32) -> Result<(), Status> {
-        hostcalls::grpc_close(token_id)
+    fn cancel_grpc_call(&self, token_id: u32) -> Result<(), Status> {
+        hostcalls::cancel_grpc_call(token_id)
     }
 
     fn on_grpc_call_response(&mut self, _token_id: u32, _status_code: u32, _response_size: usize) {}
-
-    fn on_grpc_receive(&mut self, _token_id: u32, _response_size: usize) {}
-
-    fn on_grpc_close(&mut self, _token_id: u32, _status_code: u32) {}
 
     fn on_done(&mut self) -> bool {
         true
