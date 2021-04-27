@@ -705,6 +705,34 @@ pub fn dispatch_grpc_call(
 }
 
 extern "C" {
+    fn proxy_grpc_cancel(token_id: u32) -> Status;
+}
+
+pub fn grpc_cancel(token_id: u32) -> Result<(), Status> {
+    unsafe {
+        match proxy_grpc_cancel(token_id) {
+            Status::Ok => Ok(()),
+            Status::NotFound => Err(Status::NotFound),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
+    fn proxy_grpc_close(token_id: u32) -> Status;
+}
+
+pub fn grpc_close(token_id: u32) -> Result<(), Status> {
+    unsafe {
+        match proxy_grpc_close(token_id) {
+            Status::Ok => Ok(()),
+            Status::NotFound => Err(Status::NotFound),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
     fn proxy_set_effective_context(context_id: u32) -> Status;
 }
 
