@@ -177,6 +177,24 @@ pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
     }
 }
 
+pub fn get_map_bytes(map_type: MapType) -> Result<Vec<(String, Vec<u8>)>, Status> {
+    unsafe {
+        let mut return_data: *mut u8 = null_mut();
+        let mut return_size: usize = 0;
+        match proxy_get_header_map_pairs(map_type, &mut return_data, &mut return_size) {
+            Status::Ok => {
+                if !return_data.is_null() {
+                    let serialized_map = Vec::from_raw_parts(return_data, return_size, return_size);
+                    Ok(utils::deserialize_bytes_map(&serialized_map))
+                } else {
+                    Ok(Vec::new())
+                }
+            }
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
 extern "C" {
     fn proxy_set_header_map_pairs(
         map_type: MapType,
@@ -890,6 +908,27 @@ mod utils {
                 String::from_utf8(key).unwrap(),
                 String::from_utf8(value).unwrap(),
             ));
+        }
+        map
+    }
+
+    pub(super) fn deserialize_bytes_map(bytes: &[u8]) -> Vec<(String, Vec<u8>)> {
+        let mut map = Vec::new();
+        if bytes.is_empty() {
+            return map;
+        }
+        let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[0..4]).unwrap()) as usize;
+        let mut p = 4 + size * 8;
+        for n in 0..size {
+            let s = 4 + n * 8;
+            let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s..s + 4]).unwrap()) as usize;
+            let key = bytes[p..p + size].to_vec();
+            p += size + 1;
+            let size =
+                u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s + 4..s + 8]).unwrap()) as usize;
+            let value = bytes[p..p + size].to_vec();
+            p += size + 1;
+            map.push((String::from_utf8(key).unwrap(), value));
         }
         map
     }
