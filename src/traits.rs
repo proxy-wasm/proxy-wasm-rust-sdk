@@ -109,14 +109,6 @@ pub trait Context {
         )
     }
 
-    fn get_grpc_call_initial_metadata(&self) -> Vec<(String, Vec<u8>)> {
-        hostcalls::get_map_bytes(MapType::GrpcReceiveInitialMetadata).unwrap()
-    }
-
-    fn get_grpc_call_trailing_metadata(&self) -> Vec<(String, Vec<u8>)> {
-        hostcalls::get_map_bytes(MapType::GrpcReceiveTrailingMetadata).unwrap()
-    }
-
     fn get_grpc_call_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
         hostcalls::get_buffer(BufferType::GrpcReceiveBuffer, start, max_size).unwrap()
     }
