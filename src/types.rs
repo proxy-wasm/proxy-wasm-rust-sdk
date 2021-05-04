@@ -42,6 +42,7 @@ pub enum Status {
     Ok = 0,
     NotFound = 1,
     BadArgument = 2,
+    ParseFailure = 4,
     Empty = 7,
     CasMismatch = 8,
     InternalFailure = 10,
@@ -62,6 +63,7 @@ pub enum BufferType {
     DownstreamData = 2,
     UpstreamData = 3,
     HttpCallResponseBody = 4,
+    GrpcReceiveBuffer = 5,
 }
 
 #[repr(u32)]

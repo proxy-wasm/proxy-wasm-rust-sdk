@@ -652,6 +652,73 @@ pub fn dispatch_http_call(
 }
 
 extern "C" {
+    fn proxy_grpc_call(
+        upstream_data: *const u8,
+        upstream_size: usize,
+        service_name_data: *const u8,
+        service_name_size: usize,
+        method_name_data: *const u8,
+        method_name_size: usize,
+        initial_metadata_data: *const u8,
+        initial_metadata_size: usize,
+        message_data_data: *const u8,
+        message_data_size: usize,
+        timeout: u32,
+        return_callout_id: *mut u32,
+    ) -> Status;
+}
+
+pub fn dispatch_grpc_call(
+    upstream_name: &str,
+    service_name: &str,
+    method_name: &str,
+    initial_metadata: Vec<(&str, &[u8])>,
+    message: Option<&[u8]>,
+    timeout: Duration,
+) -> Result<u32, Status> {
+    let mut return_callout_id = 0;
+    let serialized_initial_metadata = utils::serialize_bytes_value_map(initial_metadata);
+    unsafe {
+        match proxy_grpc_call(
+            upstream_name.as_ptr(),
+            upstream_name.len(),
+            service_name.as_ptr(),
+            service_name.len(),
+            method_name.as_ptr(),
+            method_name.len(),
+            serialized_initial_metadata.as_ptr(),
+            serialized_initial_metadata.len(),
+            message.map_or(null(), |message| message.as_ptr()),
+            message.map_or(0, |message| message.len()),
+            timeout.as_millis() as u32,
+            &mut return_callout_id,
+        ) {
+            Status::Ok => {
+                dispatcher::register_grpc_callout(return_callout_id);
+                Ok(return_callout_id)
+            }
+            Status::ParseFailure => Err(Status::ParseFailure),
+            Status::InternalFailure => Err(Status::InternalFailure),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
+    fn proxy_grpc_cancel(token_id: u32) -> Status;
+}
+
+pub fn cancel_grpc_call(token_id: u32) -> Result<(), Status> {
+    unsafe {
+        match proxy_grpc_cancel(token_id) {
+            Status::Ok => Ok(()),
+            Status::NotFound => Err(Status::NotFound),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
     fn proxy_set_effective_context(context_id: u32) -> Status;
 }
 
@@ -821,6 +888,26 @@ mod utils {
             bytes.extend_from_slice(&name.as_bytes());
             bytes.push(0);
             bytes.extend_from_slice(&value.as_bytes());
+            bytes.push(0);
+        }
+        bytes
+    }
+
+    pub(super) fn serialize_bytes_value_map(map: Vec<(&str, &[u8])>) -> Bytes {
+        let mut size: usize = 4;
+        for (name, value) in &map {
+            size += name.len() + value.len() + 10;
+        }
+        let mut bytes: Bytes = Vec::with_capacity(size);
+        bytes.extend_from_slice(&map.len().to_le_bytes());
+        for (name, value) in &map {
+            bytes.extend_from_slice(&name.len().to_le_bytes());
+            bytes.extend_from_slice(&value.len().to_le_bytes());
+        }
+        for (name, value) in &map {
+            bytes.extend_from_slice(&name.as_bytes());
+            bytes.push(0);
+            bytes.extend_from_slice(&value);
             bytes.push(0);
         }
         bytes
