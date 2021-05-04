@@ -109,6 +109,8 @@ pub trait Context {
         )
     }
 
+    fn on_grpc_call_response(&mut self, _token_id: u32, _status_code: u32, _response_size: usize) {}
+
     fn get_grpc_call_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
         hostcalls::get_buffer(BufferType::GrpcReceiveBuffer, start, max_size).unwrap()
     }
@@ -116,8 +118,6 @@ pub trait Context {
     fn cancel_grpc_call(&self, token_id: u32) -> Result<(), Status> {
         hostcalls::cancel_grpc_call(token_id)
     }
-
-    fn on_grpc_call_response(&mut self, _token_id: u32, _status_code: u32, _response_size: usize) {}
 
     fn on_done(&mut self) -> bool {
         true
