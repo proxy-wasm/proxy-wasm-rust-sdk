@@ -90,6 +90,35 @@ pub trait Context {
         hostcalls::get_map(MapType::HttpCallResponseTrailers).unwrap()
     }
 
+    fn dispatch_grpc_call(
+        &self,
+        upstream_name: &str,
+        service_name: &str,
+        method_name: &str,
+        initial_metadata: Vec<(&str, &[u8])>,
+        message: Option<&[u8]>,
+        timeout: Duration,
+    ) -> Result<u32, Status> {
+        hostcalls::dispatch_grpc_call(
+            upstream_name,
+            service_name,
+            method_name,
+            initial_metadata,
+            message,
+            timeout,
+        )
+    }
+
+    fn on_grpc_call_response(&mut self, _token_id: u32, _status_code: u32, _response_size: usize) {}
+
+    fn get_grpc_call_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
+        hostcalls::get_buffer(BufferType::GrpcReceiveBuffer, start, max_size).unwrap()
+    }
+
+    fn cancel_grpc_call(&self, token_id: u32) -> Result<(), Status> {
+        hostcalls::cancel_grpc_call(token_id)
+    }
+
     fn on_done(&mut self) -> bool {
         true
     }
