@@ -652,41 +652,95 @@ pub fn dispatch_http_call(
 }
 
 extern "C" {
-    fn proxy_grpc_stream(
-        grpc_service: *const u8,
-        grpc_service_size: usize, // TODO(shikugawa): remove grpc_service after next ABI released.
+    fn proxy_grpc_call(
+        upstream_data: *const u8,
+        upstream_size: usize,
         service_name_data: *const u8,
         service_name_size: usize,
         method_name_data: *const u8,
         method_name_size: usize,
         initial_metadata_data: *const u8,
         initial_metadata_size: usize,
+        message_data_data: *const u8,
+        message_data_size: usize,
+        timeout: u32,
         return_callout_id: *mut u32,
     ) -> Status;
 }
 
-pub fn create_grpc_stream(
-    cluster_name: &str,
+pub fn dispatch_grpc_call(
+    upstream_name: &str,
     service_name: &str,
     method_name: &str,
-    initial_metadata: &str,
+    initial_metadata: Vec<(&str, &[u8])>,
+    message: Option<&[u8]>,
+    timeout: Duration,
 ) -> Result<u32, Status> {
+    let mut return_callout_id = 0;
+    let serialized_initial_metadata = utils::serialize_bytes_value_map(initial_metadata);
     unsafe {
-        let mut return_callout_id = 0;
-        match proxy_grpc_stream(
-            cluster_name.as_ptr(),
-            cluster_name.len(),
+        match proxy_grpc_call(
+            upstream_name.as_ptr(),
+            upstream_name.len(),
             service_name.as_ptr(),
             service_name.len(),
             method_name.as_ptr(),
             method_name.len(),
-            initial_metadata.as_ptr(),
-            initial_metadata.len(),
+            serialized_initial_metadata.as_ptr(),
+            serialized_initial_metadata.len(),
+            message.map_or(null(), |message| message.as_ptr()),
+            message.map_or(0, |message| message.len()),
+            timeout.as_millis() as u32,
             &mut return_callout_id,
         ) {
             Status::Ok => {
-                dispatcher::register_grpc_stream(return_callout_id);
+                dispatcher::register_grpc_callout(return_callout_id);
                 Ok(return_callout_id)
+            }
+            Status::ParseFailure => Err(Status::ParseFailure),
+            Status::InternalFailure => Err(Status::InternalFailure),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
+    fn proxy_grpc_stream(
+        upstream_data: *const u8,
+        upstream_size: usize,
+        service_name_data: *const u8,
+        service_name_size: usize,
+        method_name_data: *const u8,
+        method_name_size: usize,
+        initial_metadata_data: *const u8,
+        initial_metadata_size: usize,
+        return_stream_id: *mut u32,
+    ) -> Status;
+}
+
+pub fn create_grpc_stream(
+    upstream_name: &str,
+    service_name: &str,
+    method_name: &str,
+    initial_metadata: Vec<(&str, &[u8])>,
+) -> Result<u32, Status> {
+    let mut return_stream_id = 0;
+    let serialized_initial_metadata = utils::serialize_bytes_value_map(initial_metadata);
+    unsafe {
+        match proxy_grpc_stream(
+            upstream_name.as_ptr(),
+            upstream_name.len(),
+            service_name.as_ptr(),
+            service_name.len(),
+            method_name.as_ptr(),
+            method_name.len(),
+            serialized_initial_metadata.as_ptr(),
+            serialized_initial_metadata.len(),
+            &mut return_stream_id,
+        ) {
+            Status::Ok => {
+                dispatcher::register_grpc_stream(return_stream_id);
+                Ok(return_stream_id)
             }
             Status::ParseFailure => Err(Status::ParseFailure),
             Status::InternalFailure => Err(Status::InternalFailure),
@@ -704,9 +758,18 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn grpc_send(token: u32, message: &str, end_stream: bool) -> Result<(), Status> {
+pub fn grpc_stream_send(
+    token: u32,
+    message: Option<&[u8]>,
+    end_stream: bool,
+) -> Result<(), Status> {
     unsafe {
-        match proxy_grpc_send(token, message.as_ptr(), message.len(), end_stream) {
+        match proxy_grpc_send(
+            token,
+            message.map_or(null(), |message| message.as_ptr()),
+            message.map_or(0, |message| message.len()),
+            end_stream,
+        ) {
             Status::Ok => Ok(()),
             Status::BadArgument => Err(Status::BadArgument),
             Status::NotFound => Err(Status::NotFound),
@@ -719,7 +782,7 @@ extern "C" {
     fn proxy_grpc_cancel(token_id: u32) -> Status;
 }
 
-pub fn grpc_cancel(token_id: u32) -> Result<(), Status> {
+pub fn grpc_call_cancel(token_id: u32) -> Result<(), Status> {
     unsafe {
         match proxy_grpc_cancel(token_id) {
             Status::Ok => Ok(()),
@@ -733,7 +796,7 @@ extern "C" {
     fn proxy_grpc_close(token_id: u32) -> Status;
 }
 
-pub fn grpc_close(token_id: u32) -> Result<(), Status> {
+pub fn grpc_stream_close(token_id: u32) -> Result<(), Status> {
     unsafe {
         match proxy_grpc_close(token_id) {
             Status::Ok => Ok(()),
@@ -875,6 +938,26 @@ mod utils {
         bytes
     }
 
+    pub(super) fn serialize_bytes_value_map(map: Vec<(&str, &[u8])>) -> Bytes {
+        let mut size: usize = 4;
+        for (name, value) in &map {
+            size += name.len() + value.len() + 10;
+        }
+        let mut bytes: Bytes = Vec::with_capacity(size);
+        bytes.extend_from_slice(&map.len().to_le_bytes());
+        for (name, value) in &map {
+            bytes.extend_from_slice(&name.len().to_le_bytes());
+            bytes.extend_from_slice(&value.len().to_le_bytes());
+        }
+        for (name, value) in &map {
+            bytes.extend_from_slice(&name.as_bytes());
+            bytes.push(0);
+            bytes.extend_from_slice(&value);
+            bytes.push(0);
+        }
+        bytes
+    }
+
     pub(super) fn deserialize_map(bytes: &[u8]) -> Vec<(String, String)> {
         let mut map = Vec::new();
         if bytes.is_empty() {
@@ -895,6 +978,27 @@ mod utils {
                 String::from_utf8(key).unwrap(),
                 String::from_utf8(value).unwrap(),
             ));
+        }
+        map
+    }
+
+    pub(super) fn deserialize_bytes_map(bytes: &[u8]) -> Vec<(String, Vec<u8>)> {
+        let mut map = Vec::new();
+        if bytes.is_empty() {
+            return map;
+        }
+        let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[0..4]).unwrap()) as usize;
+        let mut p = 4 + size * 8;
+        for n in 0..size {
+            let s = 4 + n * 8;
+            let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s..s + 4]).unwrap()) as usize;
+            let key = bytes[p..p + size].to_vec();
+            p += size + 1;
+            let size =
+                u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s + 4..s + 8]).unwrap()) as usize;
+            let value = bytes[p..p + size].to_vec();
+            p += size + 1;
+            map.push((String::from_utf8(key).unwrap(), value));
         }
         map
     }
