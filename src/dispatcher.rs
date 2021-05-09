@@ -417,12 +417,11 @@ impl Dispatcher {
     }
 
     fn on_grpc_receive_initial_metadata(&self, token_id: u32, headers: u32) {
-        let context_id = self
+        let context_id = *self
             .grpc_streams
             .borrow_mut()
             .get(&token_id)
-            .expect("invalid token_id")
-            .clone();
+            .expect("invalid token_id");
 
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
@@ -455,7 +454,7 @@ impl Dispatcher {
                 root.on_grpc_call_response(token_id, 0, response_size);
             }
         } else if let Some(context_id) = self.grpc_streams.borrow_mut().get(&token_id) {
-            let context_id = context_id.clone();
+            let context_id = *context_id;
             if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
                 hostcalls::set_effective_context(context_id).unwrap();
@@ -475,12 +474,11 @@ impl Dispatcher {
     }
 
     fn on_grpc_receive_trailing_metadata(&self, token_id: u32, trailers: u32) {
-        let context_id = self
+        let context_id = *self
             .grpc_streams
             .borrow_mut()
             .get(&token_id)
-            .expect("invalid token_id")
-            .clone();
+            .expect("invalid token_id");
 
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
