@@ -177,6 +177,24 @@ pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
     }
 }
 
+pub fn get_map_bytes(map_type: MapType) -> Result<Vec<(String, Vec<u8>)>, Status> {
+    unsafe {
+        let mut return_data: *mut u8 = null_mut();
+        let mut return_size: usize = 0;
+        match proxy_get_header_map_pairs(map_type, &mut return_data, &mut return_size) {
+            Status::Ok => {
+                if !return_data.is_null() {
+                    let serialized_map = Vec::from_raw_parts(return_data, return_size, return_size);
+                    Ok(utils::deserialize_bytes_map(&serialized_map))
+                } else {
+                    Ok(Vec::new())
+                }
+            }
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
 extern "C" {
     fn proxy_set_header_map_pairs(
         map_type: MapType,
@@ -677,7 +695,7 @@ pub fn dispatch_grpc_call(
     timeout: Duration,
 ) -> Result<u32, Status> {
     let mut return_callout_id = 0;
-    let serialized_initial_metadata = utils::serialize_bytes_value_map(initial_metadata);
+    let serialized_initial_metadata = utils::serialize_bytes_map(initial_metadata);
     unsafe {
         match proxy_grpc_call(
             upstream_name.as_ptr(),
@@ -718,14 +736,14 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn create_grpc_stream(
+pub fn open_grpc_stream(
     upstream_name: &str,
     service_name: &str,
     method_name: &str,
     initial_metadata: Vec<(&str, &[u8])>,
 ) -> Result<u32, Status> {
     let mut return_stream_id = 0;
-    let serialized_initial_metadata = utils::serialize_bytes_value_map(initial_metadata);
+    let serialized_initial_metadata = utils::serialize_bytes_map(initial_metadata);
     unsafe {
         match proxy_grpc_stream(
             upstream_name.as_ptr(),
@@ -758,7 +776,7 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn grpc_stream_send(
+pub fn send_grpc_stream_message(
     token: u32,
     message: Option<&[u8]>,
     end_stream: bool,
@@ -782,7 +800,7 @@ extern "C" {
     fn proxy_grpc_cancel(token_id: u32) -> Status;
 }
 
-pub fn grpc_call_cancel(token_id: u32) -> Result<(), Status> {
+pub fn cancel_grpc_call(token_id: u32) -> Result<(), Status> {
     unsafe {
         match proxy_grpc_cancel(token_id) {
             Status::Ok => Ok(()),
@@ -796,7 +814,7 @@ extern "C" {
     fn proxy_grpc_close(token_id: u32) -> Status;
 }
 
-pub fn grpc_stream_close(token_id: u32) -> Result<(), Status> {
+pub fn close_grpc_stream(token_id: u32) -> Result<(), Status> {
     unsafe {
         match proxy_grpc_close(token_id) {
             Status::Ok => Ok(()),
@@ -938,7 +956,7 @@ mod utils {
         bytes
     }
 
-    pub(super) fn serialize_bytes_value_map(map: Vec<(&str, &[u8])>) -> Bytes {
+    pub(super) fn serialize_bytes_map(map: Vec<(&str, &[u8])>) -> Bytes {
         let mut size: usize = 4;
         for (name, value) in &map {
             size += name.len() + value.len() + 10;
