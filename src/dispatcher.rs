@@ -672,7 +672,11 @@ pub extern "C" fn proxy_on_grpc_receive(_context_id: u32, token_id: u32, respons
 }
 
 #[no_mangle]
-pub extern "C" fn proxy_receive_on_grpc_trailing_metadata(_context_id: u32, token_id: u32, trailers: u32) {
+pub extern "C" fn proxy_on_receive_grpc_trailing_metadata(
+    _context_id: u32,
+    token_id: u32,
+    trailers: u32,
+) {
     DISPATCHER.with(|dispatcher| dispatcher.on_grpc_receive_trailing_metadata(token_id, trailers))
 }
 
