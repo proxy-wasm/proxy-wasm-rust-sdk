@@ -73,6 +73,8 @@ pub enum MapType {
     HttpRequestTrailers = 1,
     HttpResponseHeaders = 2,
     HttpResponseTrailers = 3,
+    GrpcReceiveInitialMetadata = 4,
+    GrpcReceiveTrailingMetadata = 5,
     HttpCallResponseHeaders = 6,
     HttpCallResponseTrailers = 7,
 }
