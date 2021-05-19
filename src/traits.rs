@@ -119,6 +119,49 @@ pub trait Context {
         hostcalls::cancel_grpc_call(token_id)
     }
 
+    fn open_grpc_stream(
+        &self,
+        cluster_name: &str,
+        service_name: &str,
+        method_name: &str,
+        initial_metadata: Vec<(&str, &[u8])>,
+    ) -> Result<u32, Status> {
+        hostcalls::open_grpc_stream(cluster_name, service_name, method_name, initial_metadata)
+    }
+
+    fn on_grpc_stream_initial_metadata(&mut self, _token_id: u32, _num_elements: u32) {}
+
+    fn get_grpc_stream_initial_metadata(&self) -> Vec<(String, Vec<u8>)> {
+        hostcalls::get_map_bytes(MapType::GrpcReceiveInitialMetadata).unwrap()
+    }
+
+    fn send_grpc_stream_message(
+        &self,
+        token_id: u32,
+        message: Option<&[u8]>,
+        end_stream: bool,
+    ) -> Result<(), Status> {
+        hostcalls::send_grpc_stream_message(token_id, message, end_stream)
+    }
+
+    fn on_grpc_stream_message(&mut self, _token_id: u32, _message_size: usize) {}
+
+    fn get_grpc_stream_message(&mut self, start: usize, max_size: usize) -> Option<Bytes> {
+        hostcalls::get_buffer(BufferType::GrpcReceiveBuffer, start, max_size).unwrap()
+    }
+
+    fn on_grpc_stream_trailing_metadata(&mut self, _token_id: u32, _num_elements: u32) {}
+
+    fn get_grpc_stream_trailing_metadata(&self) -> Vec<(String, Vec<u8>)> {
+        hostcalls::get_map_bytes(MapType::GrpcReceiveTrailingMetadata).unwrap()
+    }
+
+    fn close_grpc_stream(&self, token_id: u32) -> Result<(), Status> {
+        hostcalls::close_grpc_stream(token_id)
+    }
+
+    fn on_grpc_stream_close(&mut self, _token_id: u32, _status_code: u32) {}
+
     fn call_foreign_function(
         &self,
         function_name: &str,
@@ -127,7 +170,7 @@ pub trait Context {
         hostcalls::call_foreign_function(function_name, arguments)
 
     }
-    
+
     fn on_done(&mut self) -> bool {
         true
     }
