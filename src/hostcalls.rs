@@ -177,7 +177,7 @@ pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
     }
 }
 
-pub fn get_map_bytes(map_type: MapType) -> Result<Vec<(String, Vec<u8>)>, Status> {
+pub fn get_map_bytes(map_type: MapType) -> Result<Vec<(String, Bytes)>, Status> {
     unsafe {
         let mut return_data: *mut u8 = null_mut();
         let mut return_size: usize = 0;
@@ -244,6 +244,33 @@ pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<String>, Sta
                         ))
                         .unwrap(),
                     ))
+                } else {
+                    Ok(None)
+                }
+            }
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+pub fn get_map_value_bytes(map_type: MapType, key: &str) -> Result<Option<Bytes>, Status> {
+    let mut return_data: *mut u8 = null_mut();
+    let mut return_size: usize = 0;
+    unsafe {
+        match proxy_get_header_map_value(
+            map_type,
+            key.as_ptr(),
+            key.len(),
+            &mut return_data,
+            &mut return_size,
+        ) {
+            Status::Ok => {
+                if !return_data.is_null() {
+                    Ok(Some(Vec::from_raw_parts(
+                        return_data,
+                        return_size,
+                        return_size,
+                    )))
                 } else {
                     Ok(None)
                 }
@@ -810,6 +837,16 @@ pub fn cancel_grpc_call(token_id: u32) -> Result<(), Status> {
     }
 }
 
+pub fn cancel_grpc_stream(token_id: u32) -> Result<(), Status> {
+    unsafe {
+        match proxy_grpc_cancel(token_id) {
+            Status::Ok => Ok(()),
+            Status::NotFound => Err(Status::NotFound),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
 extern "C" {
     fn proxy_grpc_close(token_id: u32) -> Status;
 }
@@ -819,6 +856,42 @@ pub fn close_grpc_stream(token_id: u32) -> Result<(), Status> {
         match proxy_grpc_close(token_id) {
             Status::Ok => Ok(()),
             Status::NotFound => Err(Status::NotFound),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
+    fn proxy_get_status(
+        return_code: *mut u32,
+        return_message_data: *mut *mut u8,
+        return_message_size: *mut usize,
+    ) -> Status;
+}
+
+pub fn get_grpc_status() -> Result<(u32, Option<String>), Status> {
+    let mut return_code: u32 = 0;
+    let mut return_data: *mut u8 = null_mut();
+    let mut return_size: usize = 0;
+    unsafe {
+        match proxy_get_status(&mut return_code, &mut return_data, &mut return_size) {
+            Status::Ok => {
+                if !return_data.is_null() {
+                    Ok((
+                        return_code,
+                        Some(
+                            String::from_utf8(Vec::from_raw_parts(
+                                return_data,
+                                return_size,
+                                return_size,
+                            ))
+                            .unwrap(),
+                        ),
+                    ))
+                } else {
+                    Ok((return_code, None))
+                }
+            }
             status => panic!("unexpected status: {}", status as u32),
         }
     }
@@ -1043,7 +1116,7 @@ mod utils {
         map
     }
 
-    pub(super) fn deserialize_bytes_map(bytes: &[u8]) -> Vec<(String, Vec<u8>)> {
+    pub(super) fn deserialize_bytes_map(bytes: &[u8]) -> Vec<(String, Bytes)> {
         let mut map = Vec::new();
         if bytes.is_empty() {
             return map;
