@@ -26,14 +26,6 @@ pub(crate) fn set_root_context(callback: NewRootContext) {
     DISPATCHER.with(|dispatcher| dispatcher.set_root_context(callback));
 }
 
-pub(crate) fn set_stream_context(callback: NewStreamContext) {
-    DISPATCHER.with(|dispatcher| dispatcher.set_stream_context(callback));
-}
-
-pub(crate) fn set_http_context(callback: NewHttpContext) {
-    DISPATCHER.with(|dispatcher| dispatcher.set_http_context(callback));
-}
-
 pub(crate) fn register_callout(token_id: u32) {
     DISPATCHER.with(|dispatcher| dispatcher.register_callout(token_id));
 }
@@ -54,9 +46,7 @@ impl RootContext for NoopRoot {}
 struct Dispatcher {
     new_root: Cell<Option<NewRootContext>>,
     roots: RefCell<HashMap<u32, Box<dyn RootContext>>>,
-    new_stream: Cell<Option<NewStreamContext>>,
     streams: RefCell<HashMap<u32, Box<dyn StreamContext>>>,
-    new_http_stream: Cell<Option<NewHttpContext>>,
     http_streams: RefCell<HashMap<u32, Box<dyn HttpContext>>>,
     active_id: Cell<u32>,
     callouts: RefCell<HashMap<u32, u32>>,
@@ -69,9 +59,7 @@ impl Dispatcher {
         Dispatcher {
             new_root: Cell::new(None),
             roots: RefCell::new(HashMap::new()),
-            new_stream: Cell::new(None),
             streams: RefCell::new(HashMap::new()),
-            new_http_stream: Cell::new(None),
             http_streams: RefCell::new(HashMap::new()),
             active_id: Cell::new(0),
             callouts: RefCell::new(HashMap::new()),
@@ -82,14 +70,6 @@ impl Dispatcher {
 
     fn set_root_context(&self, callback: NewRootContext) {
         self.new_root.set(Some(callback));
-    }
-
-    fn set_stream_context(&self, callback: NewStreamContext) {
-        self.new_stream.set(Some(callback));
-    }
-
-    fn set_http_context(&self, callback: NewHttpContext) {
-        self.new_http_stream.set(Some(callback));
     }
 
     fn register_callout(&self, token_id: u32) {
@@ -140,67 +120,46 @@ impl Dispatcher {
         }
     }
 
-    fn create_stream_context(&self, context_id: u32, root_context_id: u32) {
-        let new_context = match self.roots.borrow().get(&root_context_id) {
-            Some(root_context) => match self.new_stream.get() {
-                Some(f) => f(context_id, root_context_id),
-                None => match root_context.create_stream_context(context_id) {
-                    Some(stream_context) => stream_context,
-                    None => panic!("create_stream_context returned None"),
-                },
-            },
-            None => panic!("invalid root_context_id"),
-        };
+    fn register_stream_context(&self, context_id: u32, stream_context: Box<dyn StreamContext>) {
         if self
             .streams
             .borrow_mut()
-            .insert(context_id, new_context)
+            .insert(context_id, stream_context)
             .is_some()
         {
-            panic!("duplicate context_id")
+            panic!("duplicate context_id {}", context_id);
         }
     }
 
-    fn create_http_context(&self, context_id: u32, root_context_id: u32) {
-        let new_context = match self.roots.borrow().get(&root_context_id) {
-            Some(root_context) => match self.new_http_stream.get() {
-                Some(f) => f(context_id, root_context_id),
-                None => match root_context.create_http_context(context_id) {
-                    Some(stream_context) => stream_context,
-                    None => panic!("create_http_context returned None"),
-                },
-            },
-            None => panic!("invalid root_context_id"),
-        };
+    fn register_http_context(&self, context_id: u32, http_context: Box<dyn HttpContext>) {
         if self
             .http_streams
             .borrow_mut()
-            .insert(context_id, new_context)
+            .insert(context_id, http_context)
             .is_some()
         {
-            panic!("duplicate context_id")
+            panic!("duplicate context_id {}", context_id);
         }
     }
 
     fn on_create_context(&self, context_id: u32, root_context_id: u32) {
         if root_context_id == 0 {
             self.create_root_context(context_id);
-        } else if self.new_http_stream.get().is_some() {
-            self.create_http_context(context_id, root_context_id);
-        } else if self.new_stream.get().is_some() {
-            self.create_stream_context(context_id, root_context_id);
-        } else if let Some(root_context) = self.roots.borrow().get(&root_context_id) {
-            match root_context.get_type() {
-                Some(ContextType::HttpContext) => {
-                    self.create_http_context(context_id, root_context_id)
+            return;
+        }
+
+        if let Some(root_context) = self.roots.borrow_mut().get_mut(&root_context_id) {
+            match root_context.on_create_child_context(context_id) {
+                Some(ChildContext::HttpContext(http_context)) => {
+                    self.register_http_context(context_id, http_context);
                 }
-                Some(ContextType::StreamContext) => {
-                    self.create_stream_context(context_id, root_context_id)
+                Some(ChildContext::StreamContext(stream_context)) => {
+                    self.register_stream_context(context_id, stream_context);
                 }
-                None => panic!("missing ContextType on root_context"),
+                None => panic!("you must implement on_create_child_context in your root context"),
             }
         } else {
-            panic!("invalid root_context_id and missing constructors");
+            panic!("invalid root_context_id {}", root_context_id);
         }
     }
 
