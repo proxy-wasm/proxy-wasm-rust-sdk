@@ -45,9 +45,18 @@ pub enum Status {
     Ok = 0,
     NotFound = 1,
     BadArgument = 2,
+    ParseFailure = 4,
     Empty = 7,
     CasMismatch = 8,
     InternalFailure = 10,
+}
+
+#[repr(u32)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[non_exhaustive]
+pub enum ContextType {
+    HttpContext = 0,
+    StreamContext = 1,
 }
 
 #[repr(u32)]
@@ -59,6 +68,7 @@ pub enum BufferType {
     DownstreamData = 2,
     UpstreamData = 3,
     HttpCallResponseBody = 4,
+    GrpcReceiveBuffer = 5,
 }
 
 #[repr(u32)]
@@ -69,6 +79,8 @@ pub enum MapType {
     HttpRequestTrailers = 1,
     HttpResponseHeaders = 2,
     HttpResponseTrailers = 3,
+    GrpcReceiveInitialMetadata = 4,
+    GrpcReceiveTrailingMetadata = 5,
     HttpCallResponseHeaders = 6,
     HttpCallResponseTrailers = 7,
 }
@@ -80,6 +92,15 @@ pub enum PeerType {
     Unknown = 0,
     Local = 1,
     Remote = 2,
+}
+
+#[repr(u32)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[non_exhaustive]
+pub enum MetricType {
+    Counter = 0,
+    Gauge = 1,
+    Histogram = 2,
 }
 
 pub type Bytes = Vec<u8>;

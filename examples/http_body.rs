@@ -18,19 +18,24 @@ use proxy_wasm::types::*;
 #[no_mangle]
 pub fn _start() {
     proxy_wasm::set_log_level(LogLevel::Trace);
-    proxy_wasm::set_http_context(|_, _| -> Box<dyn HttpContext> { Box::new(HttpBody::new()) });
+    proxy_wasm::set_root_context(|_| -> Box<dyn RootContext> { Box::new(HttpBodyRoot) });
 }
 
-#[derive(Default)]
-struct HttpBody {
-    total_body_size: usize,
-}
+struct HttpBodyRoot;
 
-impl HttpBody {
-    fn new() -> HttpBody {
-        Default::default()
+impl Context for HttpBodyRoot {}
+
+impl RootContext for HttpBodyRoot {
+    fn get_type(&self) -> Option<ContextType> {
+        Some(ContextType::HttpContext)
+    }
+
+    fn create_http_context(&self, _: u32) -> Option<Box<dyn HttpContext>> {
+        Some(Box::new(HttpBody))
     }
 }
+
+struct HttpBody;
 
 impl Context for HttpBody {}
 
@@ -41,13 +46,10 @@ impl HttpContext for HttpBody {
         // We must do this here, because once we exit this function we
         // can no longer modify the response headers.
         self.set_http_response_header("content-length", None);
-        // Don't continue to the next callout in the chain because we might
-        // modify the body.
-        Action::Pause
+        Action::Continue
     }
 
     fn on_http_response_body(&mut self, body_size: usize, end_of_stream: bool) -> Action {
-        self.total_body_size += body_size;
         if !end_of_stream {
             // Wait -- we'll be called again when the complete body is buffered
             // at the host side.
@@ -56,15 +58,11 @@ impl HttpContext for HttpBody {
 
         // Replace the message body if it contains the text "secret".
         // Since we returned "Pause" previuously, this will return the whole body.
-        // However, we have to calculate the size ourselves.
-        if let Some(body_bytes) = self.get_http_response_body(0, self.total_body_size) {
+        if let Some(body_bytes) = self.get_http_response_body(0, body_size) {
             let body_str = String::from_utf8(body_bytes).unwrap();
-            if body_str.find("secret").is_some() {
-                let new_body = format!(
-                    "Original message body ({} bytes) redacted.",
-                    self.total_body_size
-                );
-                self.set_http_response_body(0, self.total_body_size, &new_body.into_bytes());
+            if body_str.contains("secret") {
+                let new_body = format!("Original message body ({} bytes) redacted.", body_size);
+                self.set_http_response_body(0, body_size, &new_body.into_bytes());
             }
         }
         Action::Continue

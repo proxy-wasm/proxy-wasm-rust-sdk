@@ -1,4 +1,4 @@
-load("@io_bazel_rules_rust//rust:rust.bzl", "rust_binary")
+load("@rules_rust//rust:rust.bzl", "rust_binary")
 
 rust_binary(
     name = "hello_world",
@@ -8,9 +8,13 @@ rust_binary(
     out_binary = True,
     deps = [
         "//:proxy_wasm",
-        "//cargo:chrono",
-        "//cargo:log",
-    ],
+        "//bazel/cargo:cfg_if",
+        "//bazel/cargo:chrono",
+        "//bazel/cargo:log",
+    ] + select({
+        "@rules_rust//rust/platform:wasm32-unknown-unknown": [],
+        "//conditions:default": ["//bazel/cargo:getrandom"],
+    }),
 )
 
 rust_binary(
@@ -21,7 +25,7 @@ rust_binary(
     out_binary = True,
     deps = [
         "//:proxy_wasm",
-        "//cargo:log",
+        "//bazel/cargo:log",
     ],
 )
 
@@ -33,7 +37,7 @@ rust_binary(
     out_binary = True,
     deps = [
         "//:proxy_wasm",
-        "//cargo:log",
+        "//bazel/cargo:log",
     ],
 )
 
@@ -45,6 +49,18 @@ rust_binary(
     out_binary = True,
     deps = [
         "//:proxy_wasm",
-        "//cargo:log",
+        "//bazel/cargo:log",
+    ],
+)
+
+rust_binary(
+    name = "http_config",
+    srcs = ["http_config.rs"],
+    crate_type = "cdylib",
+    edition = "2018",
+    out_binary = True,
+    deps = [
+        "//:proxy_wasm",
+        "//bazel/cargo:log",
     ],
 )

@@ -1,4 +1,4 @@
-load("@io_bazel_rules_rust//rust:rust.bzl", "rust_library")
+load("@rules_rust//rust:rust.bzl", "rust_library")
 
 rust_library(
     name = "proxy_wasm",
@@ -6,8 +6,7 @@ rust_library(
     edition = "2018",
     visibility = ["//visibility:public"],
     deps = [
-        "//cargo:hashbrown",
-        "//cargo:log",
-        "//cargo:wee_alloc",
+        "//bazel/cargo:hashbrown",
+        "//bazel/cargo:log",
     ],
 )

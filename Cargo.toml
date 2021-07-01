@@ -1,6 +1,6 @@
 [package]
 name = "proxy-wasm"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Piotr Sikora <piotrsikora@google.com>"]
 description = "WebAssembly for Proxies"
 readme = "README.md"
@@ -8,26 +8,30 @@ license = "Apache-2.0"
 repository = "https://github.com/proxy-wasm/proxy-wasm-rust-sdk"
 edition = "2018"
 
+[features]
+wee-alloc = ["wee_alloc"]
+
 [dependencies]
-hashbrown = { version = "0.7", default-features = false, features = ["ahash", "inline-more"] }
+hashbrown = "0.11"
 log = "0.4"
-wee_alloc = "0.4"
+wee_alloc = { version = "0.4", optional = true }
 
 [dev-dependencies]
+cfg-if = "1.0"
 chrono = "0.4"
+
+[target.'cfg(not(all(target_arch = "wasm32", target_os = "unknown")))'.dev-dependencies]
+getrandom = "0.2"
 
 [profile.release]
 lto = true
 opt-level = 3
 panic = "abort"
 
-[raze]
-workspace_path = "//cargo"
-target = "wasm32-unknown-unknown"
+[package.metadata.raze]
+package_aliases_dir = "bazel/cargo"
+workspace_path = "//bazel/cargo"
 genmode = "Remote"
-
-[raze.crates.log.'0.4.11']
-additional_flags = ["--cfg=atomic_cas"]
 
 [[example]]
 name = "hello_world"
@@ -47,4 +51,9 @@ crate-type = ["cdylib"]
 [[example]]
 name = "http_body"
 path = "examples/http_body.rs"
+crate-type = ["cdylib"]
+
+[[example]]
+name = "http_config"
+path = "examples/http_config.rs"
 crate-type = ["cdylib"]

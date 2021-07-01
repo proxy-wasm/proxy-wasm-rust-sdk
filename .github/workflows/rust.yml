@@ -24,6 +24,9 @@ on:
     branches:
     - master
 
+  schedule:
+    - cron: '0 0 * * *'
+
 jobs:
 
   licenses:
@@ -38,6 +41,45 @@ jobs:
         export PATH=$PATH:$(go env GOPATH)/bin
         addlicense -check .
 
+  bazel:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache/bazel
+          ~/.cache/bazelisk
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/bin
+          ~/.cargo/registry
+        key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+
+    - name: Build (wasm32-unknown-unknown)
+      run: bazelisk --noworkspace_rc build --platforms=@rules_rust//rust/platform:wasm //...
+
+    - name: Build (wasm32-wasi)
+      run: bazelisk --noworkspace_rc build --platforms=@rules_rust//rust/platform:wasi //...
+
+    - name: Format (buildifier)
+      run: |
+        GO111MODULE=on go get -u github.com/bazelbuild/buildtools/buildifier@3.4.0
+        export PATH=$PATH:$(go env GOPATH)/bin
+        buildifier -mode=check WORKSPACE
+        buildifier -mode=check BUILD
+        buildifier -mode=check examples/BUILD
+
+    - name: Format (cargo raze)
+      run: |
+        mv bazel/cargo/Cargo.raze.lock Cargo.lock
+        bazelisk --noworkspace_rc run @cargo_raze//:raze -- --manifest-path=$(pwd)/Cargo.toml
+        mv Cargo.lock bazel/cargo/Cargo.raze.lock
+        git diff --exit-code
+
   stable:
     runs-on: ubuntu-latest
 
@@ -48,16 +90,37 @@ jobs:
       run: |
         rustup toolchain install stable --component clippy --component rustfmt
         rustup target add wasm32-unknown-unknown
+        rustup target add wasm32-wasi
 
-    - name: Build
+    - name: Build (wasm32-unknown-unknown)
       env:
-        RUSTFLAGS: -C link-args=-S -D warnings
-      run: cargo build --target=wasm32-unknown-unknown --release --all-targets
+        RUSTFLAGS: -D warnings -C link-args=-S
+      run: cargo build --release --all-targets --target=wasm32-unknown-unknown
 
-    - name: Format (clippy)
+    - name: Clippy (wasm32-unknown-unknown)
       env:
-        RUSTFLAGS: -C link-args=-S -D warnings
-      run: cargo clippy --target=wasm32-unknown-unknown --release --all-targets
+        RUSTFLAGS: -D warnings -C link-args=-S
+      run: cargo clippy --release --all-targets --target=wasm32-unknown-unknown
+
+    - name: Build (wasm32-wasi)
+      env:
+        RUSTFLAGS: -D warnings -C link-args=-S
+      run: cargo build --release --all-targets --target=wasm32-wasi
+
+    - name: Build (wasm32-wasi with wee-alloc)
+      env:
+        RUSTFLAGS: -D warnings -C link-args=-S
+      run: cargo build --release --all-targets --target=wasm32-wasi --features=wee-alloc
+
+    - name: Clippy (wasm32-wasi)
+      env:
+        RUSTFLAGS: -D warnings -C link-args=-S
+      run: cargo clippy --release --all-targets --target=wasm32-wasi
+
+    - name: Clippy (wasm32-wasi with wee-alloc)
+      env:
+        RUSTFLAGS: -D warnings -C link-args=-S
+      run: cargo clippy --release --all-targets --target=wasm32-wasi --features=wee-alloc
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
@@ -81,64 +144,67 @@ jobs:
       run: |
         rustup toolchain install nightly --component clippy --component rustfmt
         rustup +nightly target add wasm32-unknown-unknown
+        rustup +nightly target add wasm32-wasi
+        rustup default nightly
 
-    - name: Build
+    - name: Build (wasm32-unknown-unknown)
       env:
-        RUSTFLAGS: -C link-args=-S -D warnings
-      run: cargo +nightly build --target=wasm32-unknown-unknown --release --all-targets
+        RUSTFLAGS: -D warnings -C link-args=-S
+      run: cargo build --release --all-targets --target=wasm32-unknown-unknown
 
-    - name: Format (clippy)
+    - name: Clippy (wasm32-unknown-unknown)
       env:
-        RUSTFLAGS: -C link-args=-S -D warnings
-      run: cargo +nightly clippy --target=wasm32-unknown-unknown --release --all-targets
+        RUSTFLAGS: -D warnings -C link-args=-S
+      run: cargo clippy --release --all-targets --target=wasm32-unknown-unknown
+
+    - name: Build (wasm32-wasi)
+      env:
+        RUSTFLAGS: -D warnings -C link-args=-S
+      run: cargo build --release --all-targets --target=wasm32-wasi
+
+    - name: Build (wasm32-wasi with wee-alloc)
+      env:
+        RUSTFLAGS: -D warnings -C link-args=-S
+      run: cargo build --release --all-targets --target=wasm32-wasi --features=wee-alloc
+
+    - name: Clippy (wasm32-wasi)
+      env:
+        RUSTFLAGS: -D warnings -C link-args=-S
+      run: cargo clippy --release --all-targets --target=wasm32-wasi
+
+    - name: Clippy (wasm32-wasi with wee-alloc)
+      env:
+        RUSTFLAGS: -D warnings -C link-args=-S
+      run: cargo clippy --release --all-targets --target=wasm32-wasi --features=wee-alloc
 
     - name: Format (rustfmt)
-      run: cargo +nightly fmt -- --check
+      run: cargo fmt -- --check
 
     - name: Format (manifest)
-      run: cargo +nightly verify-project
+      run: cargo verify-project
 
     - name: Package (docs)
-      run: cargo +nightly doc --no-deps --target=wasm32-unknown-unknown
+      run: cargo doc --no-deps --target=wasm32-unknown-unknown
 
     - name: Package (publish)
-      run: cargo +nightly publish --dry-run --target=wasm32-unknown-unknown
+      run: cargo publish --dry-run --target=wasm32-unknown-unknown
 
-  bazel:
+  outdated:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Cache
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.cache/bazel
-          ~/.cache/bazelisk
-          ~/.cargo/.crates.toml
-          ~/.cargo/.crates2.json
-          ~/.cargo/bin
-          ~/.cargo/registry
-        key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'cargo/Cargo.lock') }}
+    - name: Run cargo outdated
+      run: cargo outdated --root-deps-only --exit-code 1
 
-    - name: Build
-      run: |
-        bazelisk build //...
+  audit:
+    runs-on: ubuntu-latest
 
-    - name: Format (buildifier)
-      run: |
-        GO111MODULE=on go get -u github.com/bazelbuild/buildtools/buildifier@3.4.0
-        export PATH=$PATH:$(go env GOPATH)/bin
-        buildifier -mode=check WORKSPACE
-        buildifier -mode=check BUILD
-        buildifier -mode=check examples/BUILD
+    steps:
+    - uses: actions/checkout@v2
 
-    - name: Format (cargo raze)
+    - name: Run cargo audit
       run: |
-        cargo install cargo-raze --version 0.3.8
-        cp -p cargo/Cargo.lock .
-        rm -rf cargo/
-        cargo raze --output=cargo
-        mv Cargo.lock cargo/
-        git diff --exit-code
+        cp -p bazel/cargo/Cargo.raze.lock .
+        cargo audit
