@@ -1096,7 +1096,7 @@ mod utils {
         }
         let mut bytes: Bytes = Vec::with_capacity(size);
         for part in &path {
-            bytes.extend_from_slice(&part.as_bytes());
+            bytes.extend_from_slice(part.as_bytes());
             bytes.push(0);
         }
         bytes.pop();
@@ -1115,9 +1115,9 @@ mod utils {
             bytes.extend_from_slice(&value.len().to_le_bytes());
         }
         for (name, value) in &map {
-            bytes.extend_from_slice(&name.as_bytes());
+            bytes.extend_from_slice(name.as_bytes());
             bytes.push(0);
-            bytes.extend_from_slice(&value.as_bytes());
+            bytes.extend_from_slice(value.as_bytes());
             bytes.push(0);
         }
         bytes
@@ -1135,9 +1135,9 @@ mod utils {
             bytes.extend_from_slice(&value.len().to_le_bytes());
         }
         for (name, value) in &map {
-            bytes.extend_from_slice(&name.as_bytes());
+            bytes.extend_from_slice(name.as_bytes());
             bytes.push(0);
-            bytes.extend_from_slice(&value);
+            bytes.extend_from_slice(value);
             bytes.push(0);
         }
         bytes
