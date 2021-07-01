@@ -20,7 +20,6 @@ pub type NewHttpContext = fn(context_id: u32, root_context_id: u32) -> Box<dyn H
 
 #[repr(u32)]
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
-#[non_exhaustive]
 pub enum LogLevel {
     Trace = 0,
     Debug = 1,
