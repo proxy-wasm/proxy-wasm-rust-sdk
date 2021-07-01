@@ -185,7 +185,7 @@ pub fn get_map_bytes(map_type: MapType) -> Result<Vec<(String, Bytes)>, Status> 
             Status::Ok => {
                 if !return_data.is_null() {
                     let serialized_map = Vec::from_raw_parts(return_data, return_size, return_size);
-                    Ok(utils::deserialize_bytes_map(&serialized_map))
+                    Ok(utils::deserialize_map_bytes(&serialized_map))
                 } else {
                     Ok(Vec::new())
                 }
@@ -205,6 +205,16 @@ extern "C" {
 
 pub fn set_map(map_type: MapType, map: Vec<(&str, &str)>) -> Result<(), Status> {
     let serialized_map = utils::serialize_map(map);
+    unsafe {
+        match proxy_set_header_map_pairs(map_type, serialized_map.as_ptr(), serialized_map.len()) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+pub fn set_map_bytes(map_type: MapType, map: Vec<(&str, &[u8])>) -> Result<(), Status> {
+    let serialized_map = utils::serialize_map_bytes(map);
     unsafe {
         match proxy_set_header_map_pairs(map_type, serialized_map.as_ptr(), serialized_map.len()) {
             Status::Ok => Ok(()),
@@ -320,6 +330,32 @@ pub fn set_map_value(map_type: MapType, key: &str, value: Option<&str>) -> Resul
     }
 }
 
+pub fn set_map_value_bytes(
+    map_type: MapType,
+    key: &str,
+    value: Option<&[u8]>,
+) -> Result<(), Status> {
+    unsafe {
+        if let Some(value) = value {
+            match proxy_replace_header_map_value(
+                map_type,
+                key.as_ptr(),
+                key.len(),
+                value.as_ptr(),
+                value.len(),
+            ) {
+                Status::Ok => Ok(()),
+                status => panic!("unexpected status: {}", status as u32),
+            }
+        } else {
+            match proxy_remove_header_map_value(map_type, key.as_ptr(), key.len()) {
+                Status::Ok => Ok(()),
+                status => panic!("unexpected status: {}", status as u32),
+            }
+        }
+    }
+}
+
 extern "C" {
     fn proxy_add_header_map_value(
         map_type: MapType,
@@ -331,6 +367,21 @@ extern "C" {
 }
 
 pub fn add_map_value(map_type: MapType, key: &str, value: &str) -> Result<(), Status> {
+    unsafe {
+        match proxy_add_header_map_value(
+            map_type,
+            key.as_ptr(),
+            key.len(),
+            value.as_ptr(),
+            value.len(),
+        ) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+pub fn add_map_value_bytes(map_type: MapType, key: &str, value: &[u8]) -> Result<(), Status> {
     unsafe {
         match proxy_add_header_map_value(
             map_type,
@@ -722,7 +773,7 @@ pub fn dispatch_grpc_call(
     timeout: Duration,
 ) -> Result<u32, Status> {
     let mut return_callout_id = 0;
-    let serialized_initial_metadata = utils::serialize_bytes_map(initial_metadata);
+    let serialized_initial_metadata = utils::serialize_map_bytes(initial_metadata);
     unsafe {
         match proxy_grpc_call(
             upstream_name.as_ptr(),
@@ -770,7 +821,7 @@ pub fn open_grpc_stream(
     initial_metadata: Vec<(&str, &[u8])>,
 ) -> Result<u32, Status> {
     let mut return_stream_id = 0;
-    let serialized_initial_metadata = utils::serialize_bytes_map(initial_metadata);
+    let serialized_initial_metadata = utils::serialize_map_bytes(initial_metadata);
     unsafe {
         match proxy_grpc_stream(
             upstream_name.as_ptr(),
@@ -1002,7 +1053,7 @@ mod utils {
         }
         let mut bytes: Bytes = Vec::with_capacity(size);
         for part in &path {
-            bytes.extend_from_slice(&part.as_bytes());
+            bytes.extend_from_slice(part.as_bytes());
             bytes.push(0);
         }
         bytes.pop();
@@ -1021,15 +1072,15 @@ mod utils {
             bytes.extend_from_slice(&value.len().to_le_bytes());
         }
         for (name, value) in &map {
-            bytes.extend_from_slice(&name.as_bytes());
+            bytes.extend_from_slice(name.as_bytes());
             bytes.push(0);
-            bytes.extend_from_slice(&value.as_bytes());
+            bytes.extend_from_slice(value.as_bytes());
             bytes.push(0);
         }
         bytes
     }
 
-    pub(super) fn serialize_bytes_map(map: Vec<(&str, &[u8])>) -> Bytes {
+    pub(super) fn serialize_map_bytes(map: Vec<(&str, &[u8])>) -> Bytes {
         let mut size: usize = 4;
         for (name, value) in &map {
             size += name.len() + value.len() + 10;
@@ -1041,9 +1092,9 @@ mod utils {
             bytes.extend_from_slice(&value.len().to_le_bytes());
         }
         for (name, value) in &map {
-            bytes.extend_from_slice(&name.as_bytes());
+            bytes.extend_from_slice(name.as_bytes());
             bytes.push(0);
-            bytes.extend_from_slice(&value);
+            bytes.extend_from_slice(value);
             bytes.push(0);
         }
         bytes
@@ -1073,7 +1124,7 @@ mod utils {
         map
     }
 
-    pub(super) fn deserialize_bytes_map(bytes: &[u8]) -> Vec<(String, Bytes)> {
+    pub(super) fn deserialize_map_bytes(bytes: &[u8]) -> Vec<(String, Bytes)> {
         let mut map = Vec::new();
         if bytes.is_empty() {
             return map;
