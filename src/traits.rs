@@ -87,7 +87,7 @@ pub trait Context {
     }
 
     fn get_http_call_response_header(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpCallResponseHeaders, &name).unwrap()
+        hostcalls::get_map_value(MapType::HttpCallResponseHeaders, name).unwrap()
     }
 
     fn get_http_call_response_header_bytes(&self, name: &str) -> Option<Bytes> {
@@ -107,7 +107,7 @@ pub trait Context {
     }
 
     fn get_http_call_response_trailer(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpCallResponseTrailers, &name).unwrap()
+        hostcalls::get_map_value(MapType::HttpCallResponseTrailers, name).unwrap()
     }
 
     fn get_http_call_response_trailer_bytes(&self, name: &str) -> Option<Bytes> {
@@ -160,7 +160,7 @@ pub trait Context {
     }
 
     fn get_grpc_stream_initial_metadata_value(&self, name: &str) -> Option<Bytes> {
-        hostcalls::get_map_value_bytes(MapType::GrpcReceiveInitialMetadata, &name).unwrap()
+        hostcalls::get_map_value_bytes(MapType::GrpcReceiveInitialMetadata, name).unwrap()
     }
 
     fn send_grpc_stream_message(&self, token_id: u32, message: Option<&[u8]>, end_stream: bool) {
@@ -180,7 +180,7 @@ pub trait Context {
     }
 
     fn get_grpc_stream_trailing_metadata_value(&self, name: &str) -> Option<Bytes> {
-        hostcalls::get_map_value_bytes(MapType::GrpcReceiveTrailingMetadata, &name).unwrap()
+        hostcalls::get_map_value_bytes(MapType::GrpcReceiveTrailingMetadata, name).unwrap()
     }
 
     fn cancel_grpc_stream(&self, token_id: u32) {
@@ -300,7 +300,7 @@ pub trait HttpContext: Context {
     }
 
     fn get_http_request_header(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpRequestHeaders, &name).unwrap()
+        hostcalls::get_map_value(MapType::HttpRequestHeaders, name).unwrap()
     }
 
     fn get_http_request_header_bytes(&self, name: &str) -> Option<Bytes> {
@@ -308,7 +308,7 @@ pub trait HttpContext: Context {
     }
 
     fn set_http_request_header(&self, name: &str, value: Option<&str>) {
-        hostcalls::set_map_value(MapType::HttpRequestHeaders, &name, value).unwrap()
+        hostcalls::set_map_value(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
     fn set_http_request_header_bytes(&self, name: &str, value: Option<&[u8]>) {
@@ -316,7 +316,7 @@ pub trait HttpContext: Context {
     }
 
     fn add_http_request_header(&self, name: &str, value: &str) {
-        hostcalls::add_map_value(MapType::HttpRequestHeaders, &name, value).unwrap()
+        hostcalls::add_map_value(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
     fn add_http_request_header_bytes(&self, name: &str, value: &[u8]) {
@@ -356,7 +356,7 @@ pub trait HttpContext: Context {
     }
 
     fn get_http_request_trailer(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpRequestTrailers, &name).unwrap()
+        hostcalls::get_map_value(MapType::HttpRequestTrailers, name).unwrap()
     }
 
     fn get_http_request_trailer_bytes(&self, name: &str) -> Option<Bytes> {
@@ -364,7 +364,7 @@ pub trait HttpContext: Context {
     }
 
     fn set_http_request_trailer(&self, name: &str, value: Option<&str>) {
-        hostcalls::set_map_value(MapType::HttpRequestTrailers, &name, value).unwrap()
+        hostcalls::set_map_value(MapType::HttpRequestTrailers, name, value).unwrap()
     }
 
     fn set_http_request_trailer_bytes(&self, name: &str, value: Option<&[u8]>) {
@@ -372,7 +372,7 @@ pub trait HttpContext: Context {
     }
 
     fn add_http_request_trailer(&self, name: &str, value: &str) {
-        hostcalls::add_map_value(MapType::HttpRequestTrailers, &name, value).unwrap()
+        hostcalls::add_map_value(MapType::HttpRequestTrailers, name, value).unwrap()
     }
 
     fn add_http_request_trailer_bytes(&self, name: &str, value: &[u8]) {
@@ -404,7 +404,7 @@ pub trait HttpContext: Context {
     }
 
     fn get_http_response_header(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpResponseHeaders, &name).unwrap()
+        hostcalls::get_map_value(MapType::HttpResponseHeaders, name).unwrap()
     }
 
     fn get_http_response_header_bytes(&self, name: &str) -> Option<Bytes> {
@@ -412,7 +412,7 @@ pub trait HttpContext: Context {
     }
 
     fn set_http_response_header(&self, name: &str, value: Option<&str>) {
-        hostcalls::set_map_value(MapType::HttpResponseHeaders, &name, value).unwrap()
+        hostcalls::set_map_value(MapType::HttpResponseHeaders, name, value).unwrap()
     }
 
     fn set_http_response_header_bytes(&self, name: &str, value: Option<&[u8]>) {
@@ -420,7 +420,7 @@ pub trait HttpContext: Context {
     }
 
     fn add_http_response_header(&self, name: &str, value: &str) {
-        hostcalls::add_map_value(MapType::HttpResponseHeaders, &name, value).unwrap()
+        hostcalls::add_map_value(MapType::HttpResponseHeaders, name, value).unwrap()
     }
 
     fn add_http_response_header_bytes(&self, name: &str, value: &[u8]) {
@@ -460,7 +460,7 @@ pub trait HttpContext: Context {
     }
 
     fn get_http_response_trailer(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpResponseTrailers, &name).unwrap()
+        hostcalls::get_map_value(MapType::HttpResponseTrailers, name).unwrap()
     }
 
     fn get_http_response_trailer_bytes(&self, name: &str) -> Option<Bytes> {
@@ -468,7 +468,7 @@ pub trait HttpContext: Context {
     }
 
     fn set_http_response_trailer(&self, name: &str, value: Option<&str>) {
-        hostcalls::set_map_value(MapType::HttpResponseTrailers, &name, value).unwrap()
+        hostcalls::set_map_value(MapType::HttpResponseTrailers, name, value).unwrap()
     }
 
     fn set_http_response_trailer_bytes(&self, name: &str, value: Option<&[u8]>) {
@@ -476,7 +476,7 @@ pub trait HttpContext: Context {
     }
 
     fn add_http_response_trailer(&self, name: &str, value: &str) {
-        hostcalls::add_map_value(MapType::HttpResponseTrailers, &name, value).unwrap()
+        hostcalls::add_map_value(MapType::HttpResponseTrailers, name, value).unwrap()
     }
 
     fn add_http_response_trailer_bytes(&self, name: &str, value: &[u8]) {
