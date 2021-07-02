@@ -1,4 +1,4 @@
-load("@io_bazel_rules_rust//rust:rust.bzl", "rust_binary")
+load("@rules_rust//rust:rust.bzl", "rust_binary")
 
 rust_binary(
     name = "hello_world",
@@ -12,7 +12,7 @@ rust_binary(
         "//bazel/cargo:chrono",
         "//bazel/cargo:log",
     ] + select({
-        "@io_bazel_rules_rust//rust/platform:wasm32-unknown-unknown": [],
+        "@rules_rust//rust/platform:wasm32-unknown-unknown": [],
         "//conditions:default": ["//bazel/cargo:getrandom"],
     }),
 )

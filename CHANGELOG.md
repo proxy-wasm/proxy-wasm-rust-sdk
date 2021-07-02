@@ -10,6 +10,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Updated ABI to Proxy-Wasm ABI v0.2.1.
 
+## [0.1.4] - 2021-07-01
+
+### Added
+
+- Added support for gRPC callouts.
+  Thanks [@Shikugawa](https://github.com/Shikugawa)!
+
 ## [0.1.3] - 2020-12-04
 
 ### Fixed
@@ -52,7 +59,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release.
 
 
-[Unreleased]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.1.0...v0.1.1

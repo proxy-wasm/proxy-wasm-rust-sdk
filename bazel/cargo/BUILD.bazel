@@ -32,7 +32,7 @@ alias(
 
 alias(
     name = "getrandom",
-    actual = "@raze__getrandom__0_2_0//:getrandom",
+    actual = "@raze__getrandom__0_2_3//:getrandom",
     tags = [
         "cargo-raze",
         "manual",
@@ -41,7 +41,7 @@ alias(
 
 alias(
     name = "hashbrown",
-    actual = "@raze__hashbrown__0_9_1//:hashbrown",
+    actual = "@raze__hashbrown__0_11_2//:hashbrown",
     tags = [
         "cargo-raze",
         "manual",
@@ -50,9 +50,17 @@ alias(
 
 alias(
     name = "log",
-    actual = "@raze__log__0_4_11//:log",
+    actual = "@raze__log__0_4_14//:log",
     tags = [
         "cargo-raze",
         "manual",
     ],
+)
+
+# Export file for Stardoc support
+exports_files(
+    [
+        "crates.bzl",
+    ],
+    visibility = ["//visibility:public"],
 )

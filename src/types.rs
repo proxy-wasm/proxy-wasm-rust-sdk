@@ -19,7 +19,7 @@ pub type NewStreamContext = fn(context_id: u32, root_context_id: u32) -> Box<dyn
 pub type NewHttpContext = fn(context_id: u32, root_context_id: u32) -> Box<dyn HttpContext>;
 
 #[repr(u32)]
-#[derive(Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub enum LogLevel {
     Trace = 0,
     Debug = 1,
@@ -30,32 +30,37 @@ pub enum LogLevel {
 }
 
 #[repr(u32)]
-#[derive(Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[non_exhaustive]
 pub enum Action {
     Continue = 0,
     Pause = 1,
 }
 
 #[repr(u32)]
-#[derive(Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[non_exhaustive]
 pub enum Status {
     Ok = 0,
     NotFound = 1,
     BadArgument = 2,
+    ParseFailure = 4,
     Empty = 7,
     CasMismatch = 8,
     InternalFailure = 10,
 }
 
 #[repr(u32)]
-#[derive(Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[non_exhaustive]
 pub enum ContextType {
     HttpContext = 0,
     StreamContext = 1,
 }
 
 #[repr(u32)]
-#[derive(Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[non_exhaustive]
 pub enum StreamType {
     HttpRequest = 0,
     HttpResponse = 1,
@@ -64,30 +69,36 @@ pub enum StreamType {
 }
 
 #[repr(u32)]
-#[derive(Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[non_exhaustive]
 pub enum BufferType {
     HttpRequestBody = 0,
     HttpResponseBody = 1,
     DownstreamData = 2,
     UpstreamData = 3,
     HttpCallResponseBody = 4,
+    GrpcReceiveBuffer = 5,
     VmConfiguration = 6,
     PluginConfiguration = 7,
 }
 
 #[repr(u32)]
-#[derive(Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[non_exhaustive]
 pub enum MapType {
     HttpRequestHeaders = 0,
     HttpRequestTrailers = 1,
     HttpResponseHeaders = 2,
     HttpResponseTrailers = 3,
+    GrpcReceiveInitialMetadata = 4,
+    GrpcReceiveTrailingMetadata = 5,
     HttpCallResponseHeaders = 6,
     HttpCallResponseTrailers = 7,
 }
 
 #[repr(u32)]
-#[derive(Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[non_exhaustive]
 pub enum PeerType {
     Unknown = 0,
     Local = 1,
@@ -95,7 +106,8 @@ pub enum PeerType {
 }
 
 #[repr(u32)]
-#[derive(Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[non_exhaustive]
 pub enum MetricType {
     Counter = 0,
     Gauge = 1,

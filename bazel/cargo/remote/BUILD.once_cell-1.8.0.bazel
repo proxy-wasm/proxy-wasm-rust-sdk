@@ -6,15 +6,15 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 """
 
 # buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
 load(
-    "@io_bazel_rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:rust.bzl",
     "rust_binary",
     "rust_library",
     "rust_test",
 )
-
-# buildifier: disable=load
-load("@bazel_skylib//lib:selects.bzl", "selects")
 
 package(default_visibility = [
     # Public for visibility by "@raze__crate__version//" targets.
@@ -30,17 +30,31 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "ahash" with type "bench" omitted
+# Unsupported target "bench" with type "example" omitted
 
-# Unsupported target "map" with type "bench" omitted
+# Unsupported target "bench_acquire" with type "example" omitted
+
+# Unsupported target "bench_vs_lazy_static" with type "example" omitted
+
+# Unsupported target "lazy_static" with type "example" omitted
+
+# Unsupported target "reentrant_init_deadlocks" with type "example" omitted
+
+# Unsupported target "regex" with type "example" omitted
+
+# Unsupported target "test_synchronization" with type "example" omitted
 
 rust_library(
-    name = "ahash",
+    name = "once_cell",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "alloc",
+        "race",
+        "unstable",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
+    data = [],
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
@@ -49,14 +63,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.4.6",
+    version = "1.8.0",
     # buildifier: leave-alone
     deps = [
     ],
 )
 
-# Unsupported target "bench" with type "test" omitted
-
-# Unsupported target "map_tests" with type "test" omitted
-
-# Unsupported target "nopanic" with type "test" omitted
+# Unsupported target "it" with type "test" omitted

@@ -82,12 +82,119 @@ pub trait Context {
         hostcalls::get_map(MapType::HttpCallResponseHeaders).unwrap()
     }
 
+    fn get_http_call_response_headers_bytes(&self) -> Vec<(String, Bytes)> {
+        hostcalls::get_map_bytes(MapType::HttpCallResponseHeaders).unwrap()
+    }
+
+    fn get_http_call_response_header(&self, name: &str) -> Option<String> {
+        hostcalls::get_map_value(MapType::HttpCallResponseHeaders, name).unwrap()
+    }
+
+    fn get_http_call_response_header_bytes(&self, name: &str) -> Option<Bytes> {
+        hostcalls::get_map_value_bytes(MapType::HttpCallResponseHeaders, name).unwrap()
+    }
+
     fn get_http_call_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
         hostcalls::get_buffer(BufferType::HttpCallResponseBody, start, max_size).unwrap()
     }
 
     fn get_http_call_response_trailers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpCallResponseTrailers).unwrap()
+    }
+
+    fn get_http_call_response_trailers_bytes(&self) -> Vec<(String, Bytes)> {
+        hostcalls::get_map_bytes(MapType::HttpCallResponseTrailers).unwrap()
+    }
+
+    fn get_http_call_response_trailer(&self, name: &str) -> Option<String> {
+        hostcalls::get_map_value(MapType::HttpCallResponseTrailers, name).unwrap()
+    }
+
+    fn get_http_call_response_trailer_bytes(&self, name: &str) -> Option<Bytes> {
+        hostcalls::get_map_value_bytes(MapType::HttpCallResponseTrailers, name).unwrap()
+    }
+
+    fn dispatch_grpc_call(
+        &self,
+        upstream_name: &str,
+        service_name: &str,
+        method_name: &str,
+        initial_metadata: Vec<(&str, &[u8])>,
+        message: Option<&[u8]>,
+        timeout: Duration,
+    ) -> Result<u32, Status> {
+        hostcalls::dispatch_grpc_call(
+            upstream_name,
+            service_name,
+            method_name,
+            initial_metadata,
+            message,
+            timeout,
+        )
+    }
+
+    fn on_grpc_call_response(&mut self, _token_id: u32, _status_code: u32, _response_size: usize) {}
+
+    fn get_grpc_call_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
+        hostcalls::get_buffer(BufferType::GrpcReceiveBuffer, start, max_size).unwrap()
+    }
+
+    fn cancel_grpc_call(&self, token_id: u32) {
+        hostcalls::cancel_grpc_call(token_id).unwrap()
+    }
+
+    fn open_grpc_stream(
+        &self,
+        cluster_name: &str,
+        service_name: &str,
+        method_name: &str,
+        initial_metadata: Vec<(&str, &[u8])>,
+    ) -> Result<u32, Status> {
+        hostcalls::open_grpc_stream(cluster_name, service_name, method_name, initial_metadata)
+    }
+
+    fn on_grpc_stream_initial_metadata(&mut self, _token_id: u32, _num_elements: u32) {}
+
+    fn get_grpc_stream_initial_metadata(&self) -> Vec<(String, Bytes)> {
+        hostcalls::get_map_bytes(MapType::GrpcReceiveInitialMetadata).unwrap()
+    }
+
+    fn get_grpc_stream_initial_metadata_value(&self, name: &str) -> Option<Bytes> {
+        hostcalls::get_map_value_bytes(MapType::GrpcReceiveInitialMetadata, name).unwrap()
+    }
+
+    fn send_grpc_stream_message(&self, token_id: u32, message: Option<&[u8]>, end_stream: bool) {
+        hostcalls::send_grpc_stream_message(token_id, message, end_stream).unwrap()
+    }
+
+    fn on_grpc_stream_message(&mut self, _token_id: u32, _message_size: usize) {}
+
+    fn get_grpc_stream_message(&mut self, start: usize, max_size: usize) -> Option<Bytes> {
+        hostcalls::get_buffer(BufferType::GrpcReceiveBuffer, start, max_size).unwrap()
+    }
+
+    fn on_grpc_stream_trailing_metadata(&mut self, _token_id: u32, _num_elements: u32) {}
+
+    fn get_grpc_stream_trailing_metadata(&self) -> Vec<(String, Bytes)> {
+        hostcalls::get_map_bytes(MapType::GrpcReceiveTrailingMetadata).unwrap()
+    }
+
+    fn get_grpc_stream_trailing_metadata_value(&self, name: &str) -> Option<Bytes> {
+        hostcalls::get_map_value_bytes(MapType::GrpcReceiveTrailingMetadata, name).unwrap()
+    }
+
+    fn cancel_grpc_stream(&self, token_id: u32) {
+        hostcalls::cancel_grpc_stream(token_id).unwrap()
+    }
+
+    fn close_grpc_stream(&self, token_id: u32) {
+        hostcalls::close_grpc_stream(token_id).unwrap()
+    }
+
+    fn on_grpc_stream_close(&mut self, _token_id: u32, _status_code: u32) {}
+
+    fn get_grpc_status(&self) -> (u32, Option<String>) {
+        hostcalls::get_grpc_status().unwrap()
     }
 
     fn on_done(&mut self) -> bool {
@@ -200,20 +307,40 @@ pub trait HttpContext: Context {
         hostcalls::get_map(MapType::HttpRequestHeaders).unwrap()
     }
 
+    fn get_http_request_headers_bytes(&self) -> Vec<(String, Bytes)> {
+        hostcalls::get_map_bytes(MapType::HttpRequestHeaders).unwrap()
+    }
+
     fn set_http_request_headers(&self, headers: Vec<(&str, &str)>) {
         hostcalls::set_map(MapType::HttpRequestHeaders, headers).unwrap()
     }
 
+    fn set_http_request_headers_bytes(&self, headers: Vec<(&str, &[u8])>) {
+        hostcalls::set_map_bytes(MapType::HttpRequestHeaders, headers).unwrap()
+    }
+
     fn get_http_request_header(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpRequestHeaders, &name).unwrap()
+        hostcalls::get_map_value(MapType::HttpRequestHeaders, name).unwrap()
+    }
+
+    fn get_http_request_header_bytes(&self, name: &str) -> Option<Bytes> {
+        hostcalls::get_map_value_bytes(MapType::HttpRequestHeaders, name).unwrap()
     }
 
     fn set_http_request_header(&self, name: &str, value: Option<&str>) {
-        hostcalls::set_map_value(MapType::HttpRequestHeaders, &name, value).unwrap()
+        hostcalls::set_map_value(MapType::HttpRequestHeaders, name, value).unwrap()
+    }
+
+    fn set_http_request_header_bytes(&self, name: &str, value: Option<&[u8]>) {
+        hostcalls::set_map_value_bytes(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
     fn add_http_request_header(&self, name: &str, value: &str) {
-        hostcalls::add_map_value(MapType::HttpRequestHeaders, &name, value).unwrap()
+        hostcalls::add_map_value(MapType::HttpRequestHeaders, name, value).unwrap()
+    }
+
+    fn add_http_request_header_bytes(&self, name: &str, value: &[u8]) {
+        hostcalls::add_map_value_bytes(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
     fn on_http_request_body(&mut self, _body_size: usize, _end_of_stream: bool) -> Action {
@@ -236,20 +363,40 @@ pub trait HttpContext: Context {
         hostcalls::get_map(MapType::HttpRequestTrailers).unwrap()
     }
 
+    fn get_http_request_trailers_bytes(&self) -> Vec<(String, Bytes)> {
+        hostcalls::get_map_bytes(MapType::HttpRequestTrailers).unwrap()
+    }
+
     fn set_http_request_trailers(&self, trailers: Vec<(&str, &str)>) {
         hostcalls::set_map(MapType::HttpRequestTrailers, trailers).unwrap()
     }
 
+    fn set_http_request_trailers_bytes(&self, trailers: Vec<(&str, &[u8])>) {
+        hostcalls::set_map_bytes(MapType::HttpRequestTrailers, trailers).unwrap()
+    }
+
     fn get_http_request_trailer(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpRequestTrailers, &name).unwrap()
+        hostcalls::get_map_value(MapType::HttpRequestTrailers, name).unwrap()
+    }
+
+    fn get_http_request_trailer_bytes(&self, name: &str) -> Option<Bytes> {
+        hostcalls::get_map_value_bytes(MapType::HttpRequestTrailers, name).unwrap()
     }
 
     fn set_http_request_trailer(&self, name: &str, value: Option<&str>) {
-        hostcalls::set_map_value(MapType::HttpRequestTrailers, &name, value).unwrap()
+        hostcalls::set_map_value(MapType::HttpRequestTrailers, name, value).unwrap()
+    }
+
+    fn set_http_request_trailer_bytes(&self, name: &str, value: Option<&[u8]>) {
+        hostcalls::set_map_value_bytes(MapType::HttpRequestTrailers, name, value).unwrap()
     }
 
     fn add_http_request_trailer(&self, name: &str, value: &str) {
-        hostcalls::add_map_value(MapType::HttpRequestTrailers, &name, value).unwrap()
+        hostcalls::add_map_value(MapType::HttpRequestTrailers, name, value).unwrap()
+    }
+
+    fn add_http_request_trailer_bytes(&self, name: &str, value: &[u8]) {
+        hostcalls::add_map_value_bytes(MapType::HttpRequestTrailers, name, value).unwrap()
     }
 
     fn resume_http_request(&self) {
@@ -264,20 +411,40 @@ pub trait HttpContext: Context {
         hostcalls::get_map(MapType::HttpResponseHeaders).unwrap()
     }
 
+    fn get_http_response_headers_bytes(&self) -> Vec<(String, Bytes)> {
+        hostcalls::get_map_bytes(MapType::HttpResponseHeaders).unwrap()
+    }
+
     fn set_http_response_headers(&self, headers: Vec<(&str, &str)>) {
         hostcalls::set_map(MapType::HttpResponseHeaders, headers).unwrap()
     }
 
+    fn set_http_response_headers_bytes(&self, headers: Vec<(&str, &[u8])>) {
+        hostcalls::set_map_bytes(MapType::HttpResponseHeaders, headers).unwrap()
+    }
+
     fn get_http_response_header(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpResponseHeaders, &name).unwrap()
+        hostcalls::get_map_value(MapType::HttpResponseHeaders, name).unwrap()
+    }
+
+    fn get_http_response_header_bytes(&self, name: &str) -> Option<Bytes> {
+        hostcalls::get_map_value_bytes(MapType::HttpResponseHeaders, name).unwrap()
     }
 
     fn set_http_response_header(&self, name: &str, value: Option<&str>) {
-        hostcalls::set_map_value(MapType::HttpResponseHeaders, &name, value).unwrap()
+        hostcalls::set_map_value(MapType::HttpResponseHeaders, name, value).unwrap()
+    }
+
+    fn set_http_response_header_bytes(&self, name: &str, value: Option<&[u8]>) {
+        hostcalls::set_map_value_bytes(MapType::HttpResponseHeaders, name, value).unwrap()
     }
 
     fn add_http_response_header(&self, name: &str, value: &str) {
-        hostcalls::add_map_value(MapType::HttpResponseHeaders, &name, value).unwrap()
+        hostcalls::add_map_value(MapType::HttpResponseHeaders, name, value).unwrap()
+    }
+
+    fn add_http_response_header_bytes(&self, name: &str, value: &[u8]) {
+        hostcalls::add_map_value_bytes(MapType::HttpResponseHeaders, name, value).unwrap()
     }
 
     fn on_http_response_body(&mut self, _body_size: usize, _end_of_stream: bool) -> Action {
@@ -300,20 +467,40 @@ pub trait HttpContext: Context {
         hostcalls::get_map(MapType::HttpResponseTrailers).unwrap()
     }
 
-    fn set_http_response_trailers(&self, headers: Vec<(&str, &str)>) {
-        hostcalls::set_map(MapType::HttpResponseTrailers, headers).unwrap()
+    fn get_http_response_trailers_bytes(&self) -> Vec<(String, Bytes)> {
+        hostcalls::get_map_bytes(MapType::HttpResponseTrailers).unwrap()
+    }
+
+    fn set_http_response_trailers(&self, trailers: Vec<(&str, &str)>) {
+        hostcalls::set_map(MapType::HttpResponseTrailers, trailers).unwrap()
+    }
+
+    fn set_http_response_trailers_bytes(&self, trailers: Vec<(&str, &[u8])>) {
+        hostcalls::set_map_bytes(MapType::HttpResponseTrailers, trailers).unwrap()
     }
 
     fn get_http_response_trailer(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpResponseTrailers, &name).unwrap()
+        hostcalls::get_map_value(MapType::HttpResponseTrailers, name).unwrap()
+    }
+
+    fn get_http_response_trailer_bytes(&self, name: &str) -> Option<Bytes> {
+        hostcalls::get_map_value_bytes(MapType::HttpResponseTrailers, name).unwrap()
     }
 
     fn set_http_response_trailer(&self, name: &str, value: Option<&str>) {
-        hostcalls::set_map_value(MapType::HttpResponseTrailers, &name, value).unwrap()
+        hostcalls::set_map_value(MapType::HttpResponseTrailers, name, value).unwrap()
+    }
+
+    fn set_http_response_trailer_bytes(&self, name: &str, value: Option<&[u8]>) {
+        hostcalls::set_map_value_bytes(MapType::HttpResponseTrailers, name, value).unwrap()
     }
 
     fn add_http_response_trailer(&self, name: &str, value: &str) {
-        hostcalls::add_map_value(MapType::HttpResponseTrailers, &name, value).unwrap()
+        hostcalls::add_map_value(MapType::HttpResponseTrailers, name, value).unwrap()
+    }
+
+    fn add_http_response_trailer_bytes(&self, name: &str, value: &[u8]) {
+        hostcalls::add_map_value_bytes(MapType::HttpResponseTrailers, name, value).unwrap()
     }
 
     fn resume_http_response(&self) {
