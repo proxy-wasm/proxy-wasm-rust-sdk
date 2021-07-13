@@ -324,10 +324,15 @@ impl Dispatcher {
         }
     }
 
-    fn on_http_request_headers(&self, context_id: u32, num_headers: usize) -> Action {
+    fn on_http_request_headers(
+        &self,
+        context_id: u32,
+        num_headers: usize,
+        end_of_stream: bool,
+    ) -> Action {
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            http_stream.on_http_request_headers(num_headers)
+            http_stream.on_http_request_headers(num_headers, end_of_stream)
         } else {
             panic!("invalid context_id")
         }
@@ -356,10 +361,15 @@ impl Dispatcher {
         }
     }
 
-    fn on_http_response_headers(&self, context_id: u32, num_headers: usize) -> Action {
+    fn on_http_response_headers(
+        &self,
+        context_id: u32,
+        num_headers: usize,
+        end_of_stream: bool,
+    ) -> Action {
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            http_stream.on_http_response_headers(num_headers)
+            http_stream.on_http_response_headers(num_headers, end_of_stream)
         } else {
             panic!("invalid context_id")
         }
@@ -605,8 +615,14 @@ pub extern "C" fn proxy_on_upstream_connection_close(context_id: u32, peer_type:
 }
 
 #[no_mangle]
-pub extern "C" fn proxy_on_request_headers(context_id: u32, num_headers: usize) -> Action {
-    DISPATCHER.with(|dispatcher| dispatcher.on_http_request_headers(context_id, num_headers))
+pub extern "C" fn proxy_on_request_headers(
+    context_id: u32,
+    num_headers: usize,
+    end_of_stream: bool,
+) -> Action {
+    DISPATCHER.with(|dispatcher| {
+        dispatcher.on_http_request_headers(context_id, num_headers, end_of_stream)
+    })
 }
 
 #[no_mangle]
@@ -625,8 +641,14 @@ pub extern "C" fn proxy_on_request_trailers(context_id: u32, num_trailers: usize
 }
 
 #[no_mangle]
-pub extern "C" fn proxy_on_response_headers(context_id: u32, num_headers: usize) -> Action {
-    DISPATCHER.with(|dispatcher| dispatcher.on_http_response_headers(context_id, num_headers))
+pub extern "C" fn proxy_on_response_headers(
+    context_id: u32,
+    num_headers: usize,
+    end_of_stream: bool,
+) -> Action {
+    DISPATCHER.with(|dispatcher| {
+        dispatcher.on_http_response_headers(context_id, num_headers, end_of_stream)
+    })
 }
 
 #[no_mangle]
