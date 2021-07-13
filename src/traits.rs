@@ -220,12 +220,16 @@ pub trait RootContext: Context {
         true
     }
 
+    fn get_vm_configuration(&self) -> Option<Bytes> {
+        hostcalls::get_buffer(BufferType::VmConfiguration, 0, usize::MAX).unwrap()
+    }
+
     fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
         true
     }
 
-    fn get_configuration(&self) -> Option<Bytes> {
-        hostcalls::get_configuration().unwrap()
+    fn get_plugin_configuration(&self) -> Option<Bytes> {
+        hostcalls::get_buffer(BufferType::PluginConfiguration, 0, usize::MAX).unwrap()
     }
 
     fn set_tick_period(&self, period: Duration) {
@@ -268,6 +272,14 @@ pub trait StreamContext: Context {
         hostcalls::set_buffer(BufferType::DownstreamData, start, size, value).unwrap()
     }
 
+    fn resume_downstream(&self) {
+        hostcalls::resume_downstream().unwrap()
+    }
+
+    fn close_downstream(&self) {
+        hostcalls::close_downstream().unwrap()
+    }
+
     fn on_downstream_close(&mut self, _peer_type: PeerType) {}
 
     fn on_upstream_data(&mut self, _data_size: usize, _end_of_stream: bool) -> Action {
@@ -282,13 +294,21 @@ pub trait StreamContext: Context {
         hostcalls::set_buffer(BufferType::UpstreamData, start, size, value).unwrap()
     }
 
+    fn resume_upstream(&self) {
+        hostcalls::resume_upstream().unwrap()
+    }
+
+    fn close_upstream(&self) {
+        hostcalls::close_upstream().unwrap()
+    }
+
     fn on_upstream_close(&mut self, _peer_type: PeerType) {}
 
     fn on_log(&mut self) {}
 }
 
 pub trait HttpContext: Context {
-    fn on_http_request_headers(&mut self, _num_headers: usize) -> Action {
+    fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
         Action::Continue
     }
 
@@ -392,7 +412,11 @@ pub trait HttpContext: Context {
         hostcalls::resume_http_request().unwrap()
     }
 
-    fn on_http_response_headers(&mut self, _num_headers: usize) -> Action {
+    fn reset_http_request(&self) {
+        hostcalls::reset_http_request().unwrap()
+    }
+
+    fn on_http_response_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
         Action::Continue
     }
 
@@ -496,6 +520,10 @@ pub trait HttpContext: Context {
         hostcalls::resume_http_response().unwrap()
     }
 
+    fn reset_http_response(&self) {
+        hostcalls::reset_http_response().unwrap()
+    }
+
     fn send_http_response(
         &self,
         status_code: u32,
@@ -503,10 +531,6 @@ pub trait HttpContext: Context {
         body: Option<&[u8]>,
     ) {
         hostcalls::send_http_response(status_code, headers, body).unwrap()
-    }
-
-    fn clear_http_route_cache(&self) {
-        hostcalls::clear_http_route_cache().unwrap()
     }
 
     fn on_log(&mut self) {}

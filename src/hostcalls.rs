@@ -31,6 +31,20 @@ pub fn log(level: LogLevel, message: &str) -> Result<(), Status> {
 }
 
 extern "C" {
+    fn proxy_get_log_level(return_level: *mut LogLevel) -> Status;
+}
+
+pub fn get_log_level() -> Result<LogLevel, Status> {
+    let mut return_level: LogLevel = LogLevel::Trace;
+    unsafe {
+        match proxy_get_log_level(&mut return_level) {
+            Status::Ok => Ok(return_level),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
     fn proxy_get_current_time_nanoseconds(return_time: *mut u64) -> Status;
 }
 
@@ -52,34 +66,6 @@ pub fn set_tick_period(period: Duration) -> Result<(), Status> {
     unsafe {
         match proxy_set_tick_period_milliseconds(period.as_millis() as u32) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
-        }
-    }
-}
-
-extern "C" {
-    fn proxy_get_configuration(
-        return_buffer_data: *mut *mut u8,
-        return_buffer_size: *mut usize,
-    ) -> Status;
-}
-
-pub fn get_configuration() -> Result<Option<Bytes>, Status> {
-    let mut return_data: *mut u8 = null_mut();
-    let mut return_size: usize = 0;
-    unsafe {
-        match proxy_get_configuration(&mut return_data, &mut return_size) {
-            Status::Ok => {
-                if !return_data.is_null() {
-                    Ok(Some(Vec::from_raw_parts(
-                        return_data,
-                        return_size,
-                        return_size,
-                    )))
-                } else {
-                    Ok(None)
-                }
-            }
             status => panic!("unexpected status: {}", status as u32),
         }
     }
@@ -258,6 +244,7 @@ pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<String>, Sta
                     Ok(None)
                 }
             }
+            Status::NotFound => Ok(None),
             status => panic!("unexpected status: {}", status as u32),
         }
     }
@@ -285,6 +272,7 @@ pub fn get_map_value_bytes(map_type: MapType, key: &str) -> Result<Option<Bytes>
                     Ok(None)
                 }
             }
+            Status::NotFound => Ok(None),
             status => panic!("unexpected status: {}", status as u32),
         }
     }
@@ -624,12 +612,39 @@ pub fn enqueue_shared_queue(queue_id: u32, value: Option<&[u8]>) -> Result<(), S
 }
 
 extern "C" {
-    fn proxy_continue_request() -> Status;
+    fn proxy_continue_stream(stream_type: StreamType) -> Status;
+}
+
+pub fn resume_downstream() -> Result<(), Status> {
+    unsafe {
+        match proxy_continue_stream(StreamType::Downstream) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+pub fn resume_upstream() -> Result<(), Status> {
+    unsafe {
+        match proxy_continue_stream(StreamType::Upstream) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
 }
 
 pub fn resume_http_request() -> Result<(), Status> {
     unsafe {
-        match proxy_continue_request() {
+        match proxy_continue_stream(StreamType::HttpRequest) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+pub fn resume_http_response() -> Result<(), Status> {
+    unsafe {
+        match proxy_continue_stream(StreamType::HttpResponse) {
             Status::Ok => Ok(()),
             status => panic!("unexpected status: {}", status as u32),
         }
@@ -637,12 +652,38 @@ pub fn resume_http_request() -> Result<(), Status> {
 }
 
 extern "C" {
-    fn proxy_continue_response() -> Status;
+    fn proxy_close_stream(stream_type: StreamType) -> Status;
 }
 
-pub fn resume_http_response() -> Result<(), Status> {
+pub fn close_downstream() -> Result<(), Status> {
     unsafe {
-        match proxy_continue_response() {
+        match proxy_close_stream(StreamType::Downstream) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+pub fn close_upstream() -> Result<(), Status> {
+    unsafe {
+        match proxy_close_stream(StreamType::Upstream) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+pub fn reset_http_request() -> Result<(), Status> {
+    unsafe {
+        match proxy_close_stream(StreamType::HttpRequest) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+pub fn reset_http_response() -> Result<(), Status> {
+    unsafe {
+        match proxy_close_stream(StreamType::HttpResponse) {
             Status::Ok => Ok(()),
             status => panic!("unexpected status: {}", status as u32),
         }
@@ -679,19 +720,6 @@ pub fn send_http_response(
             serialized_headers.len(),
             -1,
         ) {
-            Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
-        }
-    }
-}
-
-extern "C" {
-    fn proxy_clear_route_cache() -> Status;
-}
-
-pub fn clear_http_route_cache() -> Result<(), Status> {
-    unsafe {
-        match proxy_clear_route_cache() {
             Status::Ok => Ok(()),
             status => panic!("unexpected status: {}", status as u32),
         }

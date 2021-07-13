@@ -40,7 +40,7 @@ struct HttpBody;
 impl Context for HttpBody {}
 
 impl HttpContext for HttpBody {
-    fn on_http_response_headers(&mut self, _: usize) -> Action {
+    fn on_http_response_headers(&mut self, _: usize, _: bool) -> Action {
         // If there is a Content-Length header and we change the length of
         // the body later, then clients will break. So remove it.
         // We must do this here, because once we exit this function we
