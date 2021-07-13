@@ -615,11 +615,37 @@ extern "C" {
     fn proxy_continue_stream(stream_type: StreamType) -> Status;
 }
 
-pub fn resume_stream(stream_type: StreamType) -> Result<(), Status> {
+pub fn resume_downstream() -> Result<(), Status> {
     unsafe {
-        match proxy_continue_stream(stream_type) {
+        match proxy_continue_stream(StreamType::Downstream) {
             Status::Ok => Ok(()),
-            Status::BadArgument => Err(Status::BadArgument),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+pub fn resume_upstream() -> Result<(), Status> {
+    unsafe {
+        match proxy_continue_stream(StreamType::Upstream) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+pub fn resume_http_request() -> Result<(), Status> {
+    unsafe {
+        match proxy_continue_stream(StreamType::HttpRequest) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+pub fn resume_http_response() -> Result<(), Status> {
+    unsafe {
+        match proxy_continue_stream(StreamType::HttpResponse) {
+            Status::Ok => Ok(()),
             status => panic!("unexpected status: {}", status as u32),
         }
     }
@@ -629,11 +655,36 @@ extern "C" {
     fn proxy_close_stream(stream_type: StreamType) -> Status;
 }
 
-pub fn close_stream(stream_type: StreamType) -> Result<(), Status> {
+pub fn close_downstream() -> Result<(), Status> {
     unsafe {
-        match proxy_close_stream(stream_type) {
+        match proxy_close_stream(StreamType::Downstream) {
             Status::Ok => Ok(()),
-            Status::BadArgument => Err(Status::BadArgument),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+pub fn close_upstream() -> Result<(), Status> {
+    unsafe {
+        match proxy_close_stream(StreamType::Upstream) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+pub fn reset_http_request() -> Result<(), Status> {
+    unsafe {
+        match proxy_close_stream(StreamType::HttpRequest) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+pub fn reset_http_response() -> Result<(), Status> {
+    unsafe {
+        match proxy_close_stream(StreamType::HttpResponse) {
+            Status::Ok => Ok(()),
             status => panic!("unexpected status: {}", status as u32),
         }
     }

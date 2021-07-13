@@ -264,11 +264,11 @@ pub trait StreamContext: Context {
     }
 
     fn resume_downstream(&self) {
-        hostcalls::resume_stream(StreamType::Downstream).unwrap()
+        hostcalls::resume_downstream().unwrap()
     }
 
     fn close_downstream(&self) {
-        hostcalls::close_stream(StreamType::Downstream).unwrap()
+        hostcalls::close_downstream().unwrap()
     }
 
     fn on_downstream_close(&mut self, _peer_type: PeerType) {}
@@ -286,11 +286,11 @@ pub trait StreamContext: Context {
     }
 
     fn resume_upstream(&self) {
-        hostcalls::resume_stream(StreamType::Upstream).unwrap()
+        hostcalls::resume_upstream().unwrap()
     }
 
     fn close_upstream(&self) {
-        hostcalls::close_stream(StreamType::Upstream).unwrap()
+        hostcalls::close_upstream().unwrap()
     }
 
     fn on_upstream_close(&mut self, _peer_type: PeerType) {}
@@ -400,7 +400,11 @@ pub trait HttpContext: Context {
     }
 
     fn resume_http_request(&self) {
-        hostcalls::resume_stream(StreamType::HttpRequest).unwrap()
+        hostcalls::resume_http_request().unwrap()
+    }
+
+    fn reset_http_request(&self) {
+        hostcalls::reset_http_request().unwrap()
     }
 
     fn on_http_response_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
@@ -504,7 +508,11 @@ pub trait HttpContext: Context {
     }
 
     fn resume_http_response(&self) {
-        hostcalls::resume_stream(StreamType::HttpResponse).unwrap()
+        hostcalls::resume_http_response().unwrap()
+    }
+
+    fn reset_http_response(&self) {
+        hostcalls::reset_http_response().unwrap()
     }
 
     fn send_http_response(
