@@ -116,7 +116,7 @@ pub trait Context {
 
     fn dispatch_grpc_call(
         &self,
-        upstream_name: &str,
+        upstream: &[u8],
         service_name: &str,
         method_name: &str,
         initial_metadata: Vec<(&str, &[u8])>,
@@ -124,7 +124,7 @@ pub trait Context {
         timeout: Duration,
     ) -> Result<u32, Status> {
         hostcalls::dispatch_grpc_call(
-            upstream_name,
+            upstream,
             service_name,
             method_name,
             initial_metadata,
