@@ -1067,7 +1067,7 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
     }
 }
 
-mod utils {
+pub mod utils {
     use crate::types::Bytes;
     use std::convert::TryFrom;
 
@@ -1088,7 +1088,7 @@ mod utils {
         bytes
     }
 
-    pub(super) fn serialize_map(map: &[(&str, &str)]) -> Bytes {
+    pub fn serialize_map(map: &[(&str, &str)]) -> Bytes {
         let mut size: usize = 4;
         for (name, value) in map {
             size += name.len() + value.len() + 10;
@@ -1108,7 +1108,7 @@ mod utils {
         bytes
     }
 
-    pub(super) fn serialize_map_bytes(map: &[(&str, &[u8])]) -> Bytes {
+    pub fn serialize_map_bytes(map: &[(&str, &[u8])]) -> Bytes {
         let mut size: usize = 4;
         for (name, value) in map {
             size += name.len() + value.len() + 10;
@@ -1128,7 +1128,7 @@ mod utils {
         bytes
     }
 
-    pub(super) fn deserialize_map(bytes: &[u8]) -> Vec<(String, String)> {
+    pub fn deserialize_map(bytes: &[u8]) -> Vec<(String, String)> {
         let mut map = Vec::new();
         if bytes.is_empty() {
             return map;
@@ -1152,7 +1152,7 @@ mod utils {
         map
     }
 
-    pub(super) fn deserialize_map_bytes(bytes: &[u8]) -> Vec<(String, Bytes)> {
+    pub fn deserialize_map_bytes(bytes: &[u8]) -> Vec<(String, Bytes)> {
         let mut map = Vec::new();
         if bytes.is_empty() {
             return map;
