@@ -190,7 +190,7 @@ extern "C" {
 }
 
 pub fn set_map(map_type: MapType, map: Vec<(&str, &str)>) -> Result<(), Status> {
-    let serialized_map = utils::serialize_map(map);
+    let serialized_map = utils::serialize_map(&map);
     unsafe {
         match proxy_set_header_map_pairs(map_type, serialized_map.as_ptr(), serialized_map.len()) {
             Status::Ok => Ok(()),
@@ -200,7 +200,7 @@ pub fn set_map(map_type: MapType, map: Vec<(&str, &str)>) -> Result<(), Status> 
 }
 
 pub fn set_map_bytes(map_type: MapType, map: Vec<(&str, &[u8])>) -> Result<(), Status> {
-    let serialized_map = utils::serialize_map_bytes(map);
+    let serialized_map = utils::serialize_map_bytes(&map);
     unsafe {
         match proxy_set_header_map_pairs(map_type, serialized_map.as_ptr(), serialized_map.len()) {
             Status::Ok => Ok(()),
@@ -394,7 +394,7 @@ extern "C" {
 }
 
 pub fn get_property(path: Vec<&str>) -> Result<Option<Bytes>, Status> {
-    let serialized_path = utils::serialize_property_path(path);
+    let serialized_path = utils::serialize_property_path(&path);
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
     unsafe {
@@ -431,7 +431,7 @@ extern "C" {
 }
 
 pub fn set_property(path: Vec<&str>, value: Option<&[u8]>) -> Result<(), Status> {
-    let serialized_path = utils::serialize_property_path(path);
+    let serialized_path = utils::serialize_property_path(&path);
     unsafe {
         match proxy_set_property(
             serialized_path.as_ptr(),
@@ -708,7 +708,7 @@ pub fn send_http_response(
     headers: Vec<(&str, &str)>,
     body: Option<&[u8]>,
 ) -> Result<(), Status> {
-    let serialized_headers = utils::serialize_map(headers);
+    let serialized_headers = utils::serialize_map(&headers);
     unsafe {
         match proxy_send_local_response(
             status_code,
@@ -748,8 +748,8 @@ pub fn dispatch_http_call(
     trailers: Vec<(&str, &str)>,
     timeout: Duration,
 ) -> Result<u32, Status> {
-    let serialized_headers = utils::serialize_map(headers);
-    let serialized_trailers = utils::serialize_map(trailers);
+    let serialized_headers = utils::serialize_map(&headers);
+    let serialized_trailers = utils::serialize_map(&trailers);
     let mut return_token: u32 = 0;
     unsafe {
         match proxy_http_call(
@@ -801,7 +801,7 @@ pub fn dispatch_grpc_call(
     timeout: Duration,
 ) -> Result<u32, Status> {
     let mut return_callout_id = 0;
-    let serialized_initial_metadata = utils::serialize_map_bytes(initial_metadata);
+    let serialized_initial_metadata = utils::serialize_map_bytes(&initial_metadata);
     unsafe {
         match proxy_grpc_call(
             upstream_name.as_ptr(),
@@ -849,7 +849,7 @@ pub fn open_grpc_stream(
     initial_metadata: Vec<(&str, &[u8])>,
 ) -> Result<u32, Status> {
     let mut return_stream_id = 0;
-    let serialized_initial_metadata = utils::serialize_map_bytes(initial_metadata);
+    let serialized_initial_metadata = utils::serialize_map_bytes(&initial_metadata);
     unsafe {
         match proxy_grpc_stream(
             upstream_name.as_ptr(),
@@ -1071,16 +1071,16 @@ mod utils {
     use crate::types::Bytes;
     use std::convert::TryFrom;
 
-    pub(super) fn serialize_property_path(path: Vec<&str>) -> Bytes {
+    pub(super) fn serialize_property_path(path: &[&str]) -> Bytes {
         if path.is_empty() {
             return Vec::new();
         }
         let mut size: usize = 0;
-        for part in &path {
+        for part in path {
             size += part.len() + 1;
         }
         let mut bytes: Bytes = Vec::with_capacity(size);
-        for part in &path {
+        for part in path {
             bytes.extend_from_slice(part.as_bytes());
             bytes.push(0);
         }
@@ -1088,18 +1088,18 @@ mod utils {
         bytes
     }
 
-    pub(super) fn serialize_map(map: Vec<(&str, &str)>) -> Bytes {
+    pub(super) fn serialize_map(map: &[(&str, &str)]) -> Bytes {
         let mut size: usize = 4;
-        for (name, value) in &map {
+        for (name, value) in map {
             size += name.len() + value.len() + 10;
         }
         let mut bytes: Bytes = Vec::with_capacity(size);
         bytes.extend_from_slice(&map.len().to_le_bytes());
-        for (name, value) in &map {
+        for (name, value) in map {
             bytes.extend_from_slice(&name.len().to_le_bytes());
             bytes.extend_from_slice(&value.len().to_le_bytes());
         }
-        for (name, value) in &map {
+        for (name, value) in map {
             bytes.extend_from_slice(name.as_bytes());
             bytes.push(0);
             bytes.extend_from_slice(value.as_bytes());
@@ -1108,18 +1108,18 @@ mod utils {
         bytes
     }
 
-    pub(super) fn serialize_map_bytes(map: Vec<(&str, &[u8])>) -> Bytes {
+    pub(super) fn serialize_map_bytes(map: &[(&str, &[u8])]) -> Bytes {
         let mut size: usize = 4;
-        for (name, value) in &map {
+        for (name, value) in map {
             size += name.len() + value.len() + 10;
         }
         let mut bytes: Bytes = Vec::with_capacity(size);
         bytes.extend_from_slice(&map.len().to_le_bytes());
-        for (name, value) in &map {
+        for (name, value) in map {
             bytes.extend_from_slice(&name.len().to_le_bytes());
             bytes.extend_from_slice(&value.len().to_le_bytes());
         }
-        for (name, value) in &map {
+        for (name, value) in map {
             bytes.extend_from_slice(name.as_bytes());
             bytes.push(0);
             bytes.extend_from_slice(value);
