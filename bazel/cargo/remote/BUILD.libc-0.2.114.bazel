@@ -38,11 +38,13 @@ load(
 )
 
 cargo_build_script(
-    name = "num_integer_build_script",
+    name = "libc_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
+        "default",
+        "std",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -54,23 +56,18 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.44",
+    version = "0.2.114",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__autocfg__1_0_1//:autocfg",
     ],
 )
 
-# Unsupported target "average" with type "bench" omitted
-
-# Unsupported target "gcd" with type "bench" omitted
-
-# Unsupported target "roots" with type "bench" omitted
-
 rust_library(
-    name = "num_integer",
+    name = "libc",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -80,17 +77,14 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=num-integer",
+        "crate-name=libc",
         "manual",
     ],
-    version = "0.1.44",
+    version = "0.2.114",
     # buildifier: leave-alone
     deps = [
-        ":num_integer_build_script",
-        "@raze__num_traits__0_2_14//:num_traits",
+        ":libc_build_script",
     ],
 )
 
-# Unsupported target "average" with type "test" omitted
-
-# Unsupported target "roots" with type "test" omitted
+# Unsupported target "const_fn" with type "test" omitted

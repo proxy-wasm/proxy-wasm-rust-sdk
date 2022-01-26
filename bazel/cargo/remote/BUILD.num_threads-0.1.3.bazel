@@ -31,23 +31,12 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "chrono" with type "bench" omitted
-
-# Unsupported target "serde" with type "bench" omitted
-
 rust_library(
-    name = "chrono",
+    name = "num_threads",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
     crate_features = [
-        "clock",
-        "default",
-        "libc",
-        "oldtime",
-        "std",
-        "time",
-        "winapi",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -57,26 +46,23 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=chrono",
+        "crate-name=num_threads",
         "manual",
     ],
-    version = "0.4.19",
+    version = "0.1.3",
     # buildifier: leave-alone
     deps = [
-        "@raze__libc__0_2_97//:libc",
-        "@raze__num_integer__0_1_44//:num_integer",
-        "@raze__num_traits__0_2_14//:num_traits",
-        "@raze__time__0_1_43//:time",
     ] + selects.with_or({
-        # cfg(windows)
+        # cfg(any(target_os = "macos", target_os = "freebsd"))
         (
-            "@rules_rust//rust/platform:i686-pc-windows-msvc",
-            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:i686-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:aarch64-apple-darwin",
+            "@rules_rust//rust/platform:i686-unknown-freebsd",
+            "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
-            "@raze__winapi__0_3_9//:winapi",
+            "@raze__libc__0_2_114//:libc",
         ],
         "//conditions:default": [],
     }),
 )
-
-# Unsupported target "wasm" with type "test" omitted

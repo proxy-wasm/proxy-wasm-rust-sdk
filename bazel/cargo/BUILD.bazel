@@ -22,17 +22,8 @@ alias(
 )
 
 alias(
-    name = "chrono",
-    actual = "@raze__chrono__0_4_19//:chrono",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
     name = "getrandom",
-    actual = "@raze__getrandom__0_2_3//:getrandom",
+    actual = "@raze__getrandom__0_2_4//:getrandom",
     tags = [
         "cargo-raze",
         "manual",
@@ -51,6 +42,15 @@ alias(
 alias(
     name = "log",
     actual = "@raze__log__0_4_14//:log",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "time",
+    actual = "@raze__time__0_3_7//:time",
     tags = [
         "cargo-raze",
         "manual",

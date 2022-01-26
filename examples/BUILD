@@ -9,7 +9,7 @@ rust_binary(
     deps = [
         "//:proxy_wasm",
         "//bazel/cargo:cfg_if",
-        "//bazel/cargo:chrono",
+        "//bazel/cargo:time",
         "//bazel/cargo:log",
     ] + select({
         "@rules_rust//rust/platform:wasm32-unknown-unknown": [],

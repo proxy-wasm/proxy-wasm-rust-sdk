@@ -31,14 +31,17 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "mod" with type "bench" omitted
+# Unsupported target "benchmarks" with type "bench" omitted
 
 rust_library(
-    name = "getrandom",
+    name = "time",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
     crate_features = [
+        "alloc",
+        "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -48,23 +51,14 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=getrandom",
+        "crate-name=time",
         "manual",
     ],
-    version = "0.2.3",
+    version = "0.3.7",
     # buildifier: leave-alone
     deps = [
-        "@raze__cfg_if__1_0_0//:cfg_if",
     ] + selects.with_or({
-        # cfg(target_os = "wasi")
-        (
-            "@rules_rust//rust/platform:wasm32-wasi",
-        ): [
-            "@raze__wasi__0_10_2_wasi_snapshot_preview1//:wasi",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
-        # cfg(unix)
+        # cfg(target_family = "unix")
         (
             "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:i686-unknown-linux-gnu",
@@ -83,14 +77,9 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
-            "@raze__libc__0_2_97//:libc",
+            "@raze__libc__0_2_114//:libc",
+            "@raze__num_threads__0_1_3//:num_threads",
         ],
         "//conditions:default": [],
     }),
 )
-
-# Unsupported target "custom" with type "test" omitted
-
-# Unsupported target "normal" with type "test" omitted
-
-# Unsupported target "rdrand" with type "test" omitted

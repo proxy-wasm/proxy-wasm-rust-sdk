@@ -57,7 +57,7 @@ rust_library(
     version = "0.12.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__ahash__0_7_4//:ahash",
+        "@raze__ahash__0_7_6//:ahash",
     ],
 )
 
