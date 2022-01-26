@@ -1,9 +1,9 @@
-load("@rules_rust//rust:rust.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_library")
 
 rust_library(
     name = "proxy_wasm",
     srcs = glob(["src/*.rs"]),
-    edition = "2018",
+    edition = "2021",
     visibility = ["//visibility:public"],
     deps = [
         "//bazel/cargo:hashbrown",
