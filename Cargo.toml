@@ -6,7 +6,7 @@ description = "WebAssembly for Proxies"
 readme = "README.md"
 license = "Apache-2.0"
 repository = "https://github.com/proxy-wasm/proxy-wasm-rust-sdk"
-edition = "2018"
+edition = "2021"
 
 [features]
 wee-alloc = ["wee_alloc"]

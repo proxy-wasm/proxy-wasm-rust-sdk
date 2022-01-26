@@ -63,12 +63,11 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__hashbrown__0_11_2",
-        url = "https://crates.io/api/v1/crates/hashbrown/0.11.2/download",
+        name = "raze__hashbrown__0_12_0",
+        url = "https://crates.io/api/v1/crates/hashbrown/0.12.0/download",
         type = "tar.gz",
-        sha256 = "ab5ef0d4909ef3724cc8cce6ccc8572c5c817592e9285f5464f8e86f8bd3726e",
-        strip_prefix = "hashbrown-0.11.2",
-        build_file = Label("//bazel/cargo/remote:BUILD.hashbrown-0.11.2.bazel"),
+        strip_prefix = "hashbrown-0.12.0",
+        build_file = Label("//bazel/cargo/remote:BUILD.hashbrown-0.12.0.bazel"),
     )
 
     maybe(

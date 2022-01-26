@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -32,6 +33,8 @@ licenses([
 
 # Unsupported target "bench" with type "bench" omitted
 
+# Unsupported target "insert_unique_unchecked" with type "bench" omitted
+
 rust_library(
     name = "hashbrown",
     srcs = glob(["**/*.rs"]),
@@ -41,17 +44,17 @@ rust_library(
         "inline-more",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
+        "crate-name=hashbrown",
         "manual",
     ],
-    version = "0.11.2",
+    version = "0.12.0",
     # buildifier: leave-alone
     deps = [
         "@raze__ahash__0_7_4//:ahash",
