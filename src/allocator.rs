@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::mem::MaybeUninit;
+
 #[cfg(feature = "wee-alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
@@ -22,7 +24,7 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 )]
 #[no_mangle]
 pub extern "C" fn proxy_on_memory_allocate(size: usize) -> *mut u8 {
-    let mut vec: Vec<u8> = Vec::with_capacity(size);
+    let mut vec: Vec<MaybeUninit<u8>> = Vec::with_capacity(size);
     unsafe {
         vec.set_len(size);
     }
