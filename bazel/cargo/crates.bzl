@@ -23,32 +23,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__autocfg__1_0_1",
-        url = "https://crates.io/api/v1/crates/autocfg/1.0.1/download",
-        type = "tar.gz",
-        sha256 = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a",
-        strip_prefix = "autocfg-1.0.1",
-        build_file = Label("//bazel/cargo/remote:BUILD.autocfg-1.0.1.bazel"),
-    )
-
-    maybe(
-        http_archive,
         name = "raze__cfg_if__1_0_0",
         url = "https://crates.io/api/v1/crates/cfg-if/1.0.0/download",
         type = "tar.gz",
         sha256 = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd",
         strip_prefix = "cfg-if-1.0.0",
         build_file = Label("//bazel/cargo/remote:BUILD.cfg-if-1.0.0.bazel"),
-    )
-
-    maybe(
-        http_archive,
-        name = "raze__chrono__0_4_19",
-        url = "https://crates.io/api/v1/crates/chrono/0.4.19/download",
-        type = "tar.gz",
-        sha256 = "670ad68c9088c2a963aaa298cb369688cf3f9465ce5e2d4ca10e6e0098a1ce73",
-        strip_prefix = "chrono-0.4.19",
-        build_file = Label("//bazel/cargo/remote:BUILD.chrono-0.4.19.bazel"),
     )
 
     maybe(
@@ -93,22 +73,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__num_integer__0_1_44",
-        url = "https://crates.io/api/v1/crates/num-integer/0.1.44/download",
+        name = "raze__num_threads__0_1_3",
+        url = "https://crates.io/api/v1/crates/num_threads/0.1.3/download",
         type = "tar.gz",
-        sha256 = "d2cc698a63b549a70bc047073d2949cce27cd1c7b0a4a862d08a8031bc2801db",
-        strip_prefix = "num-integer-0.1.44",
-        build_file = Label("//bazel/cargo/remote:BUILD.num-integer-0.1.44.bazel"),
-    )
-
-    maybe(
-        http_archive,
-        name = "raze__num_traits__0_2_14",
-        url = "https://crates.io/api/v1/crates/num-traits/0.2.14/download",
-        type = "tar.gz",
-        sha256 = "9a64b1ec5cda2586e284722486d802acf1f7dbdc623e2bfc57e65ca1cd099290",
-        strip_prefix = "num-traits-0.2.14",
-        build_file = Label("//bazel/cargo/remote:BUILD.num-traits-0.2.14.bazel"),
+        sha256 = "97ba99ba6393e2c3734791401b66902d981cb03bf190af674ca69949b6d5fb15",
+        strip_prefix = "num_threads-0.1.3",
+        build_file = Label("//bazel/cargo/remote:BUILD.num_threads-0.1.3.bazel"),
     )
 
     maybe(
@@ -123,12 +93,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__time__0_1_43",
-        url = "https://crates.io/api/v1/crates/time/0.1.43/download",
+        name = "raze__time__0_3_7",
+        url = "https://crates.io/api/v1/crates/time/0.3.7/download",
         type = "tar.gz",
-        sha256 = "ca8a50ef2360fbd1eeb0ecd46795a87a19024eb4b53c5dc916ca1fd95fe62438",
-        strip_prefix = "time-0.1.43",
-        build_file = Label("//bazel/cargo/remote:BUILD.time-0.1.43.bazel"),
+        sha256 = "004cbc98f30fa233c61a38bc77e96a9106e65c88f2d3bef182ae952027e5753d",
+        strip_prefix = "time-0.3.7",
+        build_file = Label("//bazel/cargo/remote:BUILD.time-0.3.7.bazel"),
     )
 
     maybe(
@@ -149,34 +119,4 @@ def raze_fetch_remote_crates():
         sha256 = "fd6fbd9a79829dd1ad0cc20627bf1ed606756a7f77edff7b66b7064f9cb327c6",
         strip_prefix = "wasi-0.10.2+wasi-snapshot-preview1",
         build_file = Label("//bazel/cargo/remote:BUILD.wasi-0.10.2+wasi-snapshot-preview1.bazel"),
-    )
-
-    maybe(
-        http_archive,
-        name = "raze__winapi__0_3_9",
-        url = "https://crates.io/api/v1/crates/winapi/0.3.9/download",
-        type = "tar.gz",
-        sha256 = "5c839a674fcd7a98952e593242ea400abe93992746761e38641405d28b00f419",
-        strip_prefix = "winapi-0.3.9",
-        build_file = Label("//bazel/cargo/remote:BUILD.winapi-0.3.9.bazel"),
-    )
-
-    maybe(
-        http_archive,
-        name = "raze__winapi_i686_pc_windows_gnu__0_4_0",
-        url = "https://crates.io/api/v1/crates/winapi-i686-pc-windows-gnu/0.4.0/download",
-        type = "tar.gz",
-        sha256 = "ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6",
-        strip_prefix = "winapi-i686-pc-windows-gnu-0.4.0",
-        build_file = Label("//bazel/cargo/remote:BUILD.winapi-i686-pc-windows-gnu-0.4.0.bazel"),
-    )
-
-    maybe(
-        http_archive,
-        name = "raze__winapi_x86_64_pc_windows_gnu__0_4_0",
-        url = "https://crates.io/api/v1/crates/winapi-x86_64-pc-windows-gnu/0.4.0/download",
-        type = "tar.gz",
-        sha256 = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f",
-        strip_prefix = "winapi-x86_64-pc-windows-gnu-0.4.0",
-        build_file = Label("//bazel/cargo/remote:BUILD.winapi-x86_64-pc-windows-gnu-0.4.0.bazel"),
     )
