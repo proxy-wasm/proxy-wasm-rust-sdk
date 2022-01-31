@@ -32,7 +32,7 @@ alias(
 
 alias(
     name = "getrandom",
-    actual = "@raze__getrandom__0_2_3//:getrandom",
+    actual = "@raze__getrandom__0_2_4//:getrandom",
     tags = [
         "cargo-raze",
         "manual",
