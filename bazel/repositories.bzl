@@ -19,7 +19,7 @@ def proxy_wasm_rust_sdk_repositories():
     maybe(
         http_archive,
         name = "rules_rust",
-        sha256 = "d54b379559f3fe6ff0cd251be216a5e35acf241451eec8144455482e8f4748f8",
-        strip_prefix = "rules_rust-7e7246f6c48a5d4e69744cd79b9ccb8886966ee2",
-        url = "https://github.com/bazelbuild/rules_rust/archive/7e7246f6c48a5d4e69744cd79b9ccb8886966ee2.tar.gz",
+        sha256 = "6c26af1bb98276917fcf29ea942615ab375cf9d3c52f15c27fdd176ced3ee906",
+        strip_prefix = "rules_rust-b3ddf6f096887b757ab1a661662a95d6b2699fa7",
+        url = "https://github.com/bazelbuild/rules_rust/archive/b3ddf6f096887b757ab1a661662a95d6b2699fa7.tar.gz",
     )
