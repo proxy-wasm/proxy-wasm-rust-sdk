@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::mem::MaybeUninit;
+
 #[cfg(feature = "wee-alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
-use std::mem::MaybeUninit;
 
 #[cfg_attr(
     all(target_arch = "wasm32", target_os = "unknown"),
