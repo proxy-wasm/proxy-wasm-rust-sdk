@@ -42,7 +42,7 @@ impl RootContext for HelloWorld {
     fn on_tick(&mut self) {
         cfg_if! {
             if #[cfg(all(target_arch = "wasm32", target_os = "unknown"))] {
-                let now: OffsetDateTime = OffsetDateTime::now_utc();
+                let now: OffsetDateTime = self.get_current_time().into();
                 info!("It's {}, there is no lucky number.", now);
 
             } else {
