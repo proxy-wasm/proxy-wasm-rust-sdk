@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- Added `proxy_wasm::main` macro that should be used instead of custom `_start`,
+  `_initialize` and/or `main` exports.
 - Updated ABI to Proxy-Wasm ABI v0.2.1.
 
 ## [0.1.4] - 2021-07-01

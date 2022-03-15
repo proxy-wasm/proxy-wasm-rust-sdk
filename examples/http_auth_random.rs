@@ -17,11 +17,10 @@ use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
 use std::time::Duration;
 
-#[no_mangle]
-pub fn _start() {
+proxy_wasm::main! {{
     proxy_wasm::set_log_level(LogLevel::Trace);
     proxy_wasm::set_http_context(|_, _| -> Box<dyn HttpContext> { Box::new(HttpAuthRandom) });
-}
+}}
 
 struct HttpAuthRandom;
 

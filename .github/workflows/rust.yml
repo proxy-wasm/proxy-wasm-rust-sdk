@@ -195,6 +195,41 @@ jobs:
     - name: Package (publish)
       run: cargo publish --dry-run --target=wasm32-unknown-unknown
 
+  reactor:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Update Rust
+      run: |
+        rustup toolchain install nightly --component clippy
+        rustup +nightly target add wasm32-wasi
+        rustup default nightly
+
+    - name: Rewrite Cargo.toml examples
+      run: grep -v '^crate-type' Cargo.toml > Cargo.tmp && mv Cargo.tmp Cargo.toml
+
+    - name: Build (wasm32-wasi)
+      env:
+        RUSTFLAGS: -D warnings -C link-args=-S -Z wasi-exec-model=reactor
+      run: cargo build --release --all-targets --target=wasm32-wasi
+
+    - name: Build (wasm32-wasi with wee-alloc)
+      env:
+        RUSTFLAGS: -D warnings -C link-args=-S -Z wasi-exec-model=reactor
+      run: cargo build --release --all-targets --target=wasm32-wasi --features=wee-alloc
+
+    - name: Clippy (wasm32-wasi)
+      env:
+        RUSTFLAGS: -D warnings -C link-args=-S -Z wasi-exec-model=reactor
+      run: cargo clippy --release --all-targets --target=wasm32-wasi
+
+    - name: Clippy (wasm32-wasi with wee-alloc)
+      env:
+        RUSTFLAGS: -D warnings -C link-args=-S -Z wasi-exec-model=reactor
+      run: cargo clippy --release --all-targets --target=wasm32-wasi --features=wee-alloc
+
   outdated:
     runs-on: ubuntu-latest
 

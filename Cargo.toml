@@ -7,6 +7,7 @@ readme = "README.md"
 license = "Apache-2.0"
 repository = "https://github.com/proxy-wasm/proxy-wasm-rust-sdk"
 edition = "2018"
+build = "build.rs"
 
 [features]
 wee-alloc = ["wee_alloc"]
