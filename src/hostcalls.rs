@@ -991,6 +991,50 @@ pub fn set_effective_context(context_id: u32) -> Result<(), Status> {
 }
 
 extern "C" {
+    fn proxy_call_foreign_function(
+        function_name_data: *const u8,
+        function_name_size: usize,
+        arguments_data: *const u8,
+        arguments_size: usize,
+        results_data: *mut *mut u8,
+        results_size: *mut usize,
+    ) -> Status;
+}
+
+
+pub fn call_foreign_function(
+    function_name: &str,
+    arguments: Option<&[u8]>,
+) -> Result<Option<Bytes>, Status> {
+    let mut return_data: *mut u8 = null_mut();
+    let mut return_size: usize = 0;
+    unsafe {
+        match proxy_call_foreign_function(
+            function_name.as_ptr(),
+            function_name.len(),
+            arguments.map_or(null(), |arguments| arguments.as_ptr()),
+            arguments.map_or(0, |arguments| arguments.len()),
+            &mut return_data,
+            &mut return_size,
+        ) {
+            Status::Ok => {
+                if !return_data.is_null() {
+                    Ok(Some(Vec::from_raw_parts(
+                        return_data,
+                        return_size,
+                        return_size,
+                    )))
+                } else {
+                    Ok(None)
+                }
+            }
+            Status::NotFound => Err(Status::NotFound),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
     fn proxy_done() -> Status;
 }
 
