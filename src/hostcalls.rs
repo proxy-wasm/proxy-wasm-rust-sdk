@@ -779,7 +779,7 @@ pub fn call_foreign_function(
                     Ok(None)
                 }
             }
-            Status::NotFound => Ok(None),
+            Status::NotFound => Err(Status::NotFound),
             status => panic!("unexpected status: {}", status as u32),
         }
     }
