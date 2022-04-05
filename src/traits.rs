@@ -33,14 +33,6 @@ pub trait Context {
         hostcalls::get_shared_data(key).unwrap()
     }
 
-    fn call_foreign_function(
-        &self,
-        function_name: &str,
-        arguments: Option<&[u8]>,
-    ) -> Result<Option<Bytes>, Status> {
-        hostcalls::call_foreign_function(function_name, arguments)
-    }
-
     fn set_shared_data(
         &self,
         key: &str,
@@ -96,6 +88,14 @@ pub trait Context {
 
     fn get_http_call_response_trailers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpCallResponseTrailers).unwrap()
+    }
+
+    fn call_foreign_function(
+        &self,
+        function_name: &str,
+        arguments: Option<&[u8]>,
+    ) -> Result<Option<Bytes>, Status> {
+        hostcalls::call_foreign_function(function_name, arguments)
     }
 
     fn on_done(&mut self) -> bool {
