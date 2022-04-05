@@ -748,7 +748,7 @@ extern "C" {
         function_name_size: usize,
         arguments_data: *const u8,
         arguments_size: usize,
-        results: *mut *mut u8,
+        results_data: *mut *mut u8,
         results_size: *mut usize,
     ) -> Status;
 }
