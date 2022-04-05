@@ -746,7 +746,7 @@ extern "C" {
     fn proxy_call_foreign_function(
         function_name_data: *const u8,
         function_name_size: usize,
-        arguments: *const u8,
+        arguments_data: *const u8,
         arguments_size: usize,
         results: *mut *mut u8,
         results_size: *mut usize,
