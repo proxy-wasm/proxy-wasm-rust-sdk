@@ -37,8 +37,8 @@ pub trait Context {
         &self,
         function_name: &str,
         arguments: Option<&[u8]>,
-    ) -> Option<Bytes> {
-        hostcalls::call_foreign_function(function_name, arguments).unwrap()
+    ) -> Result<Option<Bytes>, Status> {
+        hostcalls::call_foreign_function(function_name, arguments)
     }
 
     fn set_shared_data(
