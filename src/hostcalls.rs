@@ -744,7 +744,7 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
 
 extern "C" {
     fn proxy_call_foreign_function(
-        function_name: *const u8,
+        function_name_data: *const u8,
         function_name_size: usize,
         arguments: *const u8,
         arguments_size: usize,
