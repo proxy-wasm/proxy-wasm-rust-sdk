@@ -1001,7 +1001,6 @@ extern "C" {
     ) -> Status;
 }
 
-
 pub fn call_foreign_function(
     function_name: &str,
     arguments: Option<&[u8]>,
