@@ -208,7 +208,9 @@ jobs:
         rustup default nightly
 
     - name: Rewrite Cargo.toml examples
-      run: grep -v '^crate-type' Cargo.toml > Cargo.tmp && mv Cargo.tmp Cargo.toml
+      run: |
+        grep -v '^crate-type' Cargo.toml > Cargo.tmp
+        mv Cargo.tmp Cargo.toml
 
     - name: Build (wasm32-wasi)
       env:
