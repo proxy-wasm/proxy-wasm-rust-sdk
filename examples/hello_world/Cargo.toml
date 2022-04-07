@@ -13,7 +13,6 @@ crate-type = ["cdylib"]
 [dependencies]
 log = "0.4"
 chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
-wee_alloc = { version = "0.4", optional = true }
 cfg-if = "1.0"
 proxy-wasm = { path = "../../" }
 
