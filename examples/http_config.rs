@@ -15,15 +15,14 @@
 use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
 
-#[no_mangle]
-pub fn _start() {
+proxy_wasm::main! {{
     proxy_wasm::set_log_level(LogLevel::Trace);
     proxy_wasm::set_root_context(|_| -> Box<dyn RootContext> {
         Box::new(HttpConfigHeaderRoot {
             header_content: String::new(),
         })
     });
-}
+}}
 
 struct HttpConfigHeader {
     header_content: String,
