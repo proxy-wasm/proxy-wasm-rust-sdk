@@ -24,7 +24,8 @@
 
 ### Using WASM filters in Envoy
 
-Each example can be run with `docker compose` and has a matching Envoy configuration.
+Each example can be run with `docker compose` and has a matching Envoy configuration. These instruction require that both
+[Rust](https://www.rust-lang.org/) and [docker compose](https://docker-docs.netlify.app/compose/install/) are installed.
 
 1. Build the examples WASM filters
    ```sh
