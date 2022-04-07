@@ -19,8 +19,8 @@
 - [Hello World](./examples/hello_world.rs)
 - [HTTP Auth random](./examples/http_auth_random.rs)
 - [HTTP Headers](./examples/http_headers.rs)
-- [HTTP Configuration](./examples/http_config.rs)
 - [HTTP Response body](./examples/http_body.rs)
+- [HTTP Configuration](./examples/http_config.rs)
 
 ## Articles & blog posts from the community
 
