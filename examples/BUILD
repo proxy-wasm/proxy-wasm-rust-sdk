@@ -2,7 +2,7 @@ load("@rules_rust//rust:defs.bzl", "rust_binary")
 
 rust_binary(
     name = "hello_world",
-    srcs = ["hello_world.rs"],
+    srcs = ["hello_world/main.rs"],
     crate_type = "cdylib",
     edition = "2018",
     out_binary = True,
