@@ -42,11 +42,8 @@ rust_library(
     },
     crate_features = [
         "clock",
-        "default",
         "libc",
-        "oldtime",
         "std",
-        "time",
         "winapi",
     ],
     crate_root = "src/lib.rs",
@@ -66,7 +63,6 @@ rust_library(
         "@raze__libc__0_2_116//:libc",
         "@raze__num_integer__0_1_44//:num_integer",
         "@raze__num_traits__0_2_14//:num_traits",
-        "@raze__time__0_1_43//:time",
     ] + selects.with_or({
         # cfg(windows)
         (
