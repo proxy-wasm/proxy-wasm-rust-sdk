@@ -32,10 +32,10 @@ genmode = "Remote"
 # path = "examples/hello_world/src/lib.rs"
 # crate-type = ["cdylib"]
 
-[[example]]
-name = "http_auth_random"
-path = "examples/http_auth_random.rs"
-crate-type = ["cdylib"]
+# [[example]]
+# name = "http_auth_random"
+# path = "examples/http_auth_random.rs"
+# crate-type = ["cdylib"]
 
 [[example]]
 name = "http_headers"

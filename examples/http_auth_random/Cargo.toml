@@ -1,0 +1,15 @@
+[package]
+publish = false
+name = "proxy-wasm-http-auth-random"
+version = "0.0.1"
+authors = ["Piotr Sikora <piotrsikora@google.com>"]
+description = "Proxy-Wasm plugin example: HTTP authentication"
+license = "Apache-2.0"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+log = "0.4"
+proxy-wasm = { path = "../../" }
