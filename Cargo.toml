@@ -27,10 +27,10 @@ package_aliases_dir = "bazel/cargo"
 workspace_path = "//bazel/cargo"
 genmode = "Remote"
 
-[[example]]
-name = "hello_world"
-path = "examples/hello_world/lib.rs"
-crate-type = ["cdylib"]
+# [[example]]
+# name = "hello_world"
+# path = "examples/hello_world/src/lib.rs"
+# crate-type = ["cdylib"]
 
 [[example]]
 name = "http_auth_random"
