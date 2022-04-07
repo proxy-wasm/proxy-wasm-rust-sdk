@@ -13,33 +13,6 @@ licenses([
 
 # Aliased targets
 alias(
-    name = "cfg_if",
-    actual = "@raze__cfg_if__1_0_0//:cfg_if",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
-    name = "chrono",
-    actual = "@raze__chrono__0_4_19//:chrono",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
-    name = "getrandom",
-    actual = "@raze__getrandom__0_2_6//:getrandom",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
     name = "hashbrown",
     actual = "@raze__hashbrown__0_12_0//:hashbrown",
     tags = [
@@ -59,18 +32,8 @@ alias(
 
 # Export file for Stardoc support
 exports_files(
-    glob([
-        "**/*.bazel",
-        "**/*.bzl",
-    ]),
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "srcs",
-    srcs = glob([
-        "**/*.bazel",
-        "**/*.bzl",
-    ]),
+    [
+        "crates.bzl",
+    ],
     visibility = ["//visibility:public"],
 )
