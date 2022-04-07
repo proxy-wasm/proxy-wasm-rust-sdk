@@ -20,7 +20,7 @@ services:
       - "10000:10000"
     volumes:
       - ./${EXAMPLE:-hello_world}/envoy.yaml:/etc/envoy/envoy.yaml
-      - ../target/wasm32-wasi/debug/examples:/etc/envoy/filters
+      - ./${EXAMPLE:-hello_world}/target/wasm32-wasi/debug:/etc/envoy/filters
     networks:
       - envoymesh
 

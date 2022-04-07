@@ -42,5 +42,5 @@ static_resources:
                           vm_id: "hello_world_vm"
                           code:
                             local:
-                              filename: "/etc/envoy/filters/hello_world.wasm"
+                              filename: "/etc/envoy/filters/proxy_wasm_hello_world.wasm"
                 - name: envoy.filters.http.router

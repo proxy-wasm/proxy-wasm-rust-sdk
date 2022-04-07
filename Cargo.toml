@@ -17,13 +17,6 @@ hashbrown = "0.12"
 log = "0.4"
 wee_alloc = { version = "0.4", optional = true }
 
-[dev-dependencies]
-cfg-if = "1.0"
-chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
-
-[target.'cfg(not(all(target_arch = "wasm32", target_os = "unknown")))'.dev-dependencies]
-getrandom = "0.2"
-
 [profile.release]
 lto = true
 opt-level = 3
@@ -36,7 +29,7 @@ genmode = "Remote"
 
 [[example]]
 name = "hello_world"
-path = "examples/hello_world/main.rs"
+path = "examples/hello_world/lib.rs"
 crate-type = ["cdylib"]
 
 [[example]]

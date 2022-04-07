@@ -1,0 +1,21 @@
+[package]
+publish = false
+name = "proxy-wasm-hello-world"
+version = "0.0.1"
+authors = ["Piotr Sikora <piotrsikora@google.com>"]
+description = "Proxy-Wasm plugin example: hello world"
+license = "Apache-2.0"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+log = "0.4"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+wee_alloc = { version = "0.4", optional = true }
+cfg-if = "1.0"
+proxy-wasm = { path = "../../" }
+
+[target.'cfg(not(all(target_arch = "wasm32", target_os = "unknown")))'.dependencies]
+getrandom = "0.2"
