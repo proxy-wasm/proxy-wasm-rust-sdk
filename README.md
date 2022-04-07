@@ -24,7 +24,7 @@
 
 ### Using WASM filters in Envoy
 
-Each example can be run with `docker compose` and has matching Envoy configuration.
+Each example can be run with `docker compose` and has a matching Envoy configuration.
 
 1. Build the examples WASM filters
    ```sh
