@@ -123,16 +123,6 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__time__0_1_43",
-        url = "https://crates.io/api/v1/crates/time/0.1.43/download",
-        type = "tar.gz",
-        sha256 = "ca8a50ef2360fbd1eeb0ecd46795a87a19024eb4b53c5dc916ca1fd95fe62438",
-        strip_prefix = "time-0.1.43",
-        build_file = Label("//bazel/cargo/remote:BUILD.time-0.1.43.bazel"),
-    )
-
-    maybe(
-        http_archive,
         name = "raze__version_check__0_9_4",
         url = "https://crates.io/api/v1/crates/version_check/0.9.4/download",
         type = "tar.gz",
