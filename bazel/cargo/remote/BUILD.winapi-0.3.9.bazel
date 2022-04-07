@@ -45,10 +45,7 @@ cargo_build_script(
     crate_features = [
         "minwinbase",
         "minwindef",
-        "ntdef",
-        "profileapi",
         "std",
-        "sysinfoapi",
         "timezoneapi",
     ],
     crate_root = "build.rs",
@@ -73,10 +70,7 @@ rust_library(
     crate_features = [
         "minwinbase",
         "minwindef",
-        "ntdef",
-        "profileapi",
         "std",
-        "sysinfoapi",
         "timezoneapi",
     ],
     crate_root = "src/lib.rs",

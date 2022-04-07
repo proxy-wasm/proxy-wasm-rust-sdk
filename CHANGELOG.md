@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed performance degradation with `wasm32-wasi` target in Rust v1.56.0
+  or newer by adding `proxy_wasm::main` macro that should be used instead
+  of custom `_start`, `_initialize` and/or `main` exports.
+
 ### Changed
 
 - Updated ABI to Proxy-Wasm ABI v0.2.1.

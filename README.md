@@ -5,7 +5,6 @@
 [![Documentation][docs-badge]][docs-link]
 [![Apache 2.0 License][license-badge]][license-link]
 
-
 [build-badge]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/workflows/Rust/badge.svg?branch=master
 [build-link]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/actions?query=workflow%3ARust+branch%3Amaster
 [crate-badge]: https://img.shields.io/crates/v/proxy-wasm.svg
@@ -17,19 +16,22 @@
 
 ## Examples
 
-+ [Hello World](./examples/hello_world.rs)
-+ [HTTP Auth random](./examples/http_auth_random.rs)
-+ [HTTP Headers](./examples/http_headers.rs)
+- [Hello World](./examples/hello_world.rs)
+- [HTTP Auth random](./examples/http_auth_random.rs)
+- [HTTP Headers](./examples/http_headers.rs)
+- [HTTP Response body](./examples/http_body.rs)
+- [HTTP Configuration](./examples/http_config.rs)
 
 ## Articles & blog posts from the community
 
-+ [Extending Envoy with WASM and Rust](https://antweiss.com/blog/extending-envoy-with-wasm-and-rust/)
-+ [Extending Istio with Rust and WebAssembly](https://blog.red-badger.com/extending-istio-with-rust-and-webassembly)
+- [Extending Envoy with WASM and Rust](https://antweiss.com/blog/extending-envoy-with-wasm-and-rust/)
+- [Extending Istio with Rust and WebAssembly](https://blog.red-badger.com/extending-istio-with-rust-and-webassembly)
 
 ## Updating dependencies
 
 When updating dependencies, you need to regenerate Bazel `BUILD` files to match updated `Cargo.toml`:
-```
+
+```sh
 cargo install cargo-raze --version 0.15.0
 cargo raze --generate-lockfile
 ```
