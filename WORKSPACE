@@ -14,9 +14,9 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "cargo_raze",
-    sha256 = "75192fdcb2777527c70e1053a318a9aa0beac3c093401921c1e7c4d53084caa8",
-    strip_prefix = "cargo-raze-0.14.1",
-    url = "https://github.com/google/cargo-raze/archive/v0.14.1.tar.gz",
+    sha256 = "58ecdbae2680b71edc19a0f563cdb73e66c8914689b6edab258c8b90a93b13c7",
+    strip_prefix = "cargo-raze-0.15.0",
+    url = "https://github.com/google/cargo-raze/archive/v0.15.0.tar.gz",
 )
 
 load("@cargo_raze//:repositories.bzl", "cargo_raze_repositories")

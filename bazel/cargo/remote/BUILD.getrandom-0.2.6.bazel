@@ -51,7 +51,7 @@ rust_library(
         "crate-name=getrandom",
         "manual",
     ],
-    version = "0.2.4",
+    version = "0.2.6",
     # buildifier: leave-alone
     deps = [
         "@raze__cfg_if__1_0_0//:cfg_if",
@@ -83,7 +83,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
-            "@raze__libc__0_2_116//:libc",
+            "@raze__libc__0_2_122//:libc",
         ],
         "//conditions:default": [],
     }),
