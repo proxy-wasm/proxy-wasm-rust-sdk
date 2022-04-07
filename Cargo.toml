@@ -36,7 +36,7 @@ genmode = "Remote"
 
 [[example]]
 name = "hello_world"
-path = "examples/hello_world.rs"
+path = "examples/hello_world/main.rs"
 crate-type = ["cdylib"]
 
 [[example]]

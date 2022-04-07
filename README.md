@@ -22,6 +22,19 @@
 - [HTTP Response body](./examples/http_body.rs)
 - [HTTP Configuration](./examples/http_config.rs)
 
+### Using WASM filters in Envoy
+
+Each example can be run with `docker compose` and has matching Envoy configuration.
+
+1. Build the examples WASM filters
+   ```sh
+   cargo build --examples
+   ```
+2. Run an example, `EXAMPLE` defaults to `hello_world` and maps to the folder name of the example.
+   ```sh
+   docker compose up --file examples/docker-compose.yaml -e EXAMPLE=hello_world
+   ```
+
 ## Articles & blog posts from the community
 
 - [Extending Envoy with WASM and Rust](https://antweiss.com/blog/extending-envoy-with-wasm-and-rust/)
