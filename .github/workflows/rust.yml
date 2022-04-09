@@ -254,7 +254,7 @@ jobs:
   examples:
     runs-on: ubuntu-latest
     env:
-        RUSTFLAGS: -D warnings -C link-args=-S
+      RUSTFLAGS: -D warnings -C link-args=-S
     strategy:
       matrix:
         example: ['hello_world', 'http_auth_random', 'http_body', 'http_config', 'http_headers']
