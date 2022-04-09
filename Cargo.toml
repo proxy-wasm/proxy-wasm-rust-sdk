@@ -37,17 +37,17 @@ genmode = "Remote"
 # path = "examples/http_auth_random.rs"
 # crate-type = ["cdylib"]
 
-[[example]]
-name = "http_headers"
-path = "examples/http_headers.rs"
-crate-type = ["cdylib"]
+# [[example]]
+# name = "http_headers"
+# path = "examples/http_headers.rs"
+# crate-type = ["cdylib"]
 
-[[example]]
-name = "http_body"
-path = "examples/http_body.rs"
-crate-type = ["cdylib"]
+# [[example]]
+# name = "http_body"
+# path = "examples/http_body.rs"
+# crate-type = ["cdylib"]
 
-[[example]]
-name = "http_config"
-path = "examples/http_config.rs"
-crate-type = ["cdylib"]
+# [[example]]
+# name = "http_config"
+# path = "examples/http_config.rs"
+# crate-type = ["cdylib"]
