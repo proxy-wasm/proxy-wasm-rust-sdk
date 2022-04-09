@@ -276,9 +276,9 @@ jobs:
       run: cargo outdated --root-deps-only --exit-code 1
 
     - name: Clippy (wasm32-wasi)
-      run: cargo clippy --release --all-targets --target=wasm32-wasi
+      run: cargo clippy --target=wasm32-wasi
     - name: Build (wasm32-wasi)
-      run: cargo build --release --all-targets --target=wasm32-wasi
+      run: cargo build --target=wasm32-wasi
 
     - name: Cargo audit
       if: matrix.example == 'hello_world'
