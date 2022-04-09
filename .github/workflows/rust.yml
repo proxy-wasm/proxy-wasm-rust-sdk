@@ -277,9 +277,9 @@ jobs:
     - name: Build (wasm32-wasi)
       run: cargo build --release --all-targets --target=wasm32-wasi
 
-    # - name: Cargo audit
-    #   if: matrix.example == 'hello_world'
-    #   run: cargo audit --ignore RUSTSEC-2020-0159
-    # - name: Cargo audit
-    #   if: matrix.example !== 'hello_world'
-    #   run: cargo audit
+    - name: Cargo audit
+      if: matrix.example == 'hello_world'
+      run: cargo audit --ignore RUSTSEC-2020-0159
+    - name: Cargo audit
+      if: matrix.example != 'hello_world'
+      run: cargo audit
