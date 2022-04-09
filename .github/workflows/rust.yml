@@ -286,3 +286,10 @@ jobs:
     - name: Cargo audit
       if: matrix.example != 'hello_world'
       run: cargo audit
+
+    - name: Validate Envoy config
+      run: docker run --rm \
+        -v $(pwd)/envoy.yaml:/envoy.yaml \
+        envoyproxy/envoy:v1.21-latest \
+        --mode validate \
+        -c envoy.yaml
