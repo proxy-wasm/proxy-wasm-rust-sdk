@@ -27,13 +27,14 @@
 Each example can be run with `docker compose` and has a matching Envoy configuration. These instruction require that both
 [Rust](https://www.rust-lang.org/) and [docker compose](https://docker-docs.netlify.app/compose/install/) are installed.
 
-1. Build the examples WASM filters
+1. Build the WASM filter, change the environment variable to the folder name of the example:
    ```sh
-   cargo build --examples
+   export EXAMPLE_DIR=hello_world
+   cargo build --target wasm32-wasi --manifest-path=examples/${EXAMPLE_DIR}/Cargo.toml
    ```
-2. Run an example, `EXAMPLE` defaults to `hello_world` and maps to the folder name of the example.
+2. Run the example:
    ```sh
-   docker compose up --file examples/docker-compose.yaml -e EXAMPLE=hello_world
+   docker compose up --file examples/docker-compose.yaml -e EXAMPLE=${EXAMPLE_DIR}
    ```
 
 ## Articles & blog posts from the community
