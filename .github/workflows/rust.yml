@@ -263,6 +263,11 @@ jobs:
         working-directory: ./examples/${{ matrix.example }}
     steps:
     - uses: actions/checkout@v2
+    - name: Update Rust
+      run: |
+        rustup toolchain install stable --component clippy --component rustfmt
+        rustup target add wasm32-wasi
+
     - name: Format (rustfmt)
       run: cargo fmt -- --check
     - name: Format (manifest)
