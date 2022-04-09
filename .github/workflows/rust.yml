@@ -77,7 +77,6 @@ jobs:
         export PATH=$PATH:$(go env GOPATH)/bin
         buildifier -mode=check WORKSPACE
         buildifier -mode=check BUILD
-        buildifier -mode=check examples/BUILD
 
     - name: Format (cargo raze)
       run: |
@@ -251,3 +250,28 @@ jobs:
       run: |
         cp -p bazel/cargo/Cargo.raze.lock .
         cargo audit
+
+  examples:
+    runs-on: ubuntu-latest
+    env:
+        RUSTFLAGS: -D warnings -C link-args=-S
+    strategy:
+      matrix:
+        example: ['hello_world', 'http_auth_random', 'http_body', 'http_config', 'http_headers']
+    defaults:
+      run:
+        working-directory: ./examples/${{ matrix.example }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Format (rustfmt)
+      run: cargo fmt -- --check
+    - name: Format (manifest)
+      run: cargo verify-project
+    - run: cargo audit
+    - run: cargo outdated --root-deps-only --exit-code 1
+    - name: Clippy (wasm32-unknown-unknown)
+      run: cargo clippy --release --all-targets --target=wasm32-unknown-unknown
+    - name: Build (wasm32-unknown-unknown)
+      run: cargo build --release --all-targets --target=wasm32-unknown-unknown
+    - name: Build (wasm32-wasi)
+      run: cargo build --release --all-targets --target=wasm32-wasi
