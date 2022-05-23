@@ -16,6 +16,7 @@ use crate::hostcalls;
 use crate::traits::*;
 use crate::types::*;
 use hashbrown::HashMap;
+use log::warn;
 use std::cell::{Cell, RefCell};
 
 thread_local! {
@@ -535,7 +536,7 @@ impl Dispatcher {
                 root.on_grpc_stream_close(token_id, status_code)
             }
         } else {
-            panic!("invalid token_id")
+            warn!("on_grpc_close: invalid token_id, a non-connected stream has closed");
         }
     }
 }
