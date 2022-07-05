@@ -471,7 +471,7 @@ pub trait HttpContext: Context {
         hostcalls::set_buffer(BufferType::HttpResponseBody, start, size, value).unwrap()
     }
 
-    fn on_http_response_trailers(&mut self, _num_trailers: usize) -> Action {
+    fn on_http_response_trailers(&mut self, _num_trailers: usize, _end_of_stream: bool) -> Action {
         Action::Continue
     }
 
