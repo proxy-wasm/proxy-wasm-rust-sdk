@@ -100,32 +100,32 @@ jobs:
 
     - name: Build (wasm32-unknown-unknown)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S
+        RUSTFLAGS: -D warnings
       run: cargo build --release --all-targets --target=wasm32-unknown-unknown
 
     - name: Clippy (wasm32-unknown-unknown)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S
+        RUSTFLAGS: -D warnings
       run: cargo clippy --release --all-targets --target=wasm32-unknown-unknown
 
     - name: Build (wasm32-wasi)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S
+        RUSTFLAGS: -D warnings
       run: cargo build --release --all-targets --target=wasm32-wasi
 
     - name: Build (wasm32-wasi with wee-alloc)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S
+        RUSTFLAGS: -D warnings
       run: cargo build --release --all-targets --target=wasm32-wasi --features=wee-alloc
 
     - name: Clippy (wasm32-wasi)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S
+        RUSTFLAGS: -D warnings
       run: cargo clippy --release --all-targets --target=wasm32-wasi
 
     - name: Clippy (wasm32-wasi with wee-alloc)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S
+        RUSTFLAGS: -D warnings
       run: cargo clippy --release --all-targets --target=wasm32-wasi --features=wee-alloc
 
     - name: Format (rustfmt)
@@ -155,32 +155,32 @@ jobs:
 
     - name: Build (wasm32-unknown-unknown)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S
+        RUSTFLAGS: -D warnings
       run: cargo build --release --all-targets --target=wasm32-unknown-unknown
 
     - name: Clippy (wasm32-unknown-unknown)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S
+        RUSTFLAGS: -D warnings
       run: cargo clippy --release --all-targets --target=wasm32-unknown-unknown
 
     - name: Build (wasm32-wasi)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S
+        RUSTFLAGS: -D warnings
       run: cargo build --release --all-targets --target=wasm32-wasi
 
     - name: Build (wasm32-wasi with wee-alloc)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S
+        RUSTFLAGS: -D warnings
       run: cargo build --release --all-targets --target=wasm32-wasi --features=wee-alloc
 
     - name: Clippy (wasm32-wasi)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S
+        RUSTFLAGS: -D warnings
       run: cargo clippy --release --all-targets --target=wasm32-wasi
 
     - name: Clippy (wasm32-wasi with wee-alloc)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S
+        RUSTFLAGS: -D warnings
       run: cargo clippy --release --all-targets --target=wasm32-wasi --features=wee-alloc
 
     - name: Format (rustfmt)
@@ -214,22 +214,22 @@ jobs:
 
     - name: Build (wasm32-wasi)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S -Z wasi-exec-model=reactor
+        RUSTFLAGS: -D warnings -Z wasi-exec-model=reactor
       run: cargo build --release --all-targets --target=wasm32-wasi
 
     - name: Build (wasm32-wasi with wee-alloc)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S -Z wasi-exec-model=reactor
+        RUSTFLAGS: -D warnings -Z wasi-exec-model=reactor
       run: cargo build --release --all-targets --target=wasm32-wasi --features=wee-alloc
 
     - name: Clippy (wasm32-wasi)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S -Z wasi-exec-model=reactor
+        RUSTFLAGS: -D warnings -Z wasi-exec-model=reactor
       run: cargo clippy --release --all-targets --target=wasm32-wasi
 
     - name: Clippy (wasm32-wasi with wee-alloc)
       env:
-        RUSTFLAGS: -D warnings -C link-args=-S -Z wasi-exec-model=reactor
+        RUSTFLAGS: -D warnings -Z wasi-exec-model=reactor
       run: cargo clippy --release --all-targets --target=wasm32-wasi --features=wee-alloc
 
   outdated:

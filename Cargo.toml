@@ -2,6 +2,7 @@
 name = "proxy-wasm"
 version = "0.2.0"
 authors = ["Piotr Sikora <piotrsikora@google.com>"]
+rust-version = "1.59"
 description = "WebAssembly for Proxies"
 readme = "README.md"
 license = "Apache-2.0"
@@ -27,7 +28,9 @@ getrandom = "0.2"
 [profile.release]
 lto = true
 opt-level = 3
+codegen-units = 1
 panic = "abort"
+strip = "debuginfo"
 
 [package.metadata.raze]
 package_aliases_dir = "bazel/cargo"
