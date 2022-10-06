@@ -14,10 +14,6 @@
 
 use std::mem::MaybeUninit;
 
-#[cfg(feature = "wee-alloc")]
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
 #[cfg_attr(
     all(target_arch = "wasm32", target_os = "unknown"),
     export_name = "malloc"
