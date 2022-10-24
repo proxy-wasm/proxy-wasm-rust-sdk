@@ -25,7 +25,7 @@
 ## Articles & blog posts from the community
 
 - [Extending Envoy with WASM and Rust](https://antweiss.com/blog/extending-envoy-with-wasm-and-rust/)
-- [Extending Istio with Rust and WebAssembly](https://blog.red-badger.com/extending-istio-with-rust-and-webassembly)
+- [Writing Envoy filters in Rust with WebAssembly](https://content.red-badger.com/resources/extending-istio-with-rust-and-webassembly)
 
 ## Updating dependencies
 
