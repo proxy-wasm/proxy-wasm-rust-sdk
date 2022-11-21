@@ -14,7 +14,7 @@ licenses([
 # Aliased targets
 alias(
     name = "hashbrown",
-    actual = "@raze__hashbrown__0_12_0//:hashbrown",
+    actual = "@raze__hashbrown__0_13_1//:hashbrown",
     tags = [
         "cargo-raze",
         "manual",
