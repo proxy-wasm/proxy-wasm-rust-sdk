@@ -13,12 +13,11 @@ def raze_fetch_remote_crates():
     """This function defines a collection of repos and should be called in a WORKSPACE file"""
     maybe(
         http_archive,
-        name = "raze__ahash__0_7_6",
-        url = "https://crates.io/api/v1/crates/ahash/0.7.6/download",
+        name = "raze__ahash__0_8_2",
+        url = "https://crates.io/api/v1/crates/ahash/0.8.2/download",
         type = "tar.gz",
-        sha256 = "fcb51a0695d8f838b1ee009b3fbf66bda078cd64590202a864a8f3e8c4315c47",
-        strip_prefix = "ahash-0.7.6",
-        build_file = Label("//bazel/cargo/remote:BUILD.ahash-0.7.6.bazel"),
+        strip_prefix = "ahash-0.8.2",
+        build_file = Label("//bazel/cargo/remote:BUILD.ahash-0.8.2.bazel"),
     )
 
     maybe(
@@ -63,12 +62,11 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__hashbrown__0_12_0",
-        url = "https://crates.io/api/v1/crates/hashbrown/0.12.0/download",
+        name = "raze__hashbrown__0_13_1",
+        url = "https://crates.io/api/v1/crates/hashbrown/0.13.1/download",
         type = "tar.gz",
-        sha256 = "8c21d40587b92fa6a6c6e3c1bdbf87d75511db5672f9c93175574b3a00df1758",
-        strip_prefix = "hashbrown-0.12.0",
-        build_file = Label("//bazel/cargo/remote:BUILD.hashbrown-0.12.0.bazel"),
+        strip_prefix = "hashbrown-0.13.1",
+        build_file = Label("//bazel/cargo/remote:BUILD.hashbrown-0.13.1.bazel"),
     )
 
     maybe(
@@ -113,12 +111,11 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__once_cell__1_10_0",
-        url = "https://crates.io/api/v1/crates/once_cell/1.10.0/download",
+        name = "raze__once_cell__1_16_0",
+        url = "https://crates.io/api/v1/crates/once_cell/1.16.0/download",
         type = "tar.gz",
-        sha256 = "87f3e037eac156d1775da914196f0f37741a274155e34a0b7e427c35d2a2ecb9",
-        strip_prefix = "once_cell-1.10.0",
-        build_file = Label("//bazel/cargo/remote:BUILD.once_cell-1.10.0.bazel"),
+        strip_prefix = "once_cell-1.16.0",
+        build_file = Label("//bazel/cargo/remote:BUILD.once_cell-1.16.0.bazel"),
     )
 
     maybe(
