@@ -16,6 +16,7 @@ def raze_fetch_remote_crates():
         name = "raze__ahash__0_8_2",
         url = "https://crates.io/api/v1/crates/ahash/0.8.2/download",
         type = "tar.gz",
+        sha256 = "bf6ccdb167abbf410dcb915cabd428929d7f6a04980b54a11f26a39f1c7f7107",
         strip_prefix = "ahash-0.8.2",
         build_file = Label("//bazel/cargo/remote:BUILD.ahash-0.8.2.bazel"),
     )
@@ -65,6 +66,7 @@ def raze_fetch_remote_crates():
         name = "raze__hashbrown__0_13_1",
         url = "https://crates.io/api/v1/crates/hashbrown/0.13.1/download",
         type = "tar.gz",
+        sha256 = "33ff8ae62cd3a9102e5637afc8452c55acf3844001bd5374e0b0bd7b6616c038",
         strip_prefix = "hashbrown-0.13.1",
         build_file = Label("//bazel/cargo/remote:BUILD.hashbrown-0.13.1.bazel"),
     )
@@ -114,6 +116,7 @@ def raze_fetch_remote_crates():
         name = "raze__once_cell__1_16_0",
         url = "https://crates.io/api/v1/crates/once_cell/1.16.0/download",
         type = "tar.gz",
+        sha256 = "86f0b0d4bf799edbc74508c1e8bf170ff5f41238e5f8225603ca7caaae2b7860",
         strip_prefix = "once_cell-1.16.0",
         build_file = Label("//bazel/cargo/remote:BUILD.once_cell-1.16.0.bazel"),
     )
