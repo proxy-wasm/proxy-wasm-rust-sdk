@@ -113,20 +113,10 @@ jobs:
         RUSTFLAGS: -D warnings
       run: cargo build --release --all-targets --target=wasm32-wasi
 
-    - name: Build (wasm32-wasi with wee-alloc)
-      env:
-        RUSTFLAGS: -D warnings
-      run: cargo build --release --all-targets --target=wasm32-wasi --features=wee-alloc
-
     - name: Clippy (wasm32-wasi)
       env:
         RUSTFLAGS: -D warnings
       run: cargo clippy --release --all-targets --target=wasm32-wasi
-
-    - name: Clippy (wasm32-wasi with wee-alloc)
-      env:
-        RUSTFLAGS: -D warnings
-      run: cargo clippy --release --all-targets --target=wasm32-wasi --features=wee-alloc
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
@@ -168,20 +158,10 @@ jobs:
         RUSTFLAGS: -D warnings
       run: cargo build --release --all-targets --target=wasm32-wasi
 
-    - name: Build (wasm32-wasi with wee-alloc)
-      env:
-        RUSTFLAGS: -D warnings
-      run: cargo build --release --all-targets --target=wasm32-wasi --features=wee-alloc
-
     - name: Clippy (wasm32-wasi)
       env:
         RUSTFLAGS: -D warnings
       run: cargo clippy --release --all-targets --target=wasm32-wasi
-
-    - name: Clippy (wasm32-wasi with wee-alloc)
-      env:
-        RUSTFLAGS: -D warnings
-      run: cargo clippy --release --all-targets --target=wasm32-wasi --features=wee-alloc
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
@@ -217,20 +197,10 @@ jobs:
         RUSTFLAGS: -D warnings -Z wasi-exec-model=reactor
       run: cargo build --release --all-targets --target=wasm32-wasi
 
-    - name: Build (wasm32-wasi with wee-alloc)
-      env:
-        RUSTFLAGS: -D warnings -Z wasi-exec-model=reactor
-      run: cargo build --release --all-targets --target=wasm32-wasi --features=wee-alloc
-
     - name: Clippy (wasm32-wasi)
       env:
         RUSTFLAGS: -D warnings -Z wasi-exec-model=reactor
       run: cargo clippy --release --all-targets --target=wasm32-wasi
-
-    - name: Clippy (wasm32-wasi with wee-alloc)
-      env:
-        RUSTFLAGS: -D warnings -Z wasi-exec-model=reactor
-      run: cargo clippy --release --all-targets --target=wasm32-wasi --features=wee-alloc
 
   outdated:
     runs-on: ubuntu-latest

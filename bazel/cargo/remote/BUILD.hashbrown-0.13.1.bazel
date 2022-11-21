@@ -31,42 +31,42 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "bench" with type "example" omitted
+# Unsupported target "bench" with type "bench" omitted
 
-# Unsupported target "bench_acquire" with type "example" omitted
-
-# Unsupported target "bench_vs_lazy_static" with type "example" omitted
-
-# Unsupported target "lazy_static" with type "example" omitted
-
-# Unsupported target "reentrant_init_deadlocks" with type "example" omitted
-
-# Unsupported target "regex" with type "example" omitted
-
-# Unsupported target "test_synchronization" with type "example" omitted
+# Unsupported target "insert_unique_unchecked" with type "bench" omitted
 
 rust_library(
-    name = "once_cell",
+    name = "hashbrown",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "alloc",
-        "race",
+        "ahash",
+        "default",
+        "inline-more",
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=once_cell",
+        "crate-name=hashbrown",
         "manual",
     ],
-    version = "1.10.0",
+    version = "0.13.1",
     # buildifier: leave-alone
     deps = [
+        "@raze__ahash__0_8_2//:ahash",
     ],
 )
 
-# Unsupported target "it" with type "test" omitted
+# Unsupported target "equivalent_trait" with type "test" omitted
+
+# Unsupported target "hasher" with type "test" omitted
+
+# Unsupported target "rayon" with type "test" omitted
+
+# Unsupported target "serde" with type "test" omitted
+
+# Unsupported target "set" with type "test" omitted
