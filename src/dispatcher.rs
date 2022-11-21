@@ -536,7 +536,7 @@ impl Dispatcher {
                 root.on_grpc_stream_close(token_id, status_code)
             }
         } else {
-            //TODO: change back to a panic once underlying issue is fixed.
+            // TODO: change back to a panic once underlying issue is fixed.
             trace!("on_grpc_close: invalid token_id, a non-connected stream has closed");
         }
     }
