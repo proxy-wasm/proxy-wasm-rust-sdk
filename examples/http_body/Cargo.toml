@@ -1,6 +1,6 @@
 [package]
 publish = false
-name = "proxy-wasm-http-body"
+name = "proxy-wasm-example-http-body"
 version = "0.0.1"
 authors = ["Piotr Sikora <piotrsikora@google.com>"]
 description = "Proxy-Wasm plugin example: HTTP body"

@@ -51,7 +51,7 @@ static_resources:
                           vm_id: "http_auth_random_vm"
                           code:
                             local:
-                              filename: "/etc/envoy/filters/proxy_wasm_http_auth_random.wasm"
+                              filename: "/etc/envoy/proxy-wasm-plugins/proxy_wasm_example_http_auth_random.wasm"
                 - name: envoy.filters.http.router
                   typed_config:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router

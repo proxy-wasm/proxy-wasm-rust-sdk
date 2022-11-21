@@ -1,9 +1,9 @@
 [package]
 publish = false
-name = "proxy-wasm-hello-world"
+name = "proxy-wasm-example-hello-world"
 version = "0.0.1"
 authors = ["Piotr Sikora <piotrsikora@google.com>"]
-description = "Proxy-Wasm plugin example: hello world"
+description = "Proxy-Wasm plugin example: Hello World"
 license = "Apache-2.0"
 edition = "2018"
 
@@ -11,9 +11,9 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [dependencies]
-log = "0.4"
-chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
 cfg-if = "1.0"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+log = "0.4"
 proxy-wasm = { path = "../../" }
 
 [target.'cfg(not(all(target_arch = "wasm32", target_os = "unknown")))'.dependencies]
