@@ -2,7 +2,7 @@
 name = "proxy-wasm"
 version = "0.2.0"
 authors = ["Piotr Sikora <piotrsikora@google.com>"]
-rust-version = "1.59"
+rust-version = "1.61"
 description = "WebAssembly for Proxies"
 readme = "README.md"
 license = "Apache-2.0"
@@ -14,7 +14,7 @@ build = "build.rs"
 wee-alloc = ["wee_alloc"]
 
 [dependencies]
-hashbrown = "0.12"
+hashbrown = "0.13"
 log = "0.4"
 wee_alloc = { version = "0.4", optional = true }
 
