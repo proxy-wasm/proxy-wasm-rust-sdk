@@ -262,6 +262,6 @@ jobs:
         docker run --rm \
           -v $(pwd)/envoy.yaml:/envoy.yaml \
           -v $(pwd)/target/wasm32-wasi/debug:/etc/envoy/filters \
-          envoyproxy/envoy:v1.21-latest \
+          envoyproxy/envoy:v1.24-latest \
           --mode validate \
           -c envoy.yaml
