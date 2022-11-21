@@ -16,11 +16,11 @@
 
 ## Examples
 
-- [Hello World](./examples/hello_world.rs)
-- [HTTP Auth random](./examples/http_auth_random.rs)
-- [HTTP Headers](./examples/http_headers.rs)
-- [HTTP Response body](./examples/http_body.rs)
-- [HTTP Configuration](./examples/http_config.rs)
+- [Hello World](./examples/hello_world/)
+- [HTTP Authentication (random)](./examples/http_auth_random/)
+- [HTTP Headers](./examples/http_headers/)
+- [HTTP Response body](./examples/http_body/)
+- [HTTP Configuration](./examples/http_config/)
 
 ### Using Proxy-Wasm plugins in Envoy
 
