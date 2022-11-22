@@ -12,3 +12,10 @@ crate-type = ["cdylib"]
 
 [dependencies]
 proxy-wasm = { path = "../../" }
+
+[profile.release]
+lto = true
+opt-level = 3
+codegen-units = 1
+panic = "abort"
+strip = "debuginfo"
