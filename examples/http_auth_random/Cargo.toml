@@ -3,7 +3,7 @@ publish = false
 name = "proxy-wasm-example-http-auth-random"
 version = "0.0.1"
 authors = ["Piotr Sikora <piotrsikora@google.com>"]
-description = "Proxy-Wasm plugin example: HTTP authentication (random)"
+description = "Proxy-Wasm plugin example: HTTP auth (random)"
 license = "Apache-2.0"
 edition = "2018"
 

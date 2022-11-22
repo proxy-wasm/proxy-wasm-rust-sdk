@@ -17,7 +17,7 @@
 ## Examples
 
 - [Hello World](./examples/hello_world/)
-- [HTTP Authentication (random)](./examples/http_auth_random/)
+- [HTTP Auth (random)](./examples/http_auth_random/)
 - [HTTP Headers](./examples/http_headers/)
 - [HTTP Response body](./examples/http_body/)
 - [HTTP Configuration](./examples/http_config/)

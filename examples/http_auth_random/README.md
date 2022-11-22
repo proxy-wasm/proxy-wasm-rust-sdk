@@ -1,4 +1,4 @@
-## Proxy-Wasm plugin example: HTTP authentication (random)
+## Proxy-Wasm plugin example: HTTP auth (random)
 
 Proxy-Wasm plugin that grants access based on a result of HTTP callout.
 
