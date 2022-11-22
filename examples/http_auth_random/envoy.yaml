@@ -28,15 +28,14 @@ static_resources:
               route_config:
                 name: local_routes
                 virtual_hosts:
-                - name: local_service
-                  domains:
-                  - "*"
-                  routes:
-                  - match:
-                      prefix: "/"
-                    route:
-                      cluster: httpbin
-
+                  - name: local_service
+                    domains:
+                      - "*"
+                    routes:
+                      - match:
+                          prefix: "/"
+                        route:
+                          cluster: httpbin
               http_filters:
                 - name: envoy.filters.http.wasm
                   typed_config:
@@ -55,19 +54,18 @@ static_resources:
                 - name: envoy.filters.http.router
                   typed_config:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
-
   clusters:
-  - name: httpbin
-    connect_timeout: 5000s
-    type: STRICT_DNS
-    lb_policy: ROUND_ROBIN
-    load_assignment:
-      cluster_name: httpbin
-      endpoints:
-        - lb_endpoints:
-          - endpoint:
-              address:
-                socket_address:
-                  address: httpbin.org
-                  port_value: 80
-              hostname: "httpbin.org"
+    - name: httpbin
+      connect_timeout: 5000s
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: httpbin
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: httpbin.org
+                      port_value: 80
+                  hostname: "httpbin.org"

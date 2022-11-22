@@ -13,15 +13,15 @@
 # limitations under the License.
 
 bootstrap_extensions:
-- name: envoy.bootstrap.wasm
-  typed_config:
-    "@type": type.googleapis.com/envoy.extensions.wasm.v3.WasmService
-    singleton: true
-    config:
-      name: "hello_world"
-      root_id: "hello_world"
-      vm_config:
-        runtime: "envoy.wasm.runtime.v8"
-        code:
-          local:
-            filename: "/etc/envoy/proxy-wasm-plugins/proxy_wasm_example_hello_world.wasm"
+  - name: envoy.bootstrap.wasm
+    typed_config:
+      "@type": type.googleapis.com/envoy.extensions.wasm.v3.WasmService
+      singleton: true
+      config:
+        name: "hello_world"
+        root_id: "hello_world"
+        vm_config:
+          runtime: "envoy.wasm.runtime.v8"
+          code:
+            local:
+              filename: "/etc/envoy/proxy-wasm-plugins/proxy_wasm_example_hello_world.wasm"
