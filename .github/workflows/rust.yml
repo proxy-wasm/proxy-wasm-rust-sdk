@@ -266,7 +266,7 @@ jobs:
         rustup +nightly target add wasm32-wasi
         rustup default nightly
 
-    - name: Rewrite crate to reactor binary
+    - name: Change crate type from library to binary
       run: |
         grep -v '^\[lib\]' Cargo.toml > Cargo.tmp
         grep -v '^crate-type' Cargo.tmp > Cargo.toml
@@ -289,6 +289,12 @@ jobs:
 
     - name: Run cargo outdated
       run: cargo outdated --root-deps-only --exit-code 1
+
+    - name: Rename .wasm to match expected filename
+      run: |
+        for file in $(ls -1 target/wasm32-wasi/release/*.wasm); do \
+          mv $file $(echo $file | sed 's/-/_/g'); \
+        done
 
     - name: Validate Envoy config
       run: |
