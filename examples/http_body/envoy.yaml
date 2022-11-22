@@ -37,13 +37,13 @@ static_resources:
                         direct_response:
                           status: 200
                           body:
-                            inline_string: "This secret message should not be read by anyone"
+                            inline_string: "This secret message should not be read by anyone.\n"
                       - match:
                           prefix: "/"
                         direct_response:
                           status: 200
                           body:
-                            inline_string: "Everyone may read this message"
+                            inline_string: "Everyone may read this message.\n"
               http_filters:
                 - name: envoy.filters.http.wasm
                   typed_config:
