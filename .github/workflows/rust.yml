@@ -292,7 +292,8 @@ jobs:
 
     - name: Rename .wasm to match expected filename
       run: |
-        for file in $(ls -1 target/wasm32-wasi/release/*.wasm); do \
+        cd target/wasm32-wasi/release
+        for file in $(ls -1 *.wasm); do \
           mv $file $(echo $file | sed 's/-/_/g'); \
         done
 
