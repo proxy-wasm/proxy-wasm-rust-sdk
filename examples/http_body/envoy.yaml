@@ -52,10 +52,8 @@ static_resources:
                     value:
                       config:
                         name: "http_body"
-                        root_id: "http_body"
                         vm_config:
                           runtime: "envoy.wasm.runtime.v8"
-                          vm_id: "http_body_vm"
                           code:
                             local:
                               filename: "/etc/envoy/proxy-wasm-plugins/proxy_wasm_example_http_body.wasm"

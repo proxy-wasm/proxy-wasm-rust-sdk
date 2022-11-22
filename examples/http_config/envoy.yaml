@@ -46,13 +46,11 @@ static_resources:
                     value:
                       config:
                         name: "http_config"
-                        root_id: "http_config"
                         configuration:
                           "@type": "type.googleapis.com/google.protobuf.StringValue"
                           value: The secret to life is meaningless unless you discover it yourself
                         vm_config:
                           runtime: "envoy.wasm.runtime.v8"
-                          vm_id: "http_config_vm"
                           code:
                             local:
                               filename: "/etc/envoy/proxy-wasm-plugins/proxy_wasm_example_http_config.wasm"

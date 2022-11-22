@@ -44,10 +44,8 @@ static_resources:
                     value:
                       config:
                         name: "http_auth_random"
-                        root_id: "http_auth_random"
                         vm_config:
                           runtime: "envoy.wasm.runtime.v8"
-                          vm_id: "http_auth_random_vm"
                           code:
                             local:
                               filename: "/etc/envoy/proxy-wasm-plugins/proxy_wasm_example_http_auth_random.wasm"

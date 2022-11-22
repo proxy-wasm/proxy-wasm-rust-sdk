@@ -19,7 +19,6 @@ bootstrap_extensions:
       singleton: true
       config:
         name: "hello_world"
-        root_id: "hello_world"
         vm_config:
           runtime: "envoy.wasm.runtime.v8"
           code:
