@@ -54,7 +54,7 @@ static_resources:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
   clusters:
     - name: httpbin
-      connect_timeout: 5000s
+      connect_timeout: 5s
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
       load_assignment:
