@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use log::trace;
+use log::info;
 use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
 
@@ -44,7 +44,7 @@ impl Context for HttpHeaders {}
 impl HttpContext for HttpHeaders {
     fn on_http_request_headers(&mut self, _: usize, _: bool) -> Action {
         for (name, value) in &self.get_http_request_headers() {
-            trace!("#{} -> {}: {}", self.context_id, name, value);
+            info!("#{} -> {}: {}", self.context_id, name, value);
         }
 
         match self.get_http_request_header(":path") {
@@ -62,12 +62,12 @@ impl HttpContext for HttpHeaders {
 
     fn on_http_response_headers(&mut self, _: usize, _: bool) -> Action {
         for (name, value) in &self.get_http_response_headers() {
-            trace!("#{} <- {}: {}", self.context_id, name, value);
+            info!("#{} <- {}: {}", self.context_id, name, value);
         }
         Action::Continue
     }
 
     fn on_log(&mut self) {
-        trace!("#{} completed.", self.context_id);
+        info!("#{} completed.", self.context_id);
     }
 }
