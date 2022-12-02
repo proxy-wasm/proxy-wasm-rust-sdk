@@ -42,7 +42,7 @@ jobs:
       run: |
         go install github.com/google/addlicense@latest
         export PATH=$PATH:$(go env GOPATH)/bin
-        addlicense -check .
+        addlicense -check -ignore "bazel/cargo/remote/**" .
 
   bazel:
     runs-on: ubuntu-latest
@@ -63,7 +63,7 @@ jobs:
           ~/.cargo/.crates2.json
           ~/.cargo/bin
           ~/.cargo/registry
-        key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.Bazel.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Build (wasm32-unknown-unknown)
       run: bazelisk --noworkspace_rc build --platforms=@rules_rust//rust/platform:wasm //...
@@ -78,11 +78,9 @@ jobs:
         buildifier -mode=check WORKSPACE
         buildifier -mode=check BUILD
 
-    - name: Format (cargo raze)
+    - name: Format (rules_rust)
       run: |
-        mv bazel/cargo/Cargo.raze.lock Cargo.lock
-        bazelisk --noworkspace_rc run @cargo_raze//:raze -- --manifest-path=$(pwd)/Cargo.toml
-        mv Cargo.lock bazel/cargo/Cargo.raze.lock
+        bazelisk --noworkspace_rc run //bazel/cargo:crates_vendor
         git diff --exit-code
 
   stable:
@@ -181,7 +179,7 @@ jobs:
 
     - name: Run cargo audit
       run: |
-        cp -p bazel/cargo/Cargo.raze.lock .
+        cp -p bazel/cargo/Cargo.Bazel.lock Cargo.lock
         cargo audit
 
   example:
