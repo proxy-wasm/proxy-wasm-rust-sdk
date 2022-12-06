@@ -19,8 +19,15 @@ def proxy_wasm_rust_sdk_repositories():
     maybe(
         http_archive,
         name = "rules_rust",
-        sha256 = "73580f341f251f2fc633b73cdf74910f4da64d06a44c063cbf5c01b1de753ec1",
-        url = "https://github.com/bazelbuild/rules_rust/releases/download/0.5.0/rules_rust-v0.5.0.tar.gz",
+        sha256 = "dd79bd4e2e2adabae738c5e93c36d351cf18071ff2acf6590190acf4138984f6",
+        url = "https://github.com/bazelbuild/rules_rust/releases/download/0.14.0/rules_rust-v0.14.0.tar.gz",
         patches = ["//bazel:rules_rust.patch"],
         patch_args = ["-p1"],
+    )
+
+    maybe(
+        http_archive,
+        name = "bazel_skylib",
+        sha256 = "74d544d96f4a5bb630d465ca8bbcfe231e3594e5aae57e1edbf17a6eb3ca2506",
+        url = "https://github.com/bazelbuild/bazel-skylib/releases/download/1.3.0/bazel-skylib-1.3.0.tar.gz",
     )

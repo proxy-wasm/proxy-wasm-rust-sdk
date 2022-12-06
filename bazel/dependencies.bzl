@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@proxy_wasm_rust_sdk//bazel/cargo:crates.bzl", "raze_fetch_remote_crates")
+load("@proxy_wasm_rust_sdk//bazel/cargo/remote:defs.bzl", "crate_repositories")
 load("@rules_rust//rust:repositories.bzl", "rust_repositories")
+load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
 
 def proxy_wasm_rust_sdk_dependencies():
     rust_repositories()
-    raze_fetch_remote_crates()
+    crate_universe_dependencies()
+    crate_repositories()

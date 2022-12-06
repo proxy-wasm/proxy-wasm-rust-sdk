@@ -12,29 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//crate_universe:defs.bzl", "crates_vendor")
 
 exports_files([
-    "Cargo.toml",
+    "Cargo.Bazel.lock",
 ])
 
-cargo_build_script(
-    name = "proxy_wasm_build_script",
-    srcs = ["build.rs"],
-    edition = "2018",
+crates_vendor(
+    name = "crates_vendor",
+    cargo_lockfile = "//bazel/cargo:Cargo.Bazel.lock",
+    manifests = ["//:Cargo.toml"],
+    mode = "remote",
     tags = ["manual"],
-    visibility = ["//visibility:private"],
-)
-
-rust_library(
-    name = "proxy_wasm",
-    srcs = glob(["src/*.rs"]),
-    edition = "2018",
-    visibility = ["//visibility:public"],
-    deps = [
-        ":proxy_wasm_build_script",
-        "//bazel/cargo/remote:hashbrown",
-        "//bazel/cargo/remote:log",
-    ],
+    vendor_path = "//bazel/cargo/remote",
 )
