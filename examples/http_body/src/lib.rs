@@ -60,7 +60,7 @@ impl HttpContext for HttpBody {
         if let Some(body_bytes) = self.get_http_response_body(0, body_size) {
             let body_str = String::from_utf8(body_bytes).unwrap();
             if body_str.contains("secret") {
-                let new_body = format!("Original message body ({} bytes) redacted.\n", body_size);
+                let new_body = format!("Original message body ({body_size} bytes) redacted.\n");
                 self.set_http_response_body(0, body_size, &new_body.into_bytes());
             }
         }
