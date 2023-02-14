@@ -1188,8 +1188,8 @@ mod utils {
             let value = bytes[p..p + size].to_vec();
             p += size + 1;
             map.push((
-                String::from_utf8(key).unwrap(),
-                String::from_utf8(value).unwrap(),
+                String::from_utf8(key).unwrap_or(String::from("?")),
+                String::from_utf8(value).unwrap_or(String::from("?")),
             ));
         }
         map
@@ -1211,7 +1211,7 @@ mod utils {
                 u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s + 4..s + 8]).unwrap()) as usize;
             let value = bytes[p..p + size].to_vec();
             p += size + 1;
-            map.push((String::from_utf8(key).unwrap(), value));
+            map.push((String::from_utf8(key).unwrap_or(String::from("?")), value));
         }
         map
     }
