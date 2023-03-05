@@ -13,6 +13,9 @@ crate-type = ["cdylib"]
 [dependencies]
 log = "0.4"
 proxy-wasm = { path = "../../" }
+trust-dns-resolver = "0.22.0"
+tokio = "1.26.0"
+hostname = "^0.3"
 
 [profile.release]
 lto = true
