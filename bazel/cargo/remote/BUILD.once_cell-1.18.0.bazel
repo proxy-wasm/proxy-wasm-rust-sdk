@@ -20,7 +20,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "hashbrown",
+    name = "once_cell",
     srcs = glob(
         include = [
             "**/*.rs",
@@ -46,9 +46,9 @@ rust_library(
         ],
     }),
     crate_features = [
-        "ahash",
-        "default",
-        "inline-more",
+        "alloc",
+        "race",
+        "unstable",
     ],
     crate_root = "src/lib.rs",
     data = select_with_or({
@@ -80,11 +80,10 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.13.1",
+    version = "1.18.0",
     deps = [
     ] + select({
         "//conditions:default": [
-            "@crates_vendor__ahash-0.8.2//:ahash",
         ],
     }),
 )
