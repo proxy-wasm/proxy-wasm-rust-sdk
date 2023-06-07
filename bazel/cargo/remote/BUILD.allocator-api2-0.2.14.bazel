@@ -20,7 +20,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "once_cell",
+    name = "allocator_api2",
     srcs = glob(
         include = [
             "**/*.rs",
@@ -47,15 +47,13 @@ rust_library(
     }),
     crate_features = [
         "alloc",
-        "race",
-        "unstable",
     ],
     crate_root = "src/lib.rs",
     data = select_with_or({
         "//conditions:default": [
         ],
     }),
-    edition = "2021",
+    edition = "2018",
     proc_macro_deps = [
     ] + select({
         "//conditions:default": [
@@ -80,7 +78,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "1.16.0",
+    version = "0.2.14",
     deps = [
     ] + select({
         "//conditions:default": [
