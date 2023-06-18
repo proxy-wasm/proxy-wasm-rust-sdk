@@ -741,6 +741,50 @@ extern "C" {
     ) -> Status;
 }
 
+/// Initiates an HTTP call to an upstream server.
+///
+/// This function sends an HTTP request to the specified `upstream` server with the provided
+/// `headers`, `body`, and `trailers`. The `timeout` parameter specifies the duration after
+/// which the call will time out if no response is received.
+///
+/// # Arguments
+///
+/// * `upstream`: The URL or host of the upstream server to which the HTTP call will be made.
+/// * `headers`: A vector of tuples representing the HTTP headers to include in the request.
+///              Each tuple consists of a header name and value.
+/// * `body`: An optional byte slice representing the request body.
+/// * `trailers`: An optional vector of tuples representing the HTTP trailers to include in
+///               the request. Each tuple consists of a trailer name and value.
+/// * `timeout`: The duration after which the HTTP call will time out if no response is received.
+///
+/// # Returns
+///
+/// A `Result` indicating the success or failure of the HTTP call. If the call is successful,
+/// the function returns an HTTP status code as a `u32`. If an error occurs, an `Error` object
+/// is returned.
+///
+/// # Example
+///
+/// ```rust
+/// use proxy_wasm::hostcalls::dispatch_http_call;
+///
+/// let upstream = "http://example.com";
+/// let headers = vec![("Content-Type", "application/json")];
+/// let body = Some(b"request body");
+/// let trailers = Some(vec![("Trailer-Name", "trailer value")]);
+/// let timeout = std::time::Duration::from_secs(5);
+///
+/// let result = dispatch_http_call(upstream, headers, body, trailers, timeout);
+///
+/// match result {
+///     Ok(status_code) => {
+///         println!("HTTP call successful. Status code: {}", status_code);
+///     }
+///     Err(error) => {
+///         println!("HTTP call failed. Error: {:?}", error);
+///     }
+/// }
+/// ```
 pub fn dispatch_http_call(
     upstream: &str,
     headers: Vec<(&str, &str)>,
