@@ -749,39 +749,36 @@ extern "C" {
 ///
 /// # Arguments
 ///
-/// * `upstream`: The URL or host of the upstream server to which the HTTP call will be made.
-/// * `headers`: A vector of tuples representing the HTTP headers to include in the request.
-///              Each tuple consists of a header name and value.
-/// * `body`: An optional byte slice representing the request body.
-/// * `trailers`: An optional vector of tuples representing the HTTP trailers to include in
-///               the request. Each tuple consists of a trailer name and value.
-/// * `timeout`: The duration after which the HTTP call will time out if no response is received.
+/// * `upstream`: A string specifying the name of the upstream cluster to send the HTTP request to.
+/// * `headers`: A vector of tuples representing the HTTP headers to include in the request. Each tuple contains a header name and its corresponding value.
+/// * `body`: An optional byte slice representing the body of the HTTP request.
+/// * `trailers`: A vector of tuples representing the trailers to include in the request. Each tuple contains a trailer name and its corresponding value.
+/// * `timeout`: A `Duration` specifying the timeout duration for the HTTP request.
 ///
 /// # Returns
 ///
-/// A `Result` indicating the success or failure of the HTTP call. If the call is successful,
-/// the function returns an HTTP status code as a `u32`. If an error occurs, an `Error` object
-/// is returned.
+/// A `Result` indicating the success or failure of the HTTP call. If the call is successful, the function returns an HTTP status code as a `u32`. If an error occurs, an `Error` object is returned.
 ///
 /// # Example
 ///
 /// ```rust
 /// use proxy_wasm::hostcalls::dispatch_http_call;
+/// use std::time::Duration;
 ///
-/// let upstream = "http://example.com";
-/// let headers = vec![("Content-Type", "application/json")];
-/// let body = Some(b"request body");
-/// let trailers = Some(vec![("Trailer-Name", "trailer value")]);
-/// let timeout = std::time::Duration::from_secs(5);
+/// fn main() {
+///     let upstream = "my_upstream";
+///     let headers = vec![("Content-Type", "application/json")];
+///     let body = Some(b"request body");
+///     let trailers = vec![];
+///     let timeout = Duration::from_secs(5);
 ///
-/// let result = dispatch_http_call(upstream, headers, body, trailers, timeout);
-///
-/// match result {
-///     Ok(status_code) => {
-///         println!("HTTP call successful. Status code: {}", status_code);
-///     }
-///     Err(error) => {
-///         println!("HTTP call failed. Error: {:?}", error);
+///     match dispatch_http_call(upstream, headers, body, trailers, timeout) {
+///         Ok(return_token) => {
+///             println!("HTTP call dispatched successfully. Return token: {}", return_token);
+///         }
+///         Err(status) => {
+///             println!("Failed to dispatch HTTP call. Error status: {:?}", status);
+///         }
 ///     }
 /// }
 /// ```
