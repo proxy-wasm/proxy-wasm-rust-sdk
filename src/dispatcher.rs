@@ -491,11 +491,17 @@ impl Dispatcher {
     }
 
     fn on_grpc_receive_trailing_metadata(&self, token_id: u32, trailers: u32) {
-        let context_id = *self
-            .grpc_streams
-            .borrow_mut()
-            .get(&token_id)
-            .expect("invalid token_id");
+        let grpc_streams_ref = self.grpc_streams.borrow_mut();
+        let context_id_hash_slot = grpc_streams_ref
+            .get(&token_id);
+        let context_id = match context_id_hash_slot {
+            Some(id) => *id,
+            None => {
+                // TODO: change back to a panic once underlying issue is fixed.
+                trace!("on_grpc_receive_initial_metadata: invalid token_id");
+                return;
+            }
+        };
 
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
