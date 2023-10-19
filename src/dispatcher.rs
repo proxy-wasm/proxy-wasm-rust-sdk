@@ -429,8 +429,7 @@ impl Dispatcher {
 
     fn on_grpc_receive_initial_metadata(&self, token_id: u32, headers: u32) {
         let grpc_streams_ref = self.grpc_streams.borrow_mut();
-        let context_id_hash_slot = grpc_streams_ref
-            .get(&token_id);
+        let context_id_hash_slot = grpc_streams_ref.get(&token_id);
         let context_id = match context_id_hash_slot {
             Some(id) => *id,
             None => {
@@ -492,8 +491,7 @@ impl Dispatcher {
 
     fn on_grpc_receive_trailing_metadata(&self, token_id: u32, trailers: u32) {
         let grpc_streams_ref = self.grpc_streams.borrow_mut();
-        let context_id_hash_slot = grpc_streams_ref
-            .get(&token_id);
+        let context_id_hash_slot = grpc_streams_ref.get(&token_id);
         let context_id = match context_id_hash_slot {
             Some(id) => *id,
             None => {
