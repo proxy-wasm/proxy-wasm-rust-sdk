@@ -703,6 +703,44 @@ extern "C" {
     ) -> Status;
 }
 
+#[allow(dead_code)]
+enum GrpcStatucCode {
+    Ok = 0,
+    Cancelled = 1,
+    Unknown = 2,
+    InvalidArgument= 3,
+    DeadlineExceeded = 4,
+    NotFound = 5,
+    AlreadyExists = 6,
+    PermissionDenied = 7,
+    ResourceExhausted = 8,
+    FailedPrecondition = 9,
+    Aborted = 10,
+    OutOfRange = 11,
+    Uninmplemented = 12,
+    Internal = 13,
+    Unavailable = 14,
+    DataLoss = 15,
+    Unauthenticated = 16,
+}
+
+fn http_to_grpc_status_code(status_code: u32) -> i32 {
+    match status_code {
+        200 => GrpcStatucCode::Ok as i32,
+        400 => GrpcStatucCode::InvalidArgument as i32,
+        401 => GrpcStatucCode::Unauthenticated as i32,
+        403 => GrpcStatucCode::PermissionDenied as i32,
+        404 => GrpcStatucCode::NotFound as i32,
+        409 => GrpcStatucCode::Aborted as i32,
+        412 => GrpcStatucCode::FailedPrecondition as i32,
+        429 => GrpcStatucCode::ResourceExhausted as i32,
+        500 => GrpcStatucCode::Internal as i32,
+        501 => GrpcStatucCode::Uninmplemented as i32,
+        503 => GrpcStatucCode::Unavailable as i32,
+        _ => GrpcStatucCode::Unknown as i32,
+    }
+}
+
 pub fn send_http_response(
     status_code: u32,
     headers: Vec<(&str, &str)>,
@@ -718,7 +756,7 @@ pub fn send_http_response(
             body.map_or(0, |body| body.len()),
             serialized_headers.as_ptr(),
             serialized_headers.len(),
-            -1,
+            http_to_grpc_status_code(status_code),
         ) {
             Status::Ok => Ok(()),
             status => panic!("unexpected status: {}", status as u32),
