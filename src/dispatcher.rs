@@ -483,7 +483,9 @@ impl Dispatcher {
                 root.on_grpc_stream_message(token_id, response_size);
             }
         } else {
-            panic!("invalid token_id")
+            // TODO: change back to a panic once underlying issue is fixed.
+            trace!("on_grpc_receive_initial_metadata: invalid token_id");
+            return;
         }
     }
 
