@@ -703,27 +703,6 @@ extern "C" {
     ) -> Status;
 }
 
-#[allow(dead_code)]
-enum GrpcStatucCode {
-    Ok = 0,
-    Cancelled = 1,
-    Unknown = 2,
-    InvalidArgument= 3,
-    DeadlineExceeded = 4,
-    NotFound = 5,
-    AlreadyExists = 6,
-    PermissionDenied = 7,
-    ResourceExhausted = 8,
-    FailedPrecondition = 9,
-    Aborted = 10,
-    OutOfRange = 11,
-    Uninmplemented = 12,
-    Internal = 13,
-    Unavailable = 14,
-    DataLoss = 15,
-    Unauthenticated = 16,
-}
-
 fn http_to_grpc_status_code(status_code: u32) -> i32 {
     match status_code {
         200 => GrpcStatucCode::Ok as i32,
