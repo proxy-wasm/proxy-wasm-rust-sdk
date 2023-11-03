@@ -17,6 +17,68 @@ use crate::types::*;
 use std::ptr::{null, null_mut};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+pub struct PropertyPath<const S: usize> {
+    path: [u8; S],
+}
+
+pub const fn serialized_property_path_len(path_segments: &[&str]) -> usize {
+    let mut sum = 0;
+    let mut i = 0;
+    while i < path_segments.len() {
+        sum += path_segments[i].len();
+        i += 1;
+    }
+
+    // add separator 0x0 between segments
+    if path_segments.len() > 1 {
+        sum += path_segments.len() - 1
+    }
+
+    sum
+}
+
+pub const fn build_serialized_property_path<const S: usize>(
+    path_segments: &[&str],
+) -> PropertyPath<S> {
+    let mut output = [0; S];
+    let mut output_idx = 0;
+    let mut path_segment_idx = 0;
+
+    while path_segment_idx < path_segments.len() {
+        let segment = path_segments[path_segment_idx].as_bytes();
+
+        let mut segment_idx = 0;
+        while segment_idx < segment.len() {
+            output[output_idx] = segment[segment_idx];
+            output_idx += 1;
+            segment_idx += 1;
+        }
+        path_segment_idx += 1;
+
+        // move forward one position to keep a 0x0 as delimiter between segments in output
+        // buffer. The 0x0 in buffer was set on output buffer creation
+        output_idx += 1;
+    }
+
+    // remove last 0x0
+    if path_segments.len() > 1 {
+        output_idx -= 1;
+    }
+
+    assert!(output_idx == S);
+
+    PropertyPath { path: output }
+}
+
+#[macro_export]
+macro_rules! create_property_path {
+    ($($x: expr),+ $(,)?) => {{
+        const PARTS: &[&str] = &[$($x),+];
+        const OUTPUT_LEN: usize = $crate::hostcalls::serialized_property_path_len(PARTS);
+        $crate::hostcalls::build_serialized_property_path::<OUTPUT_LEN>(PARTS)
+    }};
+}
+
 extern "C" {
     fn proxy_log(level: LogLevel, message_data: *const u8, message_size: usize) -> Status;
 }
@@ -393,8 +455,18 @@ extern "C" {
     ) -> Status;
 }
 
+pub fn get_property_by_path<const S: usize>(
+    path: &PropertyPath<S>,
+) -> Result<Option<Bytes>, Status> {
+    get_property_internal(&path.path)
+}
+
 pub fn get_property(path: Vec<&str>) -> Result<Option<Bytes>, Status> {
     let serialized_path = utils::serialize_property_path(path);
+    get_property_internal(serialized_path.as_slice())
+}
+
+fn get_property_internal(serialized_path: &[u8]) -> Result<Option<Bytes>, Status> {
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
     unsafe {
@@ -430,8 +502,19 @@ extern "C" {
     ) -> Status;
 }
 
+pub fn set_property_by_path<const S: usize>(
+    path: &PropertyPath<S>,
+    value: Option<&[u8]>,
+) -> Result<(), Status> {
+    set_property_internal(&path.path, value)
+}
+
 pub fn set_property(path: Vec<&str>, value: Option<&[u8]>) -> Result<(), Status> {
     let serialized_path = utils::serialize_property_path(path);
+    set_property_internal(serialized_path.as_slice(), value)
+}
+
+fn set_property_internal(serialized_path: &[u8], value: Option<&[u8]>) -> Result<(), Status> {
     unsafe {
         match proxy_set_property(
             serialized_path.as_ptr(),
