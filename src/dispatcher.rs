@@ -485,7 +485,6 @@ impl Dispatcher {
         } else {
             // TODO: change back to a panic once underlying issue is fixed.
             trace!("on_grpc_receive_initial_metadata: invalid token_id");
-            return;
         }
     }
 
