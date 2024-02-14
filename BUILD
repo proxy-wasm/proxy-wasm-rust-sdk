@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library")
 
 exports_files([
     "Cargo.toml",
@@ -35,6 +35,20 @@ rust_library(
     deps = [
         ":proxy_wasm_build_script",
         "//bazel/cargo/remote:hashbrown",
+        "//bazel/cargo/remote:log",
+    ],
+)
+
+rust_binary(
+    name = "http_auth_random",
+    srcs = ["examples/http_auth_random/src/lib.rs"],
+    crate_type = "cdylib",
+    edition = "2018",
+    out_binary = True,
+    rustc_flags = ["-Cstrip=debuginfo"],
+    visibility = ["//visibility:private"],
+    deps = [
+        ":proxy_wasm",
         "//bazel/cargo/remote:log",
     ],
 )
