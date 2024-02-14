@@ -66,10 +66,10 @@ jobs:
         key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.Bazel.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Build (wasm32-unknown-unknown)
-      run: bazelisk --noworkspace_rc build --platforms=@rules_rust//rust/platform:wasm //...
+      run: bazelisk --noworkspace_rc build --noenable_bzlmod --platforms=@rules_rust//rust/platform:wasm //...
 
     - name: Build (wasm32-wasi)
-      run: bazelisk --noworkspace_rc build --platforms=@rules_rust//rust/platform:wasi //...
+      run: bazelisk --noworkspace_rc build --noenable_bzlmod --platforms=@rules_rust//rust/platform:wasi //...
 
     - name: Format (buildifier)
       run: |
@@ -80,7 +80,7 @@ jobs:
 
     - name: Format (rules_rust)
       run: |
-        bazelisk --noworkspace_rc run //bazel/cargo:crates_vendor
+        bazelisk --noworkspace_rc run --noenable_bzlmod //bazel/cargo:crates_vendor
         git diff --exit-code
 
   stable:
