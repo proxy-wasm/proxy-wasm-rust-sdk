@@ -45,6 +45,7 @@ rust_binary(
     crate_type = "cdylib",
     edition = "2018",
     out_binary = True,
+    rustc_flags = ["-Cstrip=debuginfo"],
     visibility = ["//visibility:private"],
     deps = [
         ":proxy_wasm",
