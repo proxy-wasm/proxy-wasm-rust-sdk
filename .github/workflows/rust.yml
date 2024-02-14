@@ -53,6 +53,11 @@ jobs:
       with:
         go-version: '^1.16'
 
+    - name: Install dependencies
+      if: ${{ env.ACT }}
+      run: |
+        go install github.com/bazelbuild/bazelisk@v1.19.0
+
     - name: Cache
       uses: actions/cache@v2
       with:
@@ -91,6 +96,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      if: ${{ env.ACT }}
+      run: |
+        curl -OL https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init
+        chmod +x ./rustup-init
+        ./rustup-init -y
+        rm rustup-init
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
     - name: Update Rust
       run: |
@@ -131,6 +145,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install dependencies
+      if: ${{ env.ACT }}
+      run: |
+        curl -OL https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init
+        chmod +x ./rustup-init
+        ./rustup-init -y
+        rm rustup-init
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
     - name: Update Rust
       run: |
         rustup toolchain install nightly --component clippy --component rustfmt
@@ -168,6 +191,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install dependencies
+      if: ${{ env.ACT }}
+      run: |
+        curl -OL https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init
+        chmod +x ./rustup-init
+        ./rustup-init -y
+        rm rustup-init
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+        export PATH=$PATH:$HOME/.cargo/bin
+        cargo install cargo-outdated
+
     - name: Run cargo outdated
       run: cargo outdated --root-deps-only --exit-code 1
 
@@ -176,6 +210,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      if: ${{ env.ACT }}
+      run: |
+        curl -OL https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init
+        chmod +x ./rustup-init
+        ./rustup-init -y
+        rm rustup-init
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+        export PATH=$PATH:$HOME/.cargo/bin
+        cargo install cargo-audit
 
     - name: Run cargo audit
       run: |
@@ -203,6 +248,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      if: ${{ env.ACT }}
+      run: |
+        curl -OL https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init
+        chmod +x ./rustup-init
+        ./rustup-init -y
+        rm rustup-init
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
     - name: Update Rust
       run: |
@@ -257,6 +311,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      if: ${{ env.ACT }}
+      run: |
+        curl -OL https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init
+        chmod +x ./rustup-init
+        ./rustup-init -y
+        rm rustup-init
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
     - name: Update Rust
       run: |
