@@ -82,38 +82,43 @@ pub trait Context {
     /// ```rust
     /// use proxy_wasm::traits::*;
     /// use proxy_wasm::types::*;
-    /// use std::time::Duration;
+    ///
+    /// use log::warn;
     ///
     /// struct MyContext;
     ///
     /// impl HttpContext for MyContext {
-    ///
-    ///    fn on_http_request_headers(&mut self, _num_headers: usize) -> Action {
-    ///
-    ///       match self.dispatch_http_call(
-    ///        "upstream",
-    ///        vec![(":method", "GET"), (":path", "/"), (":authority", "www.example.com")],
-    ///        None,
-    ///        vec![]
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     match self.dispatch_http_call(
+    ///       "cluster_name",
+    ///       vec![
+    ///         (":method", "GET"),
+    ///         (":path", "/"),
+    ///         (":authority", "google.com")],
+    ///       None,
+    ///       vec![],
     ///       Duration::from_secs(5),
-    ///      ) {
+    ///     ) {
     ///        Ok(_) => Action::Pause,
-    ///       Err(_) => Action::Continue,
+    ///        Err(e) => {
+    ///          warn!("Failed to dispatch_http_call: {:?}", e);
+    ///          Action::Pause
+    ///       }
     ///     }
     ///   }
     /// }
     ///
     /// impl Context for MyContext {
+    ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
+    ///      let headers = self.get_http_call_response_headers();
+    ///      let body = self.get_http_call_response_body(0, body_size);
     ///
-    ///    fn on_http_call_response(&mut self, token_id: u32, _: usize, body_size: usize, _: usize) {
+    ///      info!("Received response headers: {:?}", headers);
     ///
-    ///     let headers = self.get_http_call_response_headers();
-    ///     let body = self.get_http_call_response_body(0, body_size);
-    ///
-    ///    // Do something with the response
-    ///
-    ///   }
+    ///      // Do something with the response
+    ///    }
     /// }
+    /// ```
     fn dispatch_http_call(
         &self,
         upstream: &str,
@@ -143,39 +148,43 @@ pub trait Context {
     /// # Example
     ///
     /// ```rust
-    ///
     /// use proxy_wasm::traits::*;
     /// use proxy_wasm::types::*;
+    ///
+    /// use log::warn;
     ///
     /// struct MyContext;
     ///
     /// impl HttpContext for MyContext {
-    ///
-    ///    fn on_http_request_headers(&mut self, _num_headers: usize) -> Action {
-    ///
-    ///       match self.dispatch_http_call(
-    ///        "upstream",
-    ///        vec![(":method", "GET"), (":path", "/"), (":authority", "www.example.com")],
-    ///        None,
-    ///        vec![]
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     match self.dispatch_http_call(
+    ///       "cluster_name",
+    ///       vec![
+    ///         (":method", "GET"),
+    ///         (":path", "/"),
+    ///         (":authority", "google.com")],
+    ///       None,
+    ///       vec![],
     ///       Duration::from_secs(5),
-    ///      ) {
+    ///     ) {
     ///        Ok(_) => Action::Pause,
-    ///       Err(_) => Action::Continue,
+    ///        Err(e) => {
+    ///          warn!("Failed to dispatch_http_call: {:?}", e);
+    ///          Action::Pause
+    ///       }
     ///     }
     ///   }
     /// }
     ///
     /// impl Context for MyContext {
+    ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
+    ///      let headers = self.get_http_call_response_headers();
+    ///      let body = self.get_http_call_response_body(0, body_size);
     ///
-    ///    fn on_http_call_response(&mut self, token_id: u32, _: usize, body_size: usize, _: usize) {
+    ///      info!("Received response headers: {:?}", headers);
     ///
-    ///     let headers = self.get_http_call_response_headers();
-    ///     let body = self.get_http_call_response_body(0, body_size);
-    ///
-    ///    // Do something with the response
-    ///
-    ///   }
+    ///      // Do something with the response
+    ///    }
     /// }
     /// ```
     fn on_http_call_response(
@@ -339,7 +348,6 @@ pub trait RootContext: Context {
     /// /// # Example
     ///
     /// ```rust
-    ///
     /// use proxy_wasm::traits::RootContext;
     ///
     /// struct MyRootContext;
@@ -350,16 +358,14 @@ pub trait RootContext: Context {
     /// }
     ///
     /// impl RootContext for MyRootContext {
-    ///
-    ///    fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
-    ///
+    ///   fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
     ///     let vm_confuguration = self.get_vm_configuration().unwrap();
     ///
     ///     let parsed_vm_configuration: MyVmConfiguration = serde_json::from_slice::<MyVmConfiguration>(&vm_confuguration).unwrap();
     ///
     ///     // Do something with the parsed vm configuration
     ///
-    ///    true
+    ///     true
     ///   }
     /// }
     fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
@@ -375,7 +381,6 @@ pub trait RootContext: Context {
     /// # Example
     ///
     /// ```rust
-    ///
     /// use proxy_wasm::traits::RootContext;
     ///
     /// struct MyRootContext;
@@ -386,16 +391,14 @@ pub trait RootContext: Context {
     /// }
     ///
     /// impl RootContext for MyRootContext {
-    ///
-    ///    fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
-    ///
+    ///   fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
     ///     let vm_confuguration = self.get_vm_configuration().unwrap();
     ///
     ///     let parsed_vm_configuration: MyVmConfiguration = serde_json::from_slice::<MyVmConfiguration>(&vm_confuguration).unwrap();
     ///
     ///     // Do something with the parsed vm configuration
     ///
-    ///    true
+    ///     true
     ///   }
     /// }
     fn get_vm_configuration(&self) -> Option<Bytes> {
@@ -416,27 +419,24 @@ pub trait RootContext: Context {
     /// # Example
     ///
     /// ```rust
-    ///
     /// use proxy_wasm::traits::RootContext;
     ///
     /// struct MyRootContext;
     ///
     /// struct MyPluginConfiguration {
-    ///     /// Some key
-    ///     pub key: String,
+    ///   /// Some key
+    ///   pub key: String,
     /// }
     ///
     /// impl RootContext for MyRootContext {
-    ///
-    ///    fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
-    ///
+    ///   fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
     ///     let plugin_configuration = self.get_plugin_configuration().unwrap();
     ///
     ///     let parsed_plugin_configuration: MyPluginConfiguration = serde_json::from_slice::<MyPluginConfiguration>(&plugin_configuration).unwrap();
     ///
     ///     // Do something with the parsed plugin configuration
     ///
-    ///    true
+    ///     true
     ///   }
     /// }
     fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
@@ -452,7 +452,6 @@ pub trait RootContext: Context {
     /// # Example
     ///
     /// ```rust
-    ///
     /// use proxy_wasm::traits::RootContext;
     ///
     /// struct MyRootContext;
@@ -463,16 +462,14 @@ pub trait RootContext: Context {
     /// }
     ///
     /// impl RootContext for MyRootContext {
-    ///
-    ///    fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
-    ///
+    ///   fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
     ///     let plugin_configuration = self.get_plugin_configuration().unwrap();
     ///
     ///     let parsed_plugin_configuration: MyPluginConfiguration = serde_json::from_slice::<MyPluginConfiguration>(&plugin_configuration).unwrap();
     ///
     ///     // Do something with the parsed plugin configuration
     ///
-    ///    true
+    ///     true
     ///   }
     /// }
     fn get_plugin_configuration(&self) -> Option<Bytes> {
@@ -488,7 +485,6 @@ pub trait RootContext: Context {
     /// # Example
     ///
     /// ```rust
-    ///
     /// use proxy_wasm::traits::RootContext;
     /// use std::time::Duration;
     /// use log::info;
@@ -496,19 +492,16 @@ pub trait RootContext: Context {
     /// struct MyRootContext;
     ///
     /// impl RootContext for MyRootContext {
-    ///
     ///   fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
+    ///     self.set_tick_period(Duration::from_millis(5000));
     ///
-    ///    self.set_tick_period(Duration::from_millis(5000));
+    ///     true
+    ///   }
     ///
-    ///   true
-    ///  }
-    ///
-    ///  fn on_tick(&mut self) {
-    ///
-    ///   // Do something every 5 seconds
-    ///   info!("tick!")
-    ///  }
+    ///   fn on_tick(&mut self) {
+    ///     // Do something every 5 seconds
+    ///     info!("tick!")
+    ///   }
     /// }
     fn set_tick_period(&self, period: Duration) {
         hostcalls::set_tick_period(period).unwrap()
@@ -516,12 +509,11 @@ pub trait RootContext: Context {
 
     /// Called on a timer every tick period.
     ///
-    /// The tick period can be configured using `proxy_set_tick_period_milliseconds`.
+    /// The tick period can be configured using `self.set_tick_period()`.
     ///
     /// # Example
     ///
     /// ```rust
-    ///
     /// use proxy_wasm::traits::RootContext;
     /// use std::time::Duration;
     /// use log::info;
@@ -529,19 +521,16 @@ pub trait RootContext: Context {
     /// struct MyRootContext;
     ///
     /// impl RootContext for MyRootContext {
-    ///
     ///   fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
+    ///     self.set_tick_period(Duration::from_millis(5000));
     ///
-    ///    self.set_tick_period(Duration::from_millis(5000));
+    ///     true
+    ///   }
     ///
-    ///   true
-    ///  }
-    ///
-    ///  fn on_tick(&mut self) {
-    ///
-    ///   // Do something every 5 seconds
-    ///   info!("tick!")
-    ///  }
+    ///   fn on_tick(&mut self) {
+    ///     // Do something every 5 seconds
+    ///     info!("tick!")
+    ///   }
     /// }
     fn on_tick(&mut self) {}
 
@@ -615,7 +604,6 @@ pub trait StreamContext: Context {
 }
 
 pub trait HttpContext: Context {
-    
     /// Called when HTTP request headers are received from downstream.
     ///
     /// All `num_headers` headers can be retrieved and/or modified using `self.get_http_request_headers()`.
@@ -647,14 +635,12 @@ pub trait HttpContext: Context {
     /// use log::info;
     ///
     /// impl HttpContext for MyPlugin {
-    ///
-    ///    fn on_http_request_headers(&mut self, num_headers: usize, end_of_stream: bool) -> Action {
-    ///
+    ///   fn on_http_request_headers(&mut self, num_headers: usize, end_of_stream: bool) -> Action {
     ///     let headers = self.get_http_request_headers();
     ///
     ///     // Process the request
     ///
-    ///    Action::Continue
+    ///     Action::Continue
     ///    }
     /// }
     /// ```
@@ -675,15 +661,14 @@ pub trait HttpContext: Context {
     /// use proxy_wasm::traits::HttpContext;
     ///
     /// impl HttpContext for MyPlugin {
-    ///     fn on_http_request_headers(&mut self, _: usize, _: bool) -> Action {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     let headers = self.get_http_request_headers();
     ///
-    ///         let headers = self.get_http_request_headers();
-    ///
-    ///         for (name, value) in headers {
-    ///            info!("{}: {}", name, value);
-    ///         }
-    ///     Action::Continue
+    ///     for (name, value) in headers {
+    ///       info!("{}: {}", name, value);
     ///     }
+    ///     Action::Continue
+    ///   }
     /// }
     ///
     fn get_http_request_headers(&self) -> Vec<(String, String)> {
@@ -715,22 +700,20 @@ pub trait HttpContext: Context {
     /// # Example
     ///
     /// ```rust
-    ///
     /// use log::info;
     /// use proxy_wasm::traits:*;
     /// use proxy_wasm::types::Action;
     ///
     /// impl HttpContext for MyPlugin {
-    ///    fn on_http_request_headers(&mut self, _: usize, _: bool) -> Action {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     let header = self.get_http_request_header(":path");
     ///
-    ///      let header = self.get_http_request_header(":path");
-    ///
-    ///      match header {
-    ///         Some(value) => info!("The path is: {}", value),
-    ///         None => info!("The path is missing")
-    ///      }
-    ///      Action::Continue
-    ///    }
+    ///     match header {
+    ///       Some(value) => info!("The path is: {}", value),
+    ///       None => info!("The path is missing")
+    ///     }
+    ///     Action::Continue
+    ///   }
     /// }
     fn get_http_request_header(&self, name: &str) -> Option<String> {
         hostcalls::get_map_value(MapType::HttpRequestHeaders, name).unwrap()
@@ -758,16 +741,14 @@ pub trait HttpContext: Context {
     /// # Example
     ///
     /// ```rust
-    ///
     /// use proxy_wasm::traits::*;
     /// use proxy_wasm::types::Action;
     ///
     /// impl HttpContext for MyPlugin {
-    ///    fn on_http_request_headers(&mut self, _: usize, _: bool) -> Action {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     self.add_http_request_header("x-my-header", "my-value");
     ///
-    ///      self.add_http_request_header("x-my-header", "my-value");
-    ///
-    ///    Action::Continue
+    ///     Action::Continue
     ///   }
     /// }
     /// ```
@@ -970,22 +951,18 @@ pub trait HttpContext: Context {
     /// use proxy_wasm::types::*;
     ///
     /// impl HttpContext for MyHttpContext {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     let auth = self.get_http_request_header("Authorization").unwrap_or_defauklt();
     ///
-    ///    fn on_http_request_headers(&mut self, _num_headers: usize) -> Action {
-    ///
-    ///      let auth = self.get_http_request_header("Authorization").unwrap_or_else(
-    ///         || self.send_http_response(401, vec![("WWW-Authenticate", "Basic")], Some(b"Unauthorized"))
-    ///      );
-    ///
-    ///      if auth == "I am authorized!" {
+    ///     if auth == "I am authorized!" {
     ///       // Send an HTTP response with a status code of 200 and a body of "Hello, World!"
-    ///         self.send_http_response(200, vec![("A header", "Some Value")], Some(b"Hello, World!"));
-    ///      } else {
-    ///         // Send an HTTP response with a status code of 403 and a body of "Forbidden"
-    ///         self.send_http_response(403, vec![("location", "authenticate-here.com")], Some(b"Forbidden"));
-    ///      }
+    ///       self.send_http_response(200, vec![("A header", "Some Value")], Some(b"Hello, World!"));
+    ///     } else {
+    ///       // Send an HTTP response with a status code of 403 and a body of "Forbidden"
+    ///       self.send_http_response(307, vec![("location", "https://authenticate-here.com")], Some(b"Forbidden"));
+    ///     }
     ///
-    ///      Action::Pause
+    ///     Action::Pause
     ///   }
     /// }
     fn send_http_response(
