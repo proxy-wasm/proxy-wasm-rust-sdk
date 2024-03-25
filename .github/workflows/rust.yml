@@ -193,6 +193,7 @@ jobs:
         - 'http_body'
         - 'http_config'
         - 'http_headers'
+        - 'metrics'
 
     defaults:
       run:
@@ -247,6 +248,7 @@ jobs:
         - 'http_body'
         - 'http_config'
         - 'http_headers'
+        - 'metrics'
 
     defaults:
       run:
