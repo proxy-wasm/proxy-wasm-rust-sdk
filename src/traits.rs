@@ -355,8 +355,7 @@ pub trait RootContext: Context {
     ///
     /// struct MyRootContext;
     ///
-    /// #[derive(serde::Deserialize)]
-    /// #[derive(Debug)]
+    /// #[derive(serde::Deserialize, Debug)]
     /// struct MyVmConfiguration {
     ///     /// Some key
     ///     pub key: String,
@@ -395,8 +394,7 @@ pub trait RootContext: Context {
     ///
     /// struct MyRootContext;
     ///
-    /// #[derive(serde::Deserialize)]
-    /// #[derive(Debug)]
+    /// #[derive(serde::Deserialize, Debug)]
     /// struct MyVmConfiguration {
     ///     /// Some key
     ///     pub key: String,
@@ -440,8 +438,7 @@ pub trait RootContext: Context {
     ///
     /// struct MyRootContext;
     ///
-    /// #[derive(serde::Deserialize)]
-    /// #[derive(Debug)]
+    /// #[derive(serde::Deserialize, Debug)]
     /// struct MyPluginConfiguration {
     ///   /// Some key
     ///   pub key: String,
@@ -480,8 +477,7 @@ pub trait RootContext: Context {
     ///
     /// struct MyRootContext;
     ///
-    /// #[derive(serde::Deserialize)]
-    /// #[derive(Debug)]
+    /// #[derive(serde::Deserialize, Debug)]
     /// struct MyPluginConfiguration {
     ///   /// Some key
     ///   pub key: String,
