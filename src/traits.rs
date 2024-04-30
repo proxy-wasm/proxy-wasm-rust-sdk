@@ -82,7 +82,7 @@ pub trait Context {
     /// ```rust
     /// use proxy_wasm::traits::*;
     /// use proxy_wasm::types::*;
-    ///
+    /// use std::time::Duration;
     /// use log::warn;
     ///
     /// struct MyPlugin;
@@ -99,7 +99,7 @@ pub trait Context {
     ///       vec![],
     ///       Duration::from_secs(5),
     ///     ) {
-    ///        Ok(_) => Action::Pause,
+    ///        Ok(_) => Action::Continue,
     ///        Err(e) => {
     ///          warn!("Failed to dispatch_http_call: {:?}", e);
     ///          Action::Pause
@@ -150,7 +150,7 @@ pub trait Context {
     /// ```rust
     /// use proxy_wasm::traits::*;
     /// use proxy_wasm::types::*;
-    ///
+    /// use std::time::Duration;
     /// use log::{debug, warn};
     ///
     /// struct MyPlugin;
@@ -167,7 +167,7 @@ pub trait Context {
     ///       vec![],
     ///       Duration::from_secs(5),
     ///     ) {
-    ///        Ok(_) => Action::Pause,
+    ///        Ok(_) => Action::Continue,
     ///        Err(e) => {
     ///          warn!("Failed to dispatch_http_call: {:?}", e);
     ///          Action::Pause
@@ -348,7 +348,10 @@ pub trait RootContext: Context {
     /// # Example
     ///
     /// ```rust
-    /// use proxy_wasm::traits::RootContext;
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use serde_json;
+    /// use log::debug;
     ///
     /// struct MyRootContext;
     ///
@@ -385,7 +388,10 @@ pub trait RootContext: Context {
     /// # Example
     ///
     /// ```rust
-    /// use proxy_wasm::traits::RootContext;
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use serde_json;
+    /// use log::debug;
     ///
     /// struct MyRootContext;
     ///
@@ -427,7 +433,10 @@ pub trait RootContext: Context {
     /// # Example
     ///
     /// ```rust
-    /// use proxy_wasm::traits::RootContext;
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use serde_json;
+    /// use log::debug;
     ///
     /// struct MyRootContext;
     ///
@@ -445,6 +454,7 @@ pub trait RootContext: Context {
     ///     let parsed_plugin_configuration: MyPluginConfiguration = serde_json::from_slice::<MyPluginConfiguration>(&plugin_configuration).unwrap();
     ///
     ///     // Do something with the parsed plugin configuration
+    ///     debug!("plugin_configuration: {:?}", parsed_plugin_configuration)
     ///
     ///     true
     ///   }
@@ -463,7 +473,10 @@ pub trait RootContext: Context {
     /// # Example
     ///
     /// ```rust
-    /// use proxy_wasm::traits::RootContext;
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use serde_json;
+    /// use log::debug;
     ///
     /// struct MyRootContext;
     ///
@@ -481,6 +494,7 @@ pub trait RootContext: Context {
     ///     let parsed_plugin_configuration: MyPluginConfiguration = serde_json::from_slice::<MyPluginConfiguration>(&plugin_configuration).unwrap();
     ///
     ///     // Do something with the parsed plugin configuration
+    ///     debug!("plugin_configuration: {:?}", parsed_plugin_configuration)
     ///
     ///     true
     ///   }
@@ -499,7 +513,8 @@ pub trait RootContext: Context {
     /// # Example
     ///
     /// ```rust
-    /// use proxy_wasm::traits::RootContext;
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
     /// use std::time::Duration;
     /// use log::info;
     ///
@@ -529,7 +544,8 @@ pub trait RootContext: Context {
     /// # Example
     ///
     /// ```rust
-    /// use proxy_wasm::traits::RootContext;
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
     /// use std::time::Duration;
     /// use log::info;
     ///
@@ -723,9 +739,9 @@ pub trait HttpContext: Context {
     /// # Example
     ///
     /// ```rust
-    /// use log::debug;
     /// use proxy_wasm::traits:*;
-    /// use proxy_wasm::types::Action;
+    /// use proxy_wasm::types::*;
+    /// use log::debug;
     ///
     /// struct MyPlugin;
     ///
@@ -768,7 +784,7 @@ pub trait HttpContext: Context {
     ///
     /// ```rust
     /// use proxy_wasm::traits::*;
-    /// use proxy_wasm::types::Action;
+    /// use proxy_wasm::types::*;
     ///
     /// struct MyPlugin;
     ///
