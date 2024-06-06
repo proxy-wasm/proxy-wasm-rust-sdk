@@ -409,7 +409,7 @@ def crate_repositories():
         name = "crates_vendor__ahash-0.8.3",
         sha256 = "2c99f64d1e06488f620f932677e24bc6e2897582980441ae90a671415bd7ec2f",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/ahash/0.8.3/download"],
+        urls = ["https://static.crates.io/crates/ahash/0.8.3/download"],
         strip_prefix = "ahash-0.8.3",
         build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.ahash-0.8.3.bazel"),
     )
@@ -419,7 +419,7 @@ def crate_repositories():
         name = "crates_vendor__allocator-api2-0.2.14",
         sha256 = "c4f263788a35611fba42eb41ff811c5d0360c58b97402570312a350736e2542e",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/allocator-api2/0.2.14/download"],
+        urls = ["https://static.crates.io/crates/allocator-api2/0.2.14/download"],
         strip_prefix = "allocator-api2-0.2.14",
         build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.allocator-api2-0.2.14.bazel"),
     )
@@ -429,7 +429,7 @@ def crate_repositories():
         name = "crates_vendor__cfg-if-1.0.0",
         sha256 = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/cfg-if/1.0.0/download"],
+        urls = ["https://static.crates.io/crates/cfg-if/1.0.0/download"],
         strip_prefix = "cfg-if-1.0.0",
         build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.cfg-if-1.0.0.bazel"),
     )
@@ -439,7 +439,7 @@ def crate_repositories():
         name = "crates_vendor__hashbrown-0.14.0",
         sha256 = "2c6201b9ff9fd90a5a3bac2e56a830d0caa509576f0e503818ee82c181b3437a",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/hashbrown/0.14.0/download"],
+        urls = ["https://static.crates.io/crates/hashbrown/0.14.0/download"],
         strip_prefix = "hashbrown-0.14.0",
         build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.hashbrown-0.14.0.bazel"),
     )
@@ -449,7 +449,7 @@ def crate_repositories():
         name = "crates_vendor__log-0.4.18",
         sha256 = "518ef76f2f87365916b142844c16d8fefd85039bc5699050210a7778ee1cd1de",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/log/0.4.18/download"],
+        urls = ["https://static.crates.io/crates/log/0.4.18/download"],
         strip_prefix = "log-0.4.18",
         build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.log-0.4.18.bazel"),
     )
@@ -459,7 +459,7 @@ def crate_repositories():
         name = "crates_vendor__once_cell-1.18.0",
         sha256 = "dd8b5dd2ae5ed71462c540258bedcb51965123ad7e7ccf4b9a8cafaa4a63576d",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/once_cell/1.18.0/download"],
+        urls = ["https://static.crates.io/crates/once_cell/1.18.0/download"],
         strip_prefix = "once_cell-1.18.0",
         build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.once_cell-1.18.0.bazel"),
     )
@@ -469,7 +469,7 @@ def crate_repositories():
         name = "crates_vendor__version_check-0.9.4",
         sha256 = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/version_check/0.9.4/download"],
+        urls = ["https://static.crates.io/crates/version_check/0.9.4/download"],
         strip_prefix = "version_check-0.9.4",
         build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.version_check-0.9.4.bazel"),
     )
