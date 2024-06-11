@@ -416,6 +416,8 @@ pub fn get_property(path: Vec<&str>) -> Result<Option<Bytes>, Status> {
                 }
             }
             Status::NotFound => Ok(None),
+            Status::SerializationFailure => Err(Status::SerializationFailure),
+            Status::InternalFailure => Err(Status::InternalFailure),
             status => panic!("unexpected status: {}", status as u32),
         }
     }

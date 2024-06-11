@@ -46,14 +46,9 @@ pub enum Status {
     BadArgument = 2,
     SerializationFailure = 3,
     ParseFailure = 4,
-    BadExpression = 5,
-    InvalidMemoryAccess = 6,
     Empty = 7,
     CasMismatch = 8,
-    ResultMismatch = 9,
     InternalFailure = 10,
-    BrokenConnection = 11,
-    Unimplemented = 12,
 }
 
 #[repr(u32)]
