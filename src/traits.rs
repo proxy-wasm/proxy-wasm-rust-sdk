@@ -58,6 +58,22 @@ pub trait Context {
         hostcalls::enqueue_shared_queue(queue_id, value)
     }
 
+    fn define_metric(&self, metric_type: MetricType, name: &str) -> Result<u32, Status> {
+        hostcalls::define_metric(metric_type, name)
+    }
+
+    fn get_metric(&self, metric_id: u32) -> Result<u64, Status> {
+        hostcalls::get_metric(metric_id)
+    }
+
+    fn record_metric(&self, metric_id: u32, value: u64) -> Result<(), Status> {
+        hostcalls::record_metric(metric_id, value)
+    }
+
+    fn increment_metric(&self, metric_id: u32, offset: i64) -> Result<(), Status> {
+        hostcalls::increment_metric(metric_id, offset)
+    }
+
     fn dispatch_http_call(
         &self,
         upstream: &str,
