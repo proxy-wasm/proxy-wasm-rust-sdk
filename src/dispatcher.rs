@@ -453,7 +453,8 @@ impl Dispatcher {
     }
 
     fn on_grpc_receive(&self, token_id: u32, response_size: usize) {
-        if let Some(context_id) = self.grpc_callouts.borrow_mut().remove(&token_id) {
+        let context_id = self.grpc_callouts.borrow_mut().remove(&token_id);
+        if let Some(context_id) = context_id {
             if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
                 hostcalls::set_effective_context(context_id).unwrap();
