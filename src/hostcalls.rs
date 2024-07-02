@@ -16,6 +16,7 @@ use crate::dispatcher;
 use crate::types::*;
 use std::ptr::{null, null_mut};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use crate::types::LogLevel::Error;
 
 extern "C" {
     fn proxy_log(level: LogLevel, message_data: *const u8, message_size: usize) -> Status;
@@ -414,8 +415,9 @@ pub fn get_property(path: Vec<&str>) -> Result<Option<Bytes>, Status> {
                 } else {
                     Ok(None)
                 }
-            }
-            Status::NotFound => Ok(None),
+            },
+            Status::SerializationFailure => Err(Status::SerializationFailure),
+            Status::InternalFailure => Err(Status::InternalFailure),
             status => panic!("unexpected status: {}", status as u32),
         }
     }
