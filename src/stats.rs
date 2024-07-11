@@ -16,16 +16,18 @@ use crate::hostcalls;
 use crate::traits;
 use crate::types;
 
-#[derive(Copy, Clone)]
 pub struct Counter {
     id: u32,
+    name: String,
 }
 
 impl Counter {
-    pub fn new(name: String) -> Counter {
-        let returned_id = hostcalls::define_metric(types::MetricType::Counter, &name)
-            .expect("failed to define counter '{}', name");
-        Counter { id: returned_id }
+    pub fn counter(name: String) -> Counter {
+        let returned_id = hostcalls::define_metric(types::MetricType::Counter, &name).unwrap();
+        Counter {
+            id: returned_id,
+            name,
+        }
     }
 }
 
@@ -33,20 +35,29 @@ impl traits::Metric for Counter {
     fn id(&self) -> u32 {
         self.id
     }
+
+    fn name(&self) -> &str {
+        self.name.as_str()
+    }
+
+    fn record(&self, _: u64) {
+        // A Counter can only be incremented.
+        return;
+    }
 }
 
-impl traits::IncrementingMetric for Counter {}
-
-#[derive(Copy, Clone)]
 pub struct Gauge {
     id: u32,
+    name: String,
 }
 
 impl Gauge {
-    pub fn new(name: String) -> Gauge {
-        let returned_id = hostcalls::define_metric(types::MetricType::Gauge, &name)
-            .expect("failed to define gauge '{}', name");
-        Gauge { id: returned_id }
+    pub fn gauge(name: String) -> Gauge {
+        let returned_id = hostcalls::define_metric(types::MetricType::Gauge, &name).unwrap();
+        Gauge {
+            id: returned_id,
+            name,
+        }
     }
 }
 
@@ -54,20 +65,29 @@ impl traits::Metric for Gauge {
     fn id(&self) -> u32 {
         self.id
     }
+
+    fn name(&self) -> &str {
+        self.name.as_str()
+    }
+
+    fn increment(&self, _: i64) {
+        // A gauge can only be recorded.
+        return;
+    }
 }
 
-impl traits::RecordingMetric for Gauge {}
-
-#[derive(Copy, Clone)]
 pub struct Histogram {
     id: u32,
+    name: String,
 }
 
 impl Histogram {
-    pub fn new(name: String) -> Histogram {
-        let returned_id = hostcalls::define_metric(types::MetricType::Histogram, &name)
-            .expect("failed to define histogram '{}', name");
-        Histogram { id: returned_id }
+    pub fn histogram(name: String) -> Histogram {
+        let returned_id = hostcalls::define_metric(types::MetricType::Histogram, &name).unwrap();
+        Histogram {
+            id: returned_id,
+            name,
+        }
     }
 }
 
@@ -75,6 +95,13 @@ impl traits::Metric for Histogram {
     fn id(&self) -> u32 {
         self.id
     }
-}
 
-impl traits::RecordingMetric for Histogram {}
+    fn name(&self) -> &str {
+        self.name.as_str()
+    }
+
+    fn increment(&self, _: i64) {
+        // A Histogram can only be recorded.
+        return;
+    }
+}
