@@ -534,3 +534,32 @@ pub trait HttpContext: Context {
 
     fn on_log(&mut self) {}
 }
+
+pub trait Metric {
+    fn name(&self) -> &str;
+    fn id(&self) -> u32;
+
+    fn value(&self) -> u64 {
+        match hostcalls::get_metric(self.id()) {
+            Ok(value) => value,
+            Err(Status::NotFound) => panic!("metric not found: {}", self.name()),
+            Err(err) => panic!("unexpected status: {:?}", err),
+        }
+    }
+
+    fn record(&self, value: u64) {
+        match hostcalls::record_metric(self.id(), value) {
+            Ok(_) => return,
+            Err(Status::NotFound) => panic!("metric not found: {}", self.name()),
+            Err(err) => panic!("unexpected status: {:?}", err),
+        }
+    }
+
+    fn increment(&self, offset: i64) {
+        match hostcalls::increment_metric(self.id(), offset) {
+            Ok(_) => return,
+            Err(Status::NotFound) => panic!("metric not found: {}", self.name()),
+            Err(err) => panic!("unexpected status: {:?}", err),
+        }
+    }
+}
