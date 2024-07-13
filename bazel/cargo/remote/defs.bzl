@@ -295,8 +295,8 @@ def aliases(
 _NORMAL_DEPENDENCIES = {
     "": {
         _COMMON_CONDITION: {
-            "hashbrown": "@crates_vendor__hashbrown-0.14.0//:hashbrown",
-            "log": "@crates_vendor__log-0.4.18//:log",
+            "hashbrown": Label("@crates_vendor__hashbrown-0.14.0//:hashbrown"),
+            "log": Label("@crates_vendor__log-0.4.18//:log"),
         },
     },
 }
