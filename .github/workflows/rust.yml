@@ -238,6 +238,7 @@ jobs:
         - 'http_body'
         - 'http_config'
         - 'http_headers'
+        - 'grpc_auth_random'
 
     defaults:
       run:
@@ -301,6 +302,7 @@ jobs:
         - 'http_body'
         - 'http_config'
         - 'http_headers'
+        - 'grpc_auth_random'
 
     defaults:
       run:
