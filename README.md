@@ -21,8 +21,12 @@
 - [HTTP Headers](./examples/http_headers/)
 - [HTTP Response body](./examples/http_body/)
 - [HTTP Configuration](./examples/http_config/)
+<<<<<<< HEAD
 - [gRPC Auth (random)](./examples/grpc_auth_random/)
 - [Envoy filter metadata](./examples/envoy_filter_metadata/)
+=======
+- [Metrics](./examples/metrics/)
+>>>>>>> 5b19423 (comments)
 
 ## Articles & blog posts from the community
 

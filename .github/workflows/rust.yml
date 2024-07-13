@@ -395,8 +395,12 @@ jobs:
         - 'http_body'
         - 'http_config'
         - 'http_headers'
+<<<<<<< HEAD
         - 'grpc_auth_random'
         - 'envoy_filter_metadata'
+=======
+        - 'metrics'
+>>>>>>> 5b19423 (comments)
 
     defaults:
       run:
@@ -468,8 +472,12 @@ jobs:
         - 'http_body'
         - 'http_config'
         - 'http_headers'
+<<<<<<< HEAD
         - 'grpc_auth_random'
         - 'envoy_filter_metadata'
+=======
+        - 'metrics'
+>>>>>>> 5b19423 (comments)
 
     defaults:
       run:

@@ -554,14 +554,37 @@ pub trait HttpContext: Context {
         hostcalls::send_http_response(status_code, headers, body).unwrap()
     }
 
-    fn send_grpc_response(
-        &self,
-        grpc_status: GrpcStatusCode,
-        grpc_status_message: Option<&str>,
-        custom_metadata: Vec<(&str, &[u8])>,
-    ) {
-        hostcalls::send_grpc_response(grpc_status, grpc_status_message, custom_metadata).unwrap()
-    }
-
     fn on_log(&mut self) {}
+}
+
+pub trait Metric {
+    fn id(&self) -> u32;
+
+    fn value(&self) -> u64 {
+        match hostcalls::get_metric(self.id()) {
+            Ok(value) => value,
+            Err(Status::NotFound) => panic!("metric not found: {}", self.id()),
+            Err(err) => panic!("unexpected status: {:?}", err),
+        }
+    }
+}
+
+pub trait IncrementingMetric: Metric {
+    fn increment(&self, offset: i64) {
+        match hostcalls::increment_metric(self.id(), offset) {
+            Ok(_) => return,
+            Err(Status::NotFound) => panic!("metric not found: {}", self.id()),
+            Err(err) => panic!("unexpected status: {:?}", err),
+        }
+    }
+}
+
+pub trait RecordingMetric: Metric {
+    fn record(&self, value: u64) {
+        match hostcalls::record_metric(self.id(), value) {
+            Ok(_) => return,
+            Err(Status::NotFound) => panic!("metric not found: {}", self.id()),
+            Err(err) => panic!("unexpected status: {:?}", err),
+        }
+    }
 }
