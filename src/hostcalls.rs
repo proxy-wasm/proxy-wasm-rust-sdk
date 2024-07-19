@@ -1030,6 +1030,9 @@ pub fn call_foreign_function(
                 }
             }
             Status::NotFound => Err(Status::NotFound),
+            Status::BadArgument => Err(Status::BadArgument),
+            Status::SerializationFailure => Err(Status::SerializationFailure),
+            Status::InternalFailure => Err(Status::InternalFailure),
             status => panic!("unexpected status: {}", status as u32),
         }
     }
