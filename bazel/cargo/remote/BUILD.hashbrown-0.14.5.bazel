@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "once_cell",
+    name = "hashbrown",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -29,9 +29,10 @@ rust_library(
         ],
     ),
     crate_features = [
-        "alloc",
-        "race",
-        "unstable",
+        "ahash",
+        "allocator-api2",
+        "default",
+        "inline-more",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
@@ -40,7 +41,7 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=once_cell",
+        "crate-name=hashbrown",
         "manual",
         "noclippy",
         "norustfmt",
@@ -82,5 +83,9 @@ rust_library(
         "@rules_rust//rust/platform:x86_64-unknown-none": [],
         "//conditions:default": ["@platforms//:incompatible"],
     }),
-    version = "1.18.0",
+    version = "0.14.5",
+    deps = [
+        "@crates_vendor__ahash-0.8.11//:ahash",
+        "@crates_vendor__allocator-api2-0.2.18//:allocator_api2",
+    ],
 )

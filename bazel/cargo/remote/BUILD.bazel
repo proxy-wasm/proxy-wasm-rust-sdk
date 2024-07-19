@@ -33,13 +33,13 @@ filegroup(
 # Workspace Member Dependencies
 alias(
     name = "hashbrown",
-    actual = "@crates_vendor__hashbrown-0.14.0//:hashbrown",
+    actual = "@crates_vendor__hashbrown-0.14.5//:hashbrown",
     tags = ["manual"],
 )
 
 alias(
     name = "log",
-    actual = "@crates_vendor__log-0.4.18//:log",
+    actual = "@crates_vendor__log-0.4.22//:log",
     tags = ["manual"],
 )
 
