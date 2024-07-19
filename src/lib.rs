@@ -13,6 +13,7 @@
 // limitations under the License.
 
 pub mod hostcalls;
+pub mod stats;
 pub mod traits;
 pub mod types;
 
