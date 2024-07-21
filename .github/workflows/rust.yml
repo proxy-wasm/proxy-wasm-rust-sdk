@@ -287,7 +287,7 @@ jobs:
         docker run --rm \
           -v $(pwd)/envoy.yaml:/envoy.yaml \
           -v $(pwd)/target/wasm32-wasi/release:/etc/envoy/proxy-wasm-plugins \
-          envoyproxy/envoy:v1.24-latest \
+          envoyproxy/envoy:v1.31-latest \
           --mode validate \
           -c envoy.yaml
 
@@ -365,6 +365,6 @@ jobs:
         docker run --rm \
           -v $(pwd)/envoy.yaml:/envoy.yaml \
           -v $(pwd)/target/wasm32-wasi/release:/etc/envoy/proxy-wasm-plugins \
-          envoyproxy/envoy:v1.24-latest \
+          envoyproxy/envoy:v1.31-latest \
           --mode validate \
           -c envoy.yaml
