@@ -131,7 +131,7 @@ pub enum GrpcStatusCode {
     FailedPrecondition = 9,
     Aborted = 10,
     OutOfRange = 11,
-    Uninmplemented = 12,
+    Unimplemented = 12,
     Internal = 13,
     Unavailable = 14,
     DataLoss = 15,
