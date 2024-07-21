@@ -532,5 +532,14 @@ pub trait HttpContext: Context {
         hostcalls::send_http_response(status_code, headers, body).unwrap()
     }
 
+    fn send_grpc_response(
+        &self,
+        grpc_status: GrpcStatusCode,
+        grpc_status_message: Option<&str>,
+        custom_metadata: Vec<(&str, &[u8])>,
+    ) {
+        hostcalls::send_grpc_response(grpc_status, grpc_status_message, custom_metadata).unwrap()
+    }
+
     fn on_log(&mut self) {}
 }
