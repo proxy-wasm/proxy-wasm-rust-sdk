@@ -2,7 +2,7 @@
 name = "proxy-wasm"
 version = "0.2.2"
 authors = ["Piotr Sikora <piotrsikora@google.com>"]
-rust-version = "1.61"
+rust-version = "1.64"
 description = "WebAssembly for Proxies"
 readme = "README.md"
 license = "Apache-2.0"

@@ -88,6 +88,55 @@ jobs:
         bazelisk --noworkspace_rc run --noenable_bzlmod //bazel/cargo:crates_vendor
         git diff --exit-code
 
+  msrv:
+    runs-on: ubuntu-latest
+
+    env:
+      RUSTFLAGS: -D warnings
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      if: ${{ env.ACT }}
+      run: |
+        curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
+        chmod +x ./rustup-init.sh
+        ./rustup-init.sh -y --default-toolchain 1.64.0
+        rm rustup-init.sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+    - name: Update Rust
+      run: |
+        rustup toolchain install 1.64.0 --component clippy --component rustfmt
+        rustup default 1.64.0
+        rustup target add wasm32-unknown-unknown
+        rustup target add wasm32-wasi
+
+    - name: Build (wasm32-unknown-unknown)
+      run: cargo build --release --all-targets --target=wasm32-unknown-unknown
+
+    - name: Clippy (wasm32-unknown-unknown)
+      run: cargo clippy --release --all-targets --target=wasm32-unknown-unknown
+
+    - name: Build (wasm32-wasi)
+      run: cargo build --release --all-targets --target=wasm32-wasi
+
+    - name: Clippy (wasm32-wasi)
+      run: cargo clippy --release --all-targets --target=wasm32-wasi
+
+    - name: Format (rustfmt)
+      run: cargo fmt -- --check
+
+    - name: Format (manifest)
+      run: cargo verify-project
+
+    - name: Package (docs)
+      run: cargo doc --no-deps --target=wasm32-unknown-unknown
+
+    - name: Package (publish)
+      run: cargo publish --dry-run --target=wasm32-unknown-unknown
+
   stable:
     runs-on: ubuntu-latest
 
@@ -157,9 +206,9 @@ jobs:
     - name: Update Rust
       run: |
         rustup toolchain install nightly --component clippy --component rustfmt
-        rustup +nightly target add wasm32-unknown-unknown
-        rustup +nightly target add wasm32-wasi
         rustup default nightly
+        rustup target add wasm32-unknown-unknown
+        rustup target add wasm32-wasi
 
     - name: Build (wasm32-unknown-unknown)
       run: cargo build --release --all-targets --target=wasm32-unknown-unknown
