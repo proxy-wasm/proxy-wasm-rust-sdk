@@ -33,5 +33,5 @@
 When updating dependencies, you need to regenerate Bazel `BUILD` files to match updated `Cargo.toml`:
 
 ```sh
-bazel run //bazel/cargo:crates_vendor -- --repin
+bazel run //bazel/cargo:crates_vendor -- --repin all
 ```

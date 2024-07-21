@@ -78,106 +78,107 @@ rust_library(
         "@rules_rust//rust/platform:x86_64-unknown-none": [],
         "//conditions:default": ["@platforms//:incompatible"],
     }),
-    version = "0.8.3",
+    version = "0.8.11",
     deps = [
-        "@crates_vendor__ahash-0.8.3//:build_script_build",
+        "@crates_vendor__ahash-0.8.11//:build_script_build",
         "@crates_vendor__cfg-if-1.0.0//:cfg_if",
+        "@crates_vendor__zerocopy-0.7.35//:zerocopy",
     ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:aarch64-apple-ios": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:aarch64-apple-ios-sim": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:aarch64-fuchsia": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:aarch64-linux-android": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:aarch64-pc-windows-msvc": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:armv7-linux-androideabi": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:armv7-unknown-linux-gnueabi": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:i686-apple-darwin": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:i686-linux-android": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:i686-pc-windows-msvc": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:i686-unknown-freebsd": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:i686-unknown-linux-gnu": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:powerpc-unknown-linux-gnu": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:riscv32imc-unknown-none-elf": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:riscv64gc-unknown-none-elf": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:s390x-unknown-linux-gnu": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:wasm32-unknown-unknown": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:wasm32-wasi": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:x86_64-apple-darwin": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:x86_64-apple-ios": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:x86_64-fuchsia": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:x86_64-linux-android": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "@rules_rust//rust/platform:x86_64-unknown-none": [
-            "@crates_vendor__once_cell-1.18.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
+            "@crates_vendor__once_cell-1.19.0//:once_cell",  # cfg(not(all(target_arch = "arm", target_os = "none")))
         ],
         "//conditions:default": [],
     }),
@@ -215,7 +216,7 @@ cargo_build_script(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.8.3",
+    version = "0.8.11",
     visibility = ["//visibility:private"],
     deps = [
         "@crates_vendor__version_check-0.9.4//:version_check",
