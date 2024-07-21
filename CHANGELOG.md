@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.2.2] - 2024-07-21
+
+### Fixed
+
+- Fixed support for nested gRPC callouts.
+  Thanks [@andytesti](https://github.com/andytesti)!
+
+- Fixed panic on unknown `token_id` in `on_grpc_receive_initial_metadata`
+  and `on_grpc_receive_trailing_metadata`.
+  Thanks [@erikness-doordash](https://github.com/erikness-doordash)!
+
+- Fixed panic on unexpected failures in `get_property`.
+  Thanks [@alexsnaps](https://github.com/alexsnaps)!
+
+- Fixed panic on unexpected failures in `call_foreign_function`.
+  Reported by [@geNAZt](https://github.com/geNAZt).
+
+### Added
+
+- Added support for sending error responses with gRPC status codes.
+  Thanks [@juanmolle](https://github.com/juanmolle)!
+
 ## [0.2.1] - 2022-11-22
 
 ### Fixed
@@ -86,6 +108,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release.
 
 
+[0.2.2]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.1.4...v0.2.0
 [0.1.4]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.1.3...v0.1.4

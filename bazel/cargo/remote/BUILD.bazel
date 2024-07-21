@@ -45,6 +45,6 @@ alias(
 
 alias(
     name = "proxy-wasm",
-    actual = "@crates_vendor__proxy-wasm-0.2.1//:proxy_wasm",
+    actual = "@crates_vendor__proxy-wasm-0.2.2//:proxy_wasm",
     tags = ["manual"],
 )
