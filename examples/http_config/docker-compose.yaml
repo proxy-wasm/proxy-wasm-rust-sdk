@@ -14,7 +14,7 @@
 
 services:
   envoy:
-    image: envoyproxy/envoy:v1.24-latest
+    image: envoyproxy/envoy:v1.31-latest
     hostname: envoy
     ports:
       - "10000:10000"
