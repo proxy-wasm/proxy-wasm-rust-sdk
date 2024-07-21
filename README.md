@@ -21,6 +21,7 @@
 - [HTTP Headers](./examples/http_headers/)
 - [HTTP Response body](./examples/http_body/)
 - [HTTP Configuration](./examples/http_config/)
+- [gRPC Auth (random)](./examples/grpc_auth_random/)
 
 ## Articles & blog posts from the community
 
@@ -32,5 +33,5 @@
 When updating dependencies, you need to regenerate Bazel `BUILD` files to match updated `Cargo.toml`:
 
 ```sh
-bazel run //bazel/cargo:crates_vendor -- --repin
+bazel run //bazel/cargo:crates_vendor -- --repin all
 ```
