@@ -35,7 +35,7 @@ static_resources:
                       - match:
                           prefix: "/"
                         route:
-                          cluster: httpbin
+                          cluster: grpcbin
               http_filters:
                 - name: envoy.filters.http.wasm
                   typed_config:
@@ -43,26 +43,27 @@ static_resources:
                     type_url: type.googleapis.com/envoy.extensions.filters.http.wasm.v3.Wasm
                     value:
                       config:
-                        name: "http_auth_random"
+                        name: "grpc_auth_random"
                         vm_config:
                           runtime: "envoy.wasm.runtime.v8"
                           code:
                             local:
-                              filename: "/etc/envoy/proxy-wasm-plugins/proxy_wasm_example_http_auth_random.wasm"
+                              filename: "/etc/envoy/proxy-wasm-plugins/proxy_wasm_example_grpc_auth_random.wasm"
                 - name: envoy.filters.http.router
                   typed_config:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
   clusters:
-    - name: httpbin
+    - name: grpcbin
       connect_timeout: 5s
       type: STRICT_DNS
       lb_policy: ROUND_ROBIN
+      http2_protocol_options: {}
       load_assignment:
-        cluster_name: httpbin
+        cluster_name: grpcbin
         endpoints:
           - lb_endpoints:
               - endpoint:
                   address:
                     socket_address:
-                      address: httpbin
-                      port_value: 8080
+                      address: grpcbin
+                      port_value: 9000
