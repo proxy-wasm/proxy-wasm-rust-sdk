@@ -317,10 +317,10 @@ jobs:
     - name: Install dependencies
       if: ${{ env.ACT }}
       run: |
-        curl -OL https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init
-        chmod +x ./rustup-init
-        ./rustup-init -y
-        rm rustup-init
+        curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
+        chmod +x ./rustup-init.sh
+        ./rustup-init.sh -y
+        rm rustup-init.sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
     - name: Update Rust
