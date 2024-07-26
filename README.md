@@ -28,6 +28,15 @@
 - [Extending Envoy with WASM and Rust](https://antweiss.com/blog/extending-envoy-with-wasm-and-rust/)
 - [Writing Envoy filters in Rust with WebAssembly](https://content.red-badger.com/resources/extending-istio-with-rust-and-webassembly)
 
+
+## Targets
+
+Make sure you have the right targets installed:
+
+```sh
+rustup target add wasm32-wasi wasm32-unknown-unknown 
+```
+
 ## Updating dependencies
 
 When updating dependencies, you need to regenerate Bazel `BUILD` files to match updated `Cargo.toml`:
