@@ -12,6 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::net::*;
+use trust_dns_resolver::Resolver;
+use trust_dns_resolver::config::*;
+
+use std::{
+    net::*,
+    str::FromStr,
+    sync::{Arc, Mutex as StdMutex},
+};
+
+use tokio::runtime::Runtime;
+
+use trust_dns_proto::{
+    op::{NoopMessageFinalizer, Query},
+    rr::{DNSClass, Name, RData, Record, RecordType},
+    xfer::{DnsExchange, DnsMultiplexer, DnsResponse},
+    TokioTime,
+};
+use trust_dns_resolver::{
+    caching_client::CachingClient,
+    config::LookupIpStrategy,
+    error::ResolveError,
+    lookup::{Lookup, LookupFuture},
+    lookup_ip::LookupIpFuture,
+    Hosts,
+};
+use trust_dns_server::{
+    authority::{Authority, Catalog},
+    store::in_memory::InMemoryAuthority,
+};
+
 use log::info;
 use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
@@ -43,9 +74,24 @@ impl Context for HttpHeaders {}
 
 impl HttpContext for HttpHeaders {
     fn on_http_request_headers(&mut self, _: usize, _: bool) -> Action {
+        
+        let lookup = LookupFuture::lookup(
+            vec![Name::from_str("www.example.com.").unwrap()],
+            RecordType::A,
+            Default::default(),
+            CachingClient::new(0, client, false),
+        );
+    
+        let io_loop = Runtime::new().unwrap();
+        let lookup = io_loop.block_on(lookup).unwrap();
+
+        self.set_http_request_header("wasm-request-header-xh", lookup);
+        
         for (name, value) in &self.get_http_request_headers() {
             info!("#{} -> {}: {}", self.context_id, name, value);
         }
+
+        
 
         match self.get_http_request_header(":path") {
             Some(path) if path == "/hello" => {
