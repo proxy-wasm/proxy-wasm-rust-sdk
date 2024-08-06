@@ -15,6 +15,7 @@
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=RUSTFLAGS");
+    println!("cargo:rustc-check-cfg=cfg(wasi_exec_model_reactor)");
 
     if let Some(target_os) = std::env::var_os("CARGO_CFG_TARGET_OS") {
         if target_os != "wasi" {

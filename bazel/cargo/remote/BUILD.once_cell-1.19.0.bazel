@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "version_check",
+    name = "once_cell",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -28,14 +28,18 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "alloc",
+        "race",
+    ],
     crate_root = "src/lib.rs",
-    edition = "2015",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=version_check",
+        "crate-name=once_cell",
         "manual",
         "noclippy",
         "norustfmt",
@@ -77,5 +81,5 @@ rust_library(
         "@rules_rust//rust/platform:x86_64-unknown-none": [],
         "//conditions:default": ["@platforms//:incompatible"],
     }),
-    version = "0.9.4",
+    version = "1.19.0",
 )

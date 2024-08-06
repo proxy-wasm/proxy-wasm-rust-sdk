@@ -5,14 +5,14 @@
 [![Documentation][docs-badge]][docs-link]
 [![Apache 2.0 License][license-badge]][license-link]
 
-[build-badge]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/workflows/Rust/badge.svg?branch=master
-[build-link]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/actions?query=workflow%3ARust+branch%3Amaster
+[build-badge]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/workflows/Rust/badge.svg?branch=main
+[build-link]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/actions?query=workflow%3ARust+branch%3Amain
 [crate-badge]: https://img.shields.io/crates/v/proxy-wasm.svg
 [crate-link]: https://crates.io/crates/proxy-wasm
 [docs-badge]: https://docs.rs/proxy-wasm/badge.svg
 [docs-link]: https://docs.rs/proxy-wasm
 [license-badge]: https://img.shields.io/github/license/proxy-wasm/proxy-wasm-rust-sdk
-[license-link]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/blob/master/LICENSE
+[license-link]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/blob/main/LICENSE
 
 ## Examples
 
@@ -21,6 +21,7 @@
 - [HTTP Headers](./examples/http_headers/)
 - [HTTP Response body](./examples/http_body/)
 - [HTTP Configuration](./examples/http_config/)
+- [gRPC Auth (random)](./examples/grpc_auth_random/)
 
 ## Articles & blog posts from the community
 
@@ -32,5 +33,5 @@
 When updating dependencies, you need to regenerate Bazel `BUILD` files to match updated `Cargo.toml`:
 
 ```sh
-bazel run //bazel/cargo:crates_vendor -- --repin
+bazel run //bazel/cargo:crates_vendor -- --repin all
 ```

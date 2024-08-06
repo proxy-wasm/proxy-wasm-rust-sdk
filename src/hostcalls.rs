@@ -416,6 +416,8 @@ pub fn get_property(path: Vec<&str>) -> Result<Option<Bytes>, Status> {
                 }
             }
             Status::NotFound => Ok(None),
+            Status::SerializationFailure => Err(Status::SerializationFailure),
+            Status::InternalFailure => Err(Status::InternalFailure),
             status => panic!("unexpected status: {}", status as u32),
         }
     }
@@ -726,6 +728,29 @@ pub fn send_http_response(
     }
 }
 
+pub fn send_grpc_response(
+    grpc_status: GrpcStatusCode,
+    grpc_status_message: Option<&str>,
+    custom_metadata: Vec<(&str, &[u8])>,
+) -> Result<(), Status> {
+    let serialized_custom_metadata = utils::serialize_map_bytes(custom_metadata);
+    unsafe {
+        match proxy_send_local_response(
+            200,
+            null(),
+            0,
+            grpc_status_message.map_or(null(), |grpc_status_message| grpc_status_message.as_ptr()),
+            grpc_status_message.map_or(0, |grpc_status_message| grpc_status_message.len()),
+            serialized_custom_metadata.as_ptr(),
+            serialized_custom_metadata.len(),
+            grpc_status as i32,
+        ) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
 extern "C" {
     fn proxy_http_call(
         upstream_data: *const u8,
@@ -1028,6 +1053,9 @@ pub fn call_foreign_function(
                 }
             }
             Status::NotFound => Err(Status::NotFound),
+            Status::BadArgument => Err(Status::BadArgument),
+            Status::SerializationFailure => Err(Status::SerializationFailure),
+            Status::InternalFailure => Err(Status::InternalFailure),
             status => panic!("unexpected status: {}", status as u32),
         }
     }

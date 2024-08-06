@@ -44,6 +44,7 @@ pub enum Status {
     Ok = 0,
     NotFound = 1,
     BadArgument = 2,
+    SerializationFailure = 3,
     ParseFailure = 4,
     Empty = 7,
     CasMismatch = 8,
@@ -112,6 +113,29 @@ pub enum MetricType {
     Counter = 0,
     Gauge = 1,
     Histogram = 2,
+}
+
+#[repr(u32)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[non_exhaustive]
+pub enum GrpcStatusCode {
+    Ok = 0,
+    Cancelled = 1,
+    Unknown = 2,
+    InvalidArgument = 3,
+    DeadlineExceeded = 4,
+    NotFound = 5,
+    AlreadyExists = 6,
+    PermissionDenied = 7,
+    ResourceExhausted = 8,
+    FailedPrecondition = 9,
+    Aborted = 10,
+    OutOfRange = 11,
+    Unimplemented = 12,
+    Internal = 13,
+    Unavailable = 14,
+    DataLoss = 15,
+    Unauthenticated = 16,
 }
 
 pub type Bytes = Vec<u8>;

@@ -24,12 +24,12 @@ services:
     networks:
       - envoymesh
     depends_on:
-      - httpbin
-  httpbin:
-    image: mccutchen/go-httpbin
-    hostname: httpbin
+      - grpcbin
+  grpcbin:
+    image: kong/grpcbin
+    hostname: grpcbin
     ports:
-      - "8080:8080"
+      - "9000:9000"
     networks:
       - envoymesh
 networks:
