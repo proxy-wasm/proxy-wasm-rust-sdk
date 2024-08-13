@@ -350,7 +350,6 @@ pub trait RootContext: Context {
     /// ```rust
     /// use proxy_wasm::traits::*;
     /// use proxy_wasm::types::*;
-    /// use serde_json;
     /// use log::debug;
     ///
     /// struct MyRootContext;
@@ -365,7 +364,8 @@ pub trait RootContext: Context {
     ///   fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
     ///     let vm_configuration = self.get_vm_configuration().unwrap();
     ///
-    ///     let parsed_vm_configuration: MyVmConfiguration = serde_json::from_slice::<MyVmConfiguration>(&vm_configuration).unwrap();
+    ///     let parsed_vm_configuration: MyVmConfiguration =
+    ///         serde_json::from_slice::<MyVmConfiguration>(&vm_configuration).unwrap();
     ///
     ///     // Do something with the parsed vm configuration
     ///     debug!("vm_configuration: {:?}", parsed_vm_configuration)
@@ -389,7 +389,6 @@ pub trait RootContext: Context {
     /// ```rust
     /// use proxy_wasm::traits::*;
     /// use proxy_wasm::types::*;
-    /// use serde_json;
     /// use log::debug;
     ///
     /// struct MyRootContext;
@@ -404,7 +403,8 @@ pub trait RootContext: Context {
     ///   fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
     ///     let vm_configuration = self.get_vm_configuration().unwrap();
     ///
-    ///     let parsed_vm_configuration: MyVmConfiguration = serde_json::from_slice::<MyVmConfiguration>(&vm_configuration).unwrap();
+    ///     let parsed_vm_configuration: MyVmConfiguration =
+    ///         serde_json::from_slice::<MyVmConfiguration>(&vm_configuration).unwrap();
     ///
     ///     // Do something with the parsed vm configuration
     ///     debug!("vm_configuration: {:?}", parsed_vm_configuration)
@@ -433,7 +433,6 @@ pub trait RootContext: Context {
     /// ```rust
     /// use proxy_wasm::traits::*;
     /// use proxy_wasm::types::*;
-    /// use serde_json;
     /// use log::debug;
     ///
     /// struct MyRootContext;
@@ -448,7 +447,8 @@ pub trait RootContext: Context {
     ///   fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
     ///     let plugin_configuration = self.get_plugin_configuration().unwrap();
     ///
-    ///     let parsed_plugin_configuration: MyPluginConfiguration = serde_json::from_slice::<MyPluginConfiguration>(&plugin_configuration).unwrap();
+    ///     let parsed_plugin_configuration: MyPluginConfiguration =
+    ///         serde_json::from_slice::<MyPluginConfiguration>(&plugin_configuration).unwrap();
     ///
     ///     // Do something with the parsed plugin configuration
     ///     debug!("plugin_configuration: {:?}", parsed_plugin_configuration)
@@ -472,7 +472,6 @@ pub trait RootContext: Context {
     /// ```rust
     /// use proxy_wasm::traits::*;
     /// use proxy_wasm::types::*;
-    /// use serde_json;
     /// use log::debug;
     ///
     /// struct MyRootContext;
@@ -487,7 +486,8 @@ pub trait RootContext: Context {
     ///   fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
     ///     let plugin_configuration = self.get_plugin_configuration().unwrap();
     ///
-    ///     let parsed_plugin_configuration: MyPluginConfiguration = serde_json::from_slice::<MyPluginConfiguration>(&plugin_configuration).unwrap();
+    ///     let parsed_plugin_configuration: MyPluginConfiguration =
+    ///         serde_json::from_slice::<MyPluginConfiguration>(&plugin_configuration).unwrap();
     ///
     ///     // Do something with the parsed plugin configuration
     ///     debug!("plugin_configuration: {:?}", parsed_plugin_configuration)
