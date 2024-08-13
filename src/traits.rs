@@ -90,7 +90,7 @@ pub trait Context {
     /// impl HttpContext for MyPlugin {
     ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
     ///     match self.dispatch_http_call(
-    ///       "cluster_name_from_envoy_config",
+    ///       "google",
     ///       vec![
     ///         (":method", "GET"),
     ///         (":path", "/"),
