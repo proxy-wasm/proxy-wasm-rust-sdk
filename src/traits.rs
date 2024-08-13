@@ -83,7 +83,7 @@ pub trait Context {
     /// use proxy_wasm::traits::*;
     /// use proxy_wasm::types::*;
     /// use std::time::Duration;
-    /// use log::warn;
+    /// use log::{debug, warn};
     ///
     /// struct MyPlugin;
     ///
@@ -113,7 +113,7 @@ pub trait Context {
     ///      let headers = self.get_http_call_response_headers();
     ///      let body = self.get_http_call_response_body(0, body_size);
     ///
-    ///      info!("Received response headers: {:?}", headers);
+    ///      debug!("Received response headers: {:?}", headers);
     ///
     ///      // Do something with the response
     ///    }
