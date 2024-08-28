@@ -351,6 +351,10 @@ pub trait HttpContext: Context {
         hostcalls::add_map_value_bytes(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
+    fn remove_http_request_header(&self, name: &str) {
+        hostcalls::remove_map_value(MapType::HttpRequestHeaders, name).unwrap()
+    }
+
     fn on_http_request_body(&mut self, _body_size: usize, _end_of_stream: bool) -> Action {
         Action::Continue
     }

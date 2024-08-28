@@ -318,6 +318,15 @@ pub fn set_map_value(map_type: MapType, key: &str, value: Option<&str>) -> Resul
     }
 }
 
+pub fn remove_map_value(map_type: MapType, key: &str) -> Result<(), Status> {
+    unsafe {
+        match proxy_remove_header_map_value(map_type, key.as_ptr(), key.len()) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
 pub fn set_map_value_bytes(
     map_type: MapType,
     key: &str,
