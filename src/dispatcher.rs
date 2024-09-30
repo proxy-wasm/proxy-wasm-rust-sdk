@@ -16,7 +16,7 @@ use crate::hostcalls;
 use crate::traits::*;
 use crate::types::*;
 use hashbrown::HashMap;
-use log::trace;
+use log::{error, trace};
 use std::cell::{Cell, RefCell};
 
 thread_local! {
@@ -414,15 +414,24 @@ impl Dispatcher {
 
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            if let Err(e) = hostcalls::set_effective_context(context_id){
+                error!("set_effective_context failed: {:?}", e);
+                return;
+            }
             http_stream.on_http_call_response(token_id, num_headers, body_size, num_trailers)
         } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            if let Err(e) = hostcalls::set_effective_context(context_id) {
+                error!("set_effective_context failed: {:?}", e);
+                return;
+            }
             stream.on_http_call_response(token_id, num_headers, body_size, num_trailers)
         } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            if let Err(e) = hostcalls::set_effective_context(context_id) {
+                error!("set_effective_context failed: {:?}", e);
+                return;
+            }
             root.on_http_call_response(token_id, num_headers, body_size, num_trailers)
         }
     }
@@ -439,15 +448,24 @@ impl Dispatcher {
 
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            if let Err(e) = hostcalls::set_effective_context(context_id){
+                error!("set_effective_context failed: {:?}", e);
+                return;
+            }
             http_stream.on_grpc_stream_initial_metadata(token_id, headers);
         } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            if let Err(e) = hostcalls::set_effective_context(context_id){
+                error!("set_effective_context failed: {:?}", e);
+                return;
+            }
             stream.on_grpc_stream_initial_metadata(token_id, headers);
         } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            if let Err(e) = hostcalls::set_effective_context(context_id){
+                error!("set_effective_context failed: {:?}", e);
+                return;
+            }
             root.on_grpc_stream_initial_metadata(token_id, headers);
         }
     }
@@ -457,15 +475,24 @@ impl Dispatcher {
         if let Some(context_id) = context_id {
             if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                if let Err(e) = hostcalls::set_effective_context(context_id){
+                    error!("set_effective_context failed: {:?}", e);
+                    return;
+                }
                 http_stream.on_grpc_call_response(token_id, 0, response_size);
             } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                if let Err(e) = hostcalls::set_effective_context(context_id){
+                    error!("set_effective_context failed: {:?}", e);
+                    return;
+                }
                 stream.on_grpc_call_response(token_id, 0, response_size);
             } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                if let Err(e) = hostcalls::set_effective_context(context_id) {
+                    error!("set_effective_context failed: {:?}", e);
+                    return;
+                }
                 root.on_grpc_call_response(token_id, 0, response_size);
             }
         } else {
@@ -473,15 +500,24 @@ impl Dispatcher {
             if let Some(context_id) = context_id {
                 if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    if let Err(e) = hostcalls::set_effective_context(context_id){
+                        error!("set_effective_context failed: {:?}", e);
+                        return;
+                    }
                     http_stream.on_grpc_stream_message(token_id, response_size);
                 } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    if let Err(e) = hostcalls::set_effective_context(context_id){
+                        error!("set_effective_context failed: {:?}", e);
+                        return;
+                    }
                     stream.on_grpc_stream_message(token_id, response_size);
                 } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    if let Err(e) = hostcalls::set_effective_context(context_id){
+                        error!("set_effective_context failed: {:?}", e);
+                        return;
+                    }
                     root.on_grpc_stream_message(token_id, response_size);
                 }
             } else {
@@ -503,15 +539,24 @@ impl Dispatcher {
 
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            if let Err(e) = hostcalls::set_effective_context(context_id){
+                error!("set_effective_context failed: {:?}", e);
+                return;
+            }
             http_stream.on_grpc_stream_trailing_metadata(token_id, trailers);
         } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            if let Err(e) = hostcalls::set_effective_context(context_id){
+                error!("set_effective_context failed: {:?}", e);
+                return;
+            }
             stream.on_grpc_stream_trailing_metadata(token_id, trailers);
         } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            if let Err(e) = hostcalls::set_effective_context(context_id){
+                error!("set_effective_context failed: {:?}", e);
+                return;
+            }
             root.on_grpc_stream_trailing_metadata(token_id, trailers);
         }
     }
@@ -521,15 +566,24 @@ impl Dispatcher {
         if let Some(context_id) = context_id {
             if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                if let Err(e) = hostcalls::set_effective_context(context_id){
+                    error!("set_effective_context failed: {:?}", e);
+                    return;
+                }
                 http_stream.on_grpc_call_response(token_id, status_code, 0);
             } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                if let Err(e) = hostcalls::set_effective_context(context_id){
+                    error!("set_effective_context failed: {:?}", e);
+                    return;
+                }
                 stream.on_grpc_call_response(token_id, status_code, 0);
             } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                if let Err(e) = hostcalls::set_effective_context(context_id){
+                    error!("set_effective_context failed: {:?}", e);
+                    return;
+                }
                 root.on_grpc_call_response(token_id, status_code, 0);
             }
         } else {
@@ -537,15 +591,24 @@ impl Dispatcher {
             if let Some(context_id) = context_id {
                 if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    if let Err(e) = hostcalls::set_effective_context(context_id){
+                        error!("set_effective_context failed: {:?}", e);
+                        return;
+                    }
                     http_stream.on_grpc_stream_close(token_id, status_code)
                 } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    if let Err(e) = hostcalls::set_effective_context(context_id){
+                        error!("set_effective_context failed: {:?}", e);
+                        return;
+                    }
                     stream.on_grpc_stream_close(token_id, status_code)
                 } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    if let Err(e) = hostcalls::set_effective_context(context_id){
+                        error!("set_effective_context failed: {:?}", e);
+                        return;
+                    }
                     root.on_grpc_stream_close(token_id, status_code)
                 }
             } else {
