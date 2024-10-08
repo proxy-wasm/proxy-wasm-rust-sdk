@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::f32::consts::E;
 use crate::dispatcher;
 use crate::types::*;
 use std::ptr::{null, null_mut};
@@ -271,7 +270,7 @@ pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<String>, Sta
                         Ok(string) => Ok(Some(string)),  // Successfully converted to String
                         Err(e) => {
                             error!("[get_map_value] Failed to convert to UTF-8 string: {}", e);
-                            Err(Status::BadArgument) // Return an appropriate error
+                            Err(Status::SerializationFailure) // Return an appropriate error
                         }
                     }
                 } else {
@@ -1298,7 +1297,6 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
 mod utils {
     use crate::types::Bytes;
     use std::convert::TryFrom;
-    use std::ptr::replace;
     use log::error;
 
     pub(super) fn serialize_property_path(path: Vec<&str>) -> Bytes {
