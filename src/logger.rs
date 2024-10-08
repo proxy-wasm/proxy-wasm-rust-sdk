@@ -22,16 +22,23 @@ struct Logger;
 static LOGGER: Logger = Logger;
 static INITIALIZED: AtomicBool = AtomicBool::new(false);
 
-pub(crate) fn set_log_level(level: LogLevel) {
+pub(crate) fn set_log_level(level: LogLevel) -> Result<(), Box<dyn std::error::Error>> {
     if !INITIALIZED.load(Ordering::Relaxed) {
-        log::set_logger(&LOGGER).unwrap();
+        log::set_logger(&LOGGER)
+            .map_err(|e| format!("Failed to set logger: {}", e))?;
+
         panic::set_hook(Box::new(|panic_info| {
-            hostcalls::log(LogLevel::Critical, &panic_info.to_string()).unwrap();
+            if let Err(e) = hostcalls::log(LogLevel::Critical, &panic_info.to_string()) {
+                eprintln!("Failed to log panic info: {}", e);
+            }
         }));
+
         INITIALIZED.store(true, Ordering::Relaxed);
     }
     LOGGER.set_log_level(level);
+    Ok(())
 }
+
 
 impl Logger {
     pub fn set_log_level(&self, level: LogLevel) {
@@ -64,8 +71,12 @@ impl log::Log for Logger {
             log::Level::Error => LogLevel::Error,
         };
         let message = record.args().to_string();
-        hostcalls::log(level, &message).unwrap();
+        if let Err(e) = hostcalls::log(level, &message) {
+            // 如果日志记录失败，我们可以尝试打印到标准错误
+            eprintln!("Failed to log message: {}. Error: {}", message, e);
+        }
     }
+
 
     fn flush(&self) {}
 }
