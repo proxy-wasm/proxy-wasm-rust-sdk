@@ -100,7 +100,7 @@ impl Dispatcher {
             .insert(token_id, self.active_id.get())
             .is_some()
         {
-            panic!("duplicate token_id")
+            error!("duplicate token_id")
         }
     }
 
@@ -111,7 +111,7 @@ impl Dispatcher {
             .insert(token_id, self.active_id.get())
             .is_some()
         {
-            panic!("duplicate token_id")
+            error!("duplicate token_id")
         }
     }
 
@@ -122,7 +122,7 @@ impl Dispatcher {
             .insert(token_id, self.active_id.get())
             .is_some()
         {
-            panic!("duplicate token_id")
+            error!("duplicate token_id")
         }
     }
 
@@ -137,7 +137,7 @@ impl Dispatcher {
             .insert(context_id, new_context)
             .is_some()
         {
-            panic!("duplicate context_id")
+            error!("duplicate context_id")
         }
     }
 
@@ -147,10 +147,16 @@ impl Dispatcher {
                 Some(f) => f(context_id, root_context_id),
                 None => match root_context.create_stream_context(context_id) {
                     Some(stream_context) => stream_context,
-                    None => panic!("create_stream_context returned None"),
+                    None => {
+                        error!("create_stream_context returned None");
+                        return;
+                    },
                 },
             },
-            None => panic!("invalid root_context_id"),
+            None => {
+                error!("invalid root_context_id");
+                return;
+            },
         };
         if self
             .streams
@@ -158,7 +164,7 @@ impl Dispatcher {
             .insert(context_id, new_context)
             .is_some()
         {
-            panic!("duplicate context_id")
+            error!("duplicate context_id")
         }
     }
 
@@ -168,10 +174,16 @@ impl Dispatcher {
                 Some(f) => f(context_id, root_context_id),
                 None => match root_context.create_http_context(context_id) {
                     Some(stream_context) => stream_context,
-                    None => panic!("create_http_context returned None"),
+                    None => {
+                        error!("create_http_context returned None");
+                        return;
+                    },
                 },
             },
-            None => panic!("invalid root_context_id"),
+            None => {
+                error!("invalid root_context_id");
+                return;
+            },
         };
         if self
             .http_streams
@@ -179,7 +191,7 @@ impl Dispatcher {
             .insert(context_id, new_context)
             .is_some()
         {
-            panic!("duplicate context_id")
+            error!("duplicate context_id")
         }
     }
 
@@ -198,10 +210,13 @@ impl Dispatcher {
                 Some(ContextType::StreamContext) => {
                     self.create_stream_context(context_id, root_context_id)
                 }
-                None => panic!("missing ContextType on root_context"),
+                None => {
+                    error!("missing ContextType on root_context");
+                    return;
+                },
             }
         } else {
-            panic!("invalid root_context_id and missing constructors");
+            error!("invalid root_context_id and missing constructors");
         }
     }
 
@@ -216,7 +231,8 @@ impl Dispatcher {
             self.active_id.set(context_id);
             root.on_done()
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id");
+            return true
         }
     }
 
@@ -231,7 +247,7 @@ impl Dispatcher {
             self.active_id.set(context_id);
             root.on_log()
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id")
         }
     }
 
@@ -240,7 +256,7 @@ impl Dispatcher {
             || self.streams.borrow_mut().remove(&context_id).is_some()
             || self.roots.borrow_mut().remove(&context_id).is_some())
         {
-            panic!("invalid context_id")
+            error!("invalid context_id")
         }
     }
 
@@ -249,7 +265,8 @@ impl Dispatcher {
             self.active_id.set(context_id);
             root.on_vm_start(vm_configuration_size)
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id");
+            true
         }
     }
 
@@ -258,7 +275,8 @@ impl Dispatcher {
             self.active_id.set(context_id);
             root.on_configure(plugin_configuration_size)
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id");
+            true
         }
     }
 
@@ -267,7 +285,7 @@ impl Dispatcher {
             self.active_id.set(context_id);
             root.on_tick()
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id")
         }
     }
 
@@ -276,7 +294,7 @@ impl Dispatcher {
             self.active_id.set(context_id);
             root.on_queue_ready(queue_id)
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id")
         }
     }
 
@@ -285,7 +303,8 @@ impl Dispatcher {
             self.active_id.set(context_id);
             stream.on_new_connection()
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id");
+            Action::Continue
         }
     }
 
@@ -294,7 +313,8 @@ impl Dispatcher {
             self.active_id.set(context_id);
             stream.on_downstream_data(data_size, end_of_stream)
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id");
+            Action::Continue
         }
     }
 
@@ -303,7 +323,7 @@ impl Dispatcher {
             self.active_id.set(context_id);
             stream.on_downstream_close(peer_type)
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id")
         }
     }
 
@@ -312,7 +332,8 @@ impl Dispatcher {
             self.active_id.set(context_id);
             stream.on_upstream_data(data_size, end_of_stream)
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id");
+            Action::Continue
         }
     }
 
@@ -321,7 +342,7 @@ impl Dispatcher {
             self.active_id.set(context_id);
             stream.on_upstream_close(peer_type)
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id")
         }
     }
 
@@ -335,7 +356,8 @@ impl Dispatcher {
             self.active_id.set(context_id);
             http_stream.on_http_request_headers(num_headers, end_of_stream)
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id");
+            Action::Continue
         }
     }
 
@@ -349,7 +371,8 @@ impl Dispatcher {
             self.active_id.set(context_id);
             http_stream.on_http_request_body(body_size, end_of_stream)
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id");
+            Action::Continue
         }
     }
 
@@ -358,7 +381,8 @@ impl Dispatcher {
             self.active_id.set(context_id);
             http_stream.on_http_request_trailers(num_trailers)
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id");
+            Action::Continue
         }
     }
 
@@ -372,7 +396,8 @@ impl Dispatcher {
             self.active_id.set(context_id);
             http_stream.on_http_response_headers(num_headers, end_of_stream)
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id");
+            Action::Continue
         }
     }
 
@@ -386,7 +411,8 @@ impl Dispatcher {
             self.active_id.set(context_id);
             http_stream.on_http_response_body(body_size, end_of_stream)
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id");
+            Action::Continue
         }
     }
 
@@ -395,7 +421,8 @@ impl Dispatcher {
             self.active_id.set(context_id);
             http_stream.on_http_response_trailers(num_trailers)
         } else {
-            panic!("invalid context_id")
+            error!("invalid context_id");
+            Action::Continue
         }
     }
 
