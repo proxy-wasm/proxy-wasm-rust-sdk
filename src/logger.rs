@@ -29,7 +29,7 @@ pub(crate) fn set_log_level(level: LogLevel) -> Result<(), Box<dyn std::error::E
 
         panic::set_hook(Box::new(|panic_info| {
             if let Err(e) = hostcalls::log(LogLevel::Critical, &panic_info.to_string()) {
-                eprintln!("Failed to log panic info: {}", e);
+                eprintln!("Failed to log panic info: {:?}", e);
             }
         }));
 
@@ -73,7 +73,7 @@ impl log::Log for Logger {
         let message = record.args().to_string();
         if let Err(e) = hostcalls::log(level, &message) {
             // 如果日志记录失败，我们可以尝试打印到标准错误
-            eprintln!("Failed to log message: {}. Error: {}", message, e);
+            eprintln!("Failed to log message: {}. Error: {:?}", message, e);
         }
     }
 
