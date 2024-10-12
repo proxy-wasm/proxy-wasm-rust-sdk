@@ -15,22 +15,30 @@
 use crate::hostcalls;
 use crate::types::*;
 use std::time::{Duration, SystemTime};
+use log::error;
 
 pub trait Context {
     fn get_current_time(&self) -> SystemTime {
-        hostcalls::get_current_time().unwrap()
+        hostcalls::get_current_time().unwrap_or_else(|_| SystemTime::now())
     }
 
     fn get_property(&self, path: Vec<&str>) -> Option<Bytes> {
-        hostcalls::get_property(path).unwrap()
+        hostcalls::get_property(path).unwrap_or_else(|_| None)
     }
 
     fn set_property(&self, path: Vec<&str>, value: Option<&[u8]>) {
-        hostcalls::set_property(path, value).unwrap()
+        hostcalls::set_property(path, value).unwrap_or_else(|_| ())
     }
 
     fn get_shared_data(&self, key: &str) -> (Option<Bytes>, Option<u32>) {
-        hostcalls::get_shared_data(key).unwrap()
+        let data = hostcalls::get_shared_data(key);
+        match data {
+            Err(e) => {
+                error!("[get_shared_data] err is {:?}",e);
+                (None, None)
+            },
+            Ok((data, status)) => (data, status),
+        }
     }
 
     fn set_shared_data(
@@ -43,11 +51,11 @@ pub trait Context {
     }
 
     fn register_shared_queue(&self, name: &str) -> u32 {
-        hostcalls::register_shared_queue(name).unwrap()
+        hostcalls::register_shared_queue(name).unwrap_or_else(|_| 0)
     }
 
     fn resolve_shared_queue(&self, vm_id: &str, name: &str) -> Option<u32> {
-        hostcalls::resolve_shared_queue(vm_id, name).unwrap()
+        hostcalls::resolve_shared_queue(vm_id, name).unwrap_or_else(|_| None)
     }
 
     fn dequeue_shared_queue(&self, queue_id: u32) -> Result<Option<Bytes>, Status> {
@@ -79,39 +87,39 @@ pub trait Context {
     }
 
     fn get_http_call_response_headers(&self) -> Vec<(String, String)> {
-        hostcalls::get_map(MapType::HttpCallResponseHeaders).unwrap()
+        hostcalls::get_map(MapType::HttpCallResponseHeaders).unwrap_or_default()
     }
 
     fn get_http_call_response_headers_bytes(&self) -> Vec<(String, Bytes)> {
-        hostcalls::get_map_bytes(MapType::HttpCallResponseHeaders).unwrap()
+        hostcalls::get_map_bytes(MapType::HttpCallResponseHeaders).unwrap_or_default()
     }
 
     fn get_http_call_response_header(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpCallResponseHeaders, name).unwrap()
+        hostcalls::get_map_value(MapType::HttpCallResponseHeaders, name).unwrap_or_default()
     }
 
     fn get_http_call_response_header_bytes(&self, name: &str) -> Option<Bytes> {
-        hostcalls::get_map_value_bytes(MapType::HttpCallResponseHeaders, name).unwrap()
+        hostcalls::get_map_value_bytes(MapType::HttpCallResponseHeaders, name).unwrap_or_default()
     }
 
     fn get_http_call_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
-        hostcalls::get_buffer(BufferType::HttpCallResponseBody, start, max_size).unwrap()
+        hostcalls::get_buffer(BufferType::HttpCallResponseBody, start, max_size).unwrap_or_else(|_| None)
     }
 
     fn get_http_call_response_trailers(&self) -> Vec<(String, String)> {
-        hostcalls::get_map(MapType::HttpCallResponseTrailers).unwrap()
+        hostcalls::get_map(MapType::HttpCallResponseTrailers).unwrap_or_default()
     }
 
     fn get_http_call_response_trailers_bytes(&self) -> Vec<(String, Bytes)> {
-        hostcalls::get_map_bytes(MapType::HttpCallResponseTrailers).unwrap()
+        hostcalls::get_map_bytes(MapType::HttpCallResponseTrailers).unwrap_or_default()
     }
 
     fn get_http_call_response_trailer(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpCallResponseTrailers, name).unwrap()
+        hostcalls::get_map_value(MapType::HttpCallResponseTrailers, name).unwrap_or_default()
     }
 
     fn get_http_call_response_trailer_bytes(&self, name: &str) -> Option<Bytes> {
-        hostcalls::get_map_value_bytes(MapType::HttpCallResponseTrailers, name).unwrap()
+        hostcalls::get_map_value_bytes(MapType::HttpCallResponseTrailers, name).unwrap_or_default()
     }
 
     fn dispatch_grpc_call(
@@ -136,11 +144,14 @@ pub trait Context {
     fn on_grpc_call_response(&mut self, _token_id: u32, _status_code: u32, _response_size: usize) {}
 
     fn get_grpc_call_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
-        hostcalls::get_buffer(BufferType::GrpcReceiveBuffer, start, max_size).unwrap()
+        hostcalls::get_buffer(BufferType::GrpcReceiveBuffer, start, max_size).unwrap_or_else(|e| {
+            error!("[get_grpc_call_response_body] err is {:?}",e);
+            None
+        })
     }
 
     fn cancel_grpc_call(&self, token_id: u32) {
-        hostcalls::cancel_grpc_call(token_id).unwrap()
+        hostcalls::cancel_grpc_call(token_id).unwrap_or_else(|_| ())
     }
 
     fn open_grpc_stream(
@@ -156,45 +167,64 @@ pub trait Context {
     fn on_grpc_stream_initial_metadata(&mut self, _token_id: u32, _num_elements: u32) {}
 
     fn get_grpc_stream_initial_metadata(&self) -> Vec<(String, Bytes)> {
-        hostcalls::get_map_bytes(MapType::GrpcReceiveInitialMetadata).unwrap()
+        hostcalls::get_map_bytes(MapType::GrpcReceiveInitialMetadata).unwrap_or_default()
     }
 
     fn get_grpc_stream_initial_metadata_value(&self, name: &str) -> Option<Bytes> {
-        hostcalls::get_map_value_bytes(MapType::GrpcReceiveInitialMetadata, name).unwrap()
+        hostcalls::get_map_value_bytes(MapType::GrpcReceiveInitialMetadata, name)
+            .unwrap_or_else(|e| {
+                error!("Failed to get gRPC stream initial metadata for '{}': {:?}", name, e);
+                None
+            })
     }
 
+
     fn send_grpc_stream_message(&self, token_id: u32, message: Option<&[u8]>, end_stream: bool) {
-        hostcalls::send_grpc_stream_message(token_id, message, end_stream).unwrap()
+        hostcalls::send_grpc_stream_message(token_id, message, end_stream).unwrap_or_else(|e| {
+            error!("[send_grpc_stream_message] err is {:?}",e); })
     }
 
     fn on_grpc_stream_message(&mut self, _token_id: u32, _message_size: usize) {}
 
     fn get_grpc_stream_message(&mut self, start: usize, max_size: usize) -> Option<Bytes> {
-        hostcalls::get_buffer(BufferType::GrpcReceiveBuffer, start, max_size).unwrap()
+        hostcalls::get_buffer(BufferType::GrpcReceiveBuffer, start, max_size).unwrap_or_else(|e| {
+            error!("[get_grpc_stream_message] err is {:?}",e);
+            None
+        })
     }
 
     fn on_grpc_stream_trailing_metadata(&mut self, _token_id: u32, _num_elements: u32) {}
 
     fn get_grpc_stream_trailing_metadata(&self) -> Vec<(String, Bytes)> {
-        hostcalls::get_map_bytes(MapType::GrpcReceiveTrailingMetadata).unwrap()
+        hostcalls::get_map_bytes(MapType::GrpcReceiveTrailingMetadata).unwrap_or_else(|e|{
+            error!("[get_grpc_stream_trailing_metadata] err is {:?}",e);
+            Vec::new()
+        })
     }
 
     fn get_grpc_stream_trailing_metadata_value(&self, name: &str) -> Option<Bytes> {
-        hostcalls::get_map_value_bytes(MapType::GrpcReceiveTrailingMetadata, name).unwrap()
+        hostcalls::get_map_value_bytes(MapType::GrpcReceiveTrailingMetadata, name).unwrap_or_else(|e| {
+            error!("Failed to get gRPC stream trailing metadata for '{}': {:?}", name, e);
+            None
+        })
     }
 
     fn cancel_grpc_stream(&self, token_id: u32) {
-        hostcalls::cancel_grpc_stream(token_id).unwrap()
+        hostcalls::cancel_grpc_stream(token_id).unwrap_or_else(|e| {
+            error!("[cancel_grpc_stream] err is {:?}",e);
+        })
     }
 
     fn close_grpc_stream(&self, token_id: u32) {
-        hostcalls::close_grpc_stream(token_id).unwrap()
+        hostcalls::close_grpc_stream(token_id).unwrap_or_else(|e| {
+            error!("[close_grpc_stream] err is {:?}",e);
+        })
     }
 
     fn on_grpc_stream_close(&mut self, _token_id: u32, _status_code: u32) {}
 
     fn get_grpc_status(&self) -> (u32, Option<String>) {
-        hostcalls::get_grpc_status().unwrap()
+        hostcalls::get_grpc_status().unwrap_or_default()
     }
 
     fn call_foreign_function(
@@ -210,7 +240,9 @@ pub trait Context {
     }
 
     fn done(&self) {
-        hostcalls::done().unwrap()
+        hostcalls::done().unwrap_or_else(|e| {
+            error!("[on_done] err is {:?}",e);
+        })
     }
 }
 
@@ -220,7 +252,10 @@ pub trait RootContext: Context {
     }
 
     fn get_vm_configuration(&self) -> Option<Bytes> {
-        hostcalls::get_buffer(BufferType::VmConfiguration, 0, usize::MAX).unwrap()
+        hostcalls::get_buffer(BufferType::VmConfiguration, 0, usize::MAX).unwrap_or_else(|e| {
+            error!("[get_vm_configuration] err is {:?}",e);
+            None
+        })
     }
 
     fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
@@ -228,11 +263,16 @@ pub trait RootContext: Context {
     }
 
     fn get_plugin_configuration(&self) -> Option<Bytes> {
-        hostcalls::get_buffer(BufferType::PluginConfiguration, 0, usize::MAX).unwrap()
+        hostcalls::get_buffer(BufferType::PluginConfiguration, 0, usize::MAX).unwrap_or_else(|e| {
+            error!("[get_plugin_configuration] err is {:?}",e);
+            None
+        })
     }
 
     fn set_tick_period(&self, period: Duration) {
-        hostcalls::set_tick_period(period).unwrap()
+        hostcalls::set_tick_period(period).unwrap_or_else(|e| {
+            error!("[set_tick_period] err is {:?}",e);
+        })
     }
 
     fn on_tick(&mut self) {}
@@ -264,19 +304,28 @@ pub trait StreamContext: Context {
     }
 
     fn get_downstream_data(&self, start: usize, max_size: usize) -> Option<Bytes> {
-        hostcalls::get_buffer(BufferType::DownstreamData, start, max_size).unwrap()
+        hostcalls::get_buffer(BufferType::DownstreamData, start, max_size).unwrap_or_else(|e| {
+            error!("[get_downstream_data] err is {:?}",e);
+            None
+        })
     }
 
     fn set_downstream_data(&self, start: usize, size: usize, value: &[u8]) {
-        hostcalls::set_buffer(BufferType::DownstreamData, start, size, value).unwrap()
+        hostcalls::set_buffer(BufferType::DownstreamData, start, size, value).unwrap_or_else(|e| {
+            error!("[set_downstream_data] err is {:?}",e);
+        })
     }
 
     fn resume_downstream(&self) {
-        hostcalls::resume_downstream().unwrap()
+        hostcalls::resume_downstream().unwrap_or_else(|e| {
+            error!("[resume_downstream] err is {:?}",e);
+        })
     }
 
     fn close_downstream(&self) {
-        hostcalls::close_downstream().unwrap()
+        hostcalls::close_downstream().unwrap_or_else(|e| {
+            error!("[close_downstream] err is {:?}",e);
+        })
     }
 
     fn on_downstream_close(&mut self, _peer_type: PeerType) {}
@@ -286,19 +335,28 @@ pub trait StreamContext: Context {
     }
 
     fn get_upstream_data(&self, start: usize, max_size: usize) -> Option<Bytes> {
-        hostcalls::get_buffer(BufferType::UpstreamData, start, max_size).unwrap()
+        hostcalls::get_buffer(BufferType::UpstreamData, start, max_size).unwrap_or_else(|e| {
+            error!("[get_upstream_data] err is {:?}",e);
+            None
+        })
     }
 
     fn set_upstream_data(&self, start: usize, size: usize, value: &[u8]) {
-        hostcalls::set_buffer(BufferType::UpstreamData, start, size, value).unwrap()
+        hostcalls::set_buffer(BufferType::UpstreamData, start, size, value).unwrap_or_else(|e| {
+            error!("[set_upstream_data] err is {:?}",e);
+        })
     }
 
     fn resume_upstream(&self) {
-        hostcalls::resume_upstream().unwrap()
+        hostcalls::resume_upstream().unwrap_or_else(|e| {
+            error!("[resume_upstream] err is {:?}",e);
+        })
     }
 
     fn close_upstream(&self) {
-        hostcalls::close_upstream().unwrap()
+        hostcalls::close_upstream().unwrap_or_else(|e| {
+            error!("[close_upstream] err is {:?}",e);
+        })
     }
 
     fn on_upstream_close(&mut self, _peer_type: PeerType) {}
@@ -312,43 +370,67 @@ pub trait HttpContext: Context {
     }
 
     fn get_http_request_headers(&self) -> Vec<(String, String)> {
-        hostcalls::get_map(MapType::HttpRequestHeaders).unwrap()
+        hostcalls::get_map(MapType::HttpRequestHeaders).unwrap_or_else(|e| {
+            error!("get_map http_request_headers error: {:?} so return new vec", e);
+            Vec::new()
+        })
     }
 
     fn get_http_request_headers_bytes(&self) -> Vec<(String, Bytes)> {
-        hostcalls::get_map_bytes(MapType::HttpRequestHeaders).unwrap()
+        hostcalls::get_map_bytes(MapType::HttpRequestHeaders).unwrap_or_else(|e| {
+            error!("get_map http_request_headers error: {:?} so return new vec", e);
+            Vec::new()
+        })
     }
 
     fn set_http_request_headers(&self, headers: Vec<(&str, &str)>) {
-        hostcalls::set_map(MapType::HttpRequestHeaders, headers).unwrap()
+        hostcalls::set_map(MapType::HttpRequestHeaders, headers).unwrap_or_else(|e| {
+            error!("set_map http_request_headers error: {:?} so return new vec", e);
+        })
     }
 
     fn set_http_request_headers_bytes(&self, headers: Vec<(&str, &[u8])>) {
-        hostcalls::set_map_bytes(MapType::HttpRequestHeaders, headers).unwrap()
+        hostcalls::set_map_bytes(MapType::HttpRequestHeaders, headers).unwrap_or_else(|e| {
+            error!("set_map http_request_headers error: {:?} so return new vec", e);
+        })
     }
 
     fn get_http_request_header(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpRequestHeaders, name).unwrap()
+        hostcalls::get_map_value(MapType::HttpRequestHeaders, name).unwrap_or_else(|e| {
+            error!("get_http_request_header failed for http request: {:?}", e);
+            None
+        })
     }
 
     fn get_http_request_header_bytes(&self, name: &str) -> Option<Bytes> {
-        hostcalls::get_map_value_bytes(MapType::HttpRequestHeaders, name).unwrap()
+        hostcalls::get_map_value_bytes(MapType::HttpRequestHeaders, name).unwrap_or_else(|e| {
+            error!("get_http_request_header failed for http request: {:?}", e);
+            None
+        })
     }
 
     fn set_http_request_header(&self, name: &str, value: Option<&str>) {
-        hostcalls::set_map_value(MapType::HttpRequestHeaders, name, value).unwrap()
+        hostcalls::set_map_value(MapType::HttpRequestHeaders, name, value).unwrap_or_else(|e| {
+            error!("set_http_request_header failed for http request: {:?}", e);
+        })
     }
 
     fn set_http_request_header_bytes(&self, name: &str, value: Option<&[u8]>) {
-        hostcalls::set_map_value_bytes(MapType::HttpRequestHeaders, name, value).unwrap()
+        hostcalls::set_map_value_bytes(MapType::HttpRequestHeaders, name, value).unwrap_or_else(|e| {
+            error!("set_http_request_header failed for http request: {:?}", e);
+        })
     }
 
     fn add_http_request_header(&self, name: &str, value: &str) {
-        hostcalls::add_map_value(MapType::HttpRequestHeaders, name, value).unwrap()
+        hostcalls::add_map_value(MapType::HttpRequestHeaders, name, value).unwrap_or_else(|e| {
+            error!("add_http_request_header failed for http request: {:?}", e);
+        })
     }
 
     fn add_http_request_header_bytes(&self, name: &str, value: &[u8]) {
-        hostcalls::add_map_value_bytes(MapType::HttpRequestHeaders, name, value).unwrap()
+        hostcalls::add_map_value_bytes(MapType::HttpRequestHeaders, name, value).unwrap_or_else(|e| {
+            error!("add_http_request_header failed for http request: {:?}", e);
+        })
     }
 
     fn on_http_request_body(&mut self, _body_size: usize, _end_of_stream: bool) -> Action {
@@ -356,11 +438,16 @@ pub trait HttpContext: Context {
     }
 
     fn get_http_request_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
-        hostcalls::get_buffer(BufferType::HttpRequestBody, start, max_size).unwrap()
+        hostcalls::get_buffer(BufferType::HttpRequestBody, start, max_size).unwrap_or_else(|e| {
+            error!("get_http_request_body error: {:?} so return new vec", e);
+            None
+        })
     }
 
     fn set_http_request_body(&self, start: usize, size: usize, value: &[u8]) {
-        hostcalls::set_buffer(BufferType::HttpRequestBody, start, size, value).unwrap()
+        hostcalls::set_buffer(BufferType::HttpRequestBody, start, size, value).unwrap_or_else(|e| {
+            error!("set_http_request_body error: {:?} so return new vec", e);
+        })
     }
 
     fn on_http_request_trailers(&mut self, _num_trailers: usize) -> Action {
@@ -368,51 +455,77 @@ pub trait HttpContext: Context {
     }
 
     fn get_http_request_trailers(&self) -> Vec<(String, String)> {
-        hostcalls::get_map(MapType::HttpRequestTrailers).unwrap()
+        hostcalls::get_map(MapType::HttpRequestTrailers).unwrap_or_else(|e| {
+            error!("get_http_request_trailers error: {:?} so return new vec", e);
+            Vec::new()
+        })
     }
 
     fn get_http_request_trailers_bytes(&self) -> Vec<(String, Bytes)> {
-        hostcalls::get_map_bytes(MapType::HttpRequestTrailers).unwrap()
+        hostcalls::get_map_bytes(MapType::HttpRequestTrailers).unwrap_or_else(|e| {
+            error!("get_http_request_trailers error: {:?} so return new vec", e);
+            Vec::new()
+        })
     }
 
     fn set_http_request_trailers(&self, trailers: Vec<(&str, &str)>) {
-        hostcalls::set_map(MapType::HttpRequestTrailers, trailers).unwrap()
+        hostcalls::set_map(MapType::HttpRequestTrailers, trailers).unwrap_or_else(|e| {
+            error!("set_http_request_trailers error: {:?} so return new vec", e);
+        })
     }
 
     fn set_http_request_trailers_bytes(&self, trailers: Vec<(&str, &[u8])>) {
-        hostcalls::set_map_bytes(MapType::HttpRequestTrailers, trailers).unwrap()
+        hostcalls::set_map_bytes(MapType::HttpRequestTrailers, trailers).unwrap_or_else(|e| {
+            error!("set_http_request_trailers error: {:?} so return new vec", e);
+        })
     }
 
     fn get_http_request_trailer(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpRequestTrailers, name).unwrap()
+        hostcalls::get_map_value(MapType::HttpRequestTrailers, name).unwrap_or_else(|e| {
+            error!("get_http_request_trailer failed for http request: {:?}", e);
+            None
+        })
     }
 
     fn get_http_request_trailer_bytes(&self, name: &str) -> Option<Bytes> {
-        hostcalls::get_map_value_bytes(MapType::HttpRequestTrailers, name).unwrap()
+        hostcalls::get_map_value_bytes(MapType::HttpRequestTrailers, name).unwrap_or_else(|e| {
+            error!("get_http_request_trailer failed for http request: {:?}", e);
+            None
+        })
     }
 
     fn set_http_request_trailer(&self, name: &str, value: Option<&str>) {
-        hostcalls::set_map_value(MapType::HttpRequestTrailers, name, value).unwrap()
+        hostcalls::set_map_value(MapType::HttpRequestTrailers, name, value).unwrap_or_else(|e| {
+            error!("set_http_request_trailer failed for http request: {:?}", e);
+        })
     }
 
     fn set_http_request_trailer_bytes(&self, name: &str, value: Option<&[u8]>) {
-        hostcalls::set_map_value_bytes(MapType::HttpRequestTrailers, name, value).unwrap()
+        hostcalls::set_map_value_bytes(MapType::HttpRequestTrailers, name, value).unwrap_or_else(|e| {
+            error!("set_http_request_trailer failed for http request: {:?}", e);
+        })
     }
 
     fn add_http_request_trailer(&self, name: &str, value: &str) {
-        hostcalls::add_map_value(MapType::HttpRequestTrailers, name, value).unwrap()
+        hostcalls::add_map_value(MapType::HttpRequestTrailers, name, value).unwrap_or_else(|e| {
+            error!("add_http_request_trailer failed for http request: {:?}", e);
+        })
     }
 
     fn add_http_request_trailer_bytes(&self, name: &str, value: &[u8]) {
-        hostcalls::add_map_value_bytes(MapType::HttpRequestTrailers, name, value).unwrap()
+        hostcalls::add_map_value_bytes(MapType::HttpRequestTrailers, name, value).unwrap_or_else(|e| {
+            error!("add_http_request_trailer failed for http request: {:?}", e);
+        })
     }
 
-    fn resume_http_request(&self) {
-        hostcalls::resume_http_request().unwrap()
+    fn resume_http_request(&self) -> Result<(), Status>  {
+        hostcalls::resume_http_request()
     }
 
     fn reset_http_request(&self) {
-        hostcalls::reset_http_request().unwrap()
+        hostcalls::reset_http_request().unwrap_or_else(|e| {
+            error!("reset_http_request error: {:?}", e);
+        })
     }
 
     fn on_http_response_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
@@ -420,43 +533,67 @@ pub trait HttpContext: Context {
     }
 
     fn get_http_response_headers(&self) -> Vec<(String, String)> {
-        hostcalls::get_map(MapType::HttpResponseHeaders).unwrap()
+        hostcalls::get_map(MapType::HttpResponseHeaders).unwrap_or_else(|e| {
+            error!("get_map http_request_headers error: {:?} so return new vec", e);
+            Vec::new()
+        })
     }
 
     fn get_http_response_headers_bytes(&self) -> Vec<(String, Bytes)> {
-        hostcalls::get_map_bytes(MapType::HttpResponseHeaders).unwrap()
+        hostcalls::get_map_bytes(MapType::HttpResponseHeaders).unwrap_or_else(|e|{
+            error!("get_http_response_headers error: {:?} so return new vec", e);
+            Vec::new()
+        })
     }
 
     fn set_http_response_headers(&self, headers: Vec<(&str, &str)>) {
-        hostcalls::set_map(MapType::HttpResponseHeaders, headers).unwrap()
+        hostcalls::set_map(MapType::HttpResponseHeaders, headers).unwrap_or_else(|e| {
+            error!("set_http_response_headers error: {:?} so return new vec", e);
+        })
     }
 
     fn set_http_response_headers_bytes(&self, headers: Vec<(&str, &[u8])>) {
-        hostcalls::set_map_bytes(MapType::HttpResponseHeaders, headers).unwrap()
+        hostcalls::set_map_bytes(MapType::HttpResponseHeaders, headers).unwrap_or_else(|e| {
+            error!("set_http_response_headers error: {:?} so return new vec", e);
+        })
     }
 
     fn get_http_response_header(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpResponseHeaders, name).unwrap()
+        hostcalls::get_map_value(MapType::HttpResponseHeaders, name).unwrap_or_else(|e| {
+            error!("get_http_response_headers error: {:?} so return new vec", e);
+            None
+        })
     }
 
     fn get_http_response_header_bytes(&self, name: &str) -> Option<Bytes> {
-        hostcalls::get_map_value_bytes(MapType::HttpResponseHeaders, name).unwrap()
+        hostcalls::get_map_value_bytes(MapType::HttpResponseHeaders, name).unwrap_or_else(|e| {
+            error!("get_http_response_headers error: {:?} so return new vec", e);
+            None
+        })
     }
 
     fn set_http_response_header(&self, name: &str, value: Option<&str>) {
-        hostcalls::set_map_value(MapType::HttpResponseHeaders, name, value).unwrap()
+        hostcalls::set_map_value(MapType::HttpResponseHeaders, name, value).unwrap_or_else(|e| {
+            error!("set_http_response_header failed for http request: {:?}", e);
+        })
     }
 
     fn set_http_response_header_bytes(&self, name: &str, value: Option<&[u8]>) {
-        hostcalls::set_map_value_bytes(MapType::HttpResponseHeaders, name, value).unwrap()
+        hostcalls::set_map_value_bytes(MapType::HttpResponseHeaders, name, value).unwrap_or_else(|e| {
+            error!("set_http_response_header failed for http request: {:?}", e);
+        })
     }
 
     fn add_http_response_header(&self, name: &str, value: &str) {
-        hostcalls::add_map_value(MapType::HttpResponseHeaders, name, value).unwrap()
+        hostcalls::add_map_value(MapType::HttpResponseHeaders, name, value).unwrap_or_else(|e| {
+            error!("add_http_response_header failed for http request: {:?}", e);
+        })
     }
 
     fn add_http_response_header_bytes(&self, name: &str, value: &[u8]) {
-        hostcalls::add_map_value_bytes(MapType::HttpResponseHeaders, name, value).unwrap()
+        hostcalls::add_map_value_bytes(MapType::HttpResponseHeaders, name, value).unwrap_or_else(|e| {
+            error!("add_http_response_header_bytes failed for http request: {:?}", e);
+        })
     }
 
     fn on_http_response_body(&mut self, _body_size: usize, _end_of_stream: bool) -> Action {
@@ -464,11 +601,16 @@ pub trait HttpContext: Context {
     }
 
     fn get_http_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
-        hostcalls::get_buffer(BufferType::HttpResponseBody, start, max_size).unwrap()
+        hostcalls::get_buffer(BufferType::HttpResponseBody, start, max_size).unwrap_or_else(|e|{
+            error!("get_http_response_body error: {:?} so return new vec", e);
+            None
+        })
     }
 
     fn set_http_response_body(&self, start: usize, size: usize, value: &[u8]) {
-        hostcalls::set_buffer(BufferType::HttpResponseBody, start, size, value).unwrap()
+        hostcalls::set_buffer(BufferType::HttpResponseBody, start, size, value).unwrap_or_else(|e| {
+            error!("set_http_response_body error: {:?} so return new vec", e);
+        })
     }
 
     fn on_http_response_trailers(&mut self, _num_trailers: usize) -> Action {
@@ -476,51 +618,79 @@ pub trait HttpContext: Context {
     }
 
     fn get_http_response_trailers(&self) -> Vec<(String, String)> {
-        hostcalls::get_map(MapType::HttpResponseTrailers).unwrap()
+        hostcalls::get_map(MapType::HttpResponseTrailers).unwrap_or_else(|e| {
+            error!("get_http_response_trailers error: {:?} so return new vec", e);
+            Vec::new()
+        })
     }
 
     fn get_http_response_trailers_bytes(&self) -> Vec<(String, Bytes)> {
-        hostcalls::get_map_bytes(MapType::HttpResponseTrailers).unwrap()
+        hostcalls::get_map_bytes(MapType::HttpResponseTrailers).unwrap_or_else(|e| {
+            error!("get_http_response_trailers error: {:?} so return new vec", e);
+            Vec::new()
+        })
     }
 
     fn set_http_response_trailers(&self, trailers: Vec<(&str, &str)>) {
-        hostcalls::set_map(MapType::HttpResponseTrailers, trailers).unwrap()
+        hostcalls::set_map(MapType::HttpResponseTrailers, trailers).unwrap_or_else(|e| {
+            error!("set_http_response_trailers error: {:?} so return new vec", e);
+        })
     }
 
     fn set_http_response_trailers_bytes(&self, trailers: Vec<(&str, &[u8])>) {
-        hostcalls::set_map_bytes(MapType::HttpResponseTrailers, trailers).unwrap()
+        hostcalls::set_map_bytes(MapType::HttpResponseTrailers, trailers).unwrap_or_else(|e| {
+            error!("set_http_response_trailers error: {:?} so return new vec", e);
+        })
     }
 
     fn get_http_response_trailer(&self, name: &str) -> Option<String> {
-        hostcalls::get_map_value(MapType::HttpResponseTrailers, name).unwrap()
+        hostcalls::get_map_value(MapType::HttpResponseTrailers, name).unwrap_or_else(|e| {
+            error!("get_http_response_trailer failed: {:?} so return new vec", e);
+            None
+        })
     }
 
     fn get_http_response_trailer_bytes(&self, name: &str) -> Option<Bytes> {
-        hostcalls::get_map_value_bytes(MapType::HttpResponseTrailers, name).unwrap()
+        hostcalls::get_map_value_bytes(MapType::HttpResponseTrailers, name).unwrap_or_else(|e| {
+            error!("get_http_response_trailer failed: {:?} so return new vec", e);
+            None
+        })
     }
 
     fn set_http_response_trailer(&self, name: &str, value: Option<&str>) {
-        hostcalls::set_map_value(MapType::HttpResponseTrailers, name, value).unwrap()
+        hostcalls::set_map_value(MapType::HttpResponseTrailers, name, value).unwrap_or_else(|e| {
+            error!("set_http_response_trailer failed: {:?} so return new vec", e);
+        })
     }
 
     fn set_http_response_trailer_bytes(&self, name: &str, value: Option<&[u8]>) {
-        hostcalls::set_map_value_bytes(MapType::HttpResponseTrailers, name, value).unwrap()
+        hostcalls::set_map_value_bytes(MapType::HttpResponseTrailers, name, value).unwrap_or_else(|e| {
+            error!("set_http_response_trailer failed: {:?} so return new vec", e);
+        })
     }
 
     fn add_http_response_trailer(&self, name: &str, value: &str) {
-        hostcalls::add_map_value(MapType::HttpResponseTrailers, name, value).unwrap()
+        hostcalls::add_map_value(MapType::HttpResponseTrailers, name, value).unwrap_or_else(|e| {
+            error!("add_http_response_trailer failed: {:?} so return new vec", e);
+        })
     }
 
     fn add_http_response_trailer_bytes(&self, name: &str, value: &[u8]) {
-        hostcalls::add_map_value_bytes(MapType::HttpResponseTrailers, name, value).unwrap()
+        hostcalls::add_map_value_bytes(MapType::HttpResponseTrailers, name, value).unwrap_or_else(|e| {
+            error!("add_http_response_trailer failed: {:?} so return new vec", e);
+        })
     }
 
     fn resume_http_response(&self) {
-        hostcalls::resume_http_response().unwrap()
+        hostcalls::resume_http_response().unwrap_or_else(|e| {
+            error!("resume_http_response failed: {:?} so return new vec", e);
+        })
     }
 
     fn reset_http_response(&self) {
-        hostcalls::reset_http_response().unwrap()
+        hostcalls::reset_http_response().unwrap_or_else(|e| {
+            error!("reset_http_response failed: {:?} so return new vec", e);
+        })
     }
 
     fn send_http_response(
@@ -529,7 +699,9 @@ pub trait HttpContext: Context {
         headers: Vec<(&str, &str)>,
         body: Option<&[u8]>,
     ) {
-        hostcalls::send_http_response(status_code, headers, body).unwrap()
+        hostcalls::send_http_response(status_code, headers, body).unwrap_or_else(|e| {
+            error!("send_http_response failed: {:?} so return new vec", e);
+        })
     }
 
     fn send_grpc_response(
@@ -538,7 +710,9 @@ pub trait HttpContext: Context {
         grpc_status_message: Option<&str>,
         custom_metadata: Vec<(&str, &[u8])>,
     ) {
-        hostcalls::send_grpc_response(grpc_status, grpc_status_message, custom_metadata).unwrap()
+        hostcalls::send_grpc_response(grpc_status, grpc_status_message, custom_metadata).unwrap_or_else(|e| {
+            error!("send_grpc_response failed: {:?} so return new vec", e);
+        })
     }
 
     fn on_log(&mut self) {}
