@@ -16,6 +16,7 @@ use crate::dispatcher;
 use crate::types::*;
 use std::ptr::{null, null_mut};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use log::error;
 
 extern "C" {
     fn proxy_log(level: LogLevel, message_data: *const u8, message_size: usize) -> Status;
@@ -25,7 +26,10 @@ pub fn log(level: LogLevel, message: &str) -> Result<(), Status> {
     unsafe {
         match proxy_log(level, message.as_ptr(), message.len()) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[log] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -39,7 +43,10 @@ pub fn get_log_level() -> Result<LogLevel, Status> {
     unsafe {
         match proxy_get_log_level(&mut return_level) {
             Status::Ok => Ok(return_level),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[get_log_level] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -53,7 +60,10 @@ pub fn get_current_time() -> Result<SystemTime, Status> {
     unsafe {
         match proxy_get_current_time_nanoseconds(&mut return_time) {
             Status::Ok => Ok(UNIX_EPOCH + Duration::from_nanos(return_time)),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[get_current_time] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -66,7 +76,10 @@ pub fn set_tick_period(period: Duration) -> Result<(), Status> {
     unsafe {
         match proxy_set_tick_period_milliseconds(period.as_millis() as u32) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[set_tick_period] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -108,7 +121,10 @@ pub fn get_buffer(
                 }
             }
             Status::NotFound => Ok(None),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -132,7 +148,10 @@ pub fn set_buffer(
     unsafe {
         match proxy_set_buffer_bytes(buffer_type, start, size, value.as_ptr(), value.len()) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[set_buffer] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -158,7 +177,10 @@ pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
                     Ok(Vec::new())
                 }
             }
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[get_map] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -176,7 +198,10 @@ pub fn get_map_bytes(map_type: MapType) -> Result<Vec<(String, Bytes)>, Status> 
                     Ok(Vec::new())
                 }
             }
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -194,7 +219,10 @@ pub fn set_map(map_type: MapType, map: Vec<(&str, &str)>) -> Result<(), Status> 
     unsafe {
         match proxy_set_header_map_pairs(map_type, serialized_map.as_ptr(), serialized_map.len()) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[set_map] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -204,7 +232,10 @@ pub fn set_map_bytes(map_type: MapType, map: Vec<(&str, &[u8])>) -> Result<(), S
     unsafe {
         match proxy_set_header_map_pairs(map_type, serialized_map.as_ptr(), serialized_map.len()) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[set_map_bytes] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -220,8 +251,9 @@ extern "C" {
 }
 
 pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<String>, Status> {
-    let mut return_data: *mut u8 = null_mut();
+    let mut return_data: *mut u8 = std::ptr::null_mut();
     let mut return_size: usize = 0;
+
     unsafe {
         match proxy_get_header_map_value(
             map_type,
@@ -232,20 +264,24 @@ pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<String>, Sta
         ) {
             Status::Ok => {
                 if !return_data.is_null() {
-                    Ok(Some(
-                        String::from_utf8(Vec::from_raw_parts(
-                            return_data,
-                            return_size,
-                            return_size,
-                        ))
-                        .unwrap(),
-                    ))
+                    // Try to convert raw bytes to UTF-8 string
+                    let vec = Vec::from_raw_parts(return_data, return_size, return_size);
+                    match String::from_utf8(vec) {
+                        Ok(string) => Ok(Some(string)),  // Successfully converted to String
+                        Err(e) => {
+                            error!("[get_map_value] Failed to convert to UTF-8 string: {}", e);
+                            Err(Status::SerializationFailure) // Return an appropriate error
+                        }
+                    }
                 } else {
                     Ok(None)
                 }
             }
             Status::NotFound => Ok(None),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -273,7 +309,10 @@ pub fn get_map_value_bytes(map_type: MapType, key: &str) -> Result<Option<Bytes>
                 }
             }
             Status::NotFound => Ok(None),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -307,12 +346,18 @@ pub fn set_map_value(map_type: MapType, key: &str, value: Option<&str>) -> Resul
                 value.len(),
             ) {
                 Status::Ok => Ok(()),
-                status => panic!("unexpected status: {}", status as u32),
+                status => {
+                    error!("[set_map_value] unexpected status: {}", status as u32);
+                    Err(status)
+                },
             }
         } else {
             match proxy_remove_header_map_value(map_type, key.as_ptr(), key.len()) {
                 Status::Ok => Ok(()),
-                status => panic!("unexpected status: {}", status as u32),
+                status => {
+                    error!("[set_map_value] unexpected status: {}", status as u32);
+                    Err(status)
+                },
             }
         }
     }
@@ -333,12 +378,18 @@ pub fn set_map_value_bytes(
                 value.len(),
             ) {
                 Status::Ok => Ok(()),
-                status => panic!("unexpected status: {}", status as u32),
+                status => {
+                    error!("[set_map_value_bytes] unexpected status: {}", status as u32);
+                    Err(status)
+                },
             }
         } else {
             match proxy_remove_header_map_value(map_type, key.as_ptr(), key.len()) {
                 Status::Ok => Ok(()),
-                status => panic!("unexpected status: {}", status as u32),
+                status => {
+                    error!("[set_map_value_bytes] unexpected status: {}", status as u32);
+                    Err(status)
+                },
             }
         }
     }
@@ -364,7 +415,10 @@ pub fn add_map_value(map_type: MapType, key: &str, value: &str) -> Result<(), St
             value.len(),
         ) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[add_map_value] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -379,7 +433,10 @@ pub fn add_map_value_bytes(map_type: MapType, key: &str, value: &[u8]) -> Result
             value.len(),
         ) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[add_map_value_bytes] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -418,7 +475,10 @@ pub fn get_property(path: Vec<&str>) -> Result<Option<Bytes>, Status> {
             Status::NotFound => Ok(None),
             Status::SerializationFailure => Err(Status::SerializationFailure),
             Status::InternalFailure => Err(Status::InternalFailure),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[get_property] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -442,7 +502,10 @@ pub fn set_property(path: Vec<&str>, value: Option<&[u8]>) -> Result<(), Status>
             value.map_or(0, |value| value.len()),
         ) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[set_property] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -484,7 +547,10 @@ pub fn get_shared_data(key: &str) -> Result<(Option<Bytes>, Option<u32>), Status
                 }
             }
             Status::NotFound => Ok((None, None)),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[get_shared_data] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -510,7 +576,10 @@ pub fn set_shared_data(key: &str, value: Option<&[u8]>, cas: Option<u32>) -> Res
         ) {
             Status::Ok => Ok(()),
             Status::CasMismatch => Err(Status::CasMismatch),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[set_shared_data] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -528,7 +597,10 @@ pub fn register_shared_queue(name: &str) -> Result<u32, Status> {
         let mut return_id: u32 = 0;
         match proxy_register_shared_queue(name.as_ptr(), name.len(), &mut return_id) {
             Status::Ok => Ok(return_id),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[register_shared_queue] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -555,7 +627,10 @@ pub fn resolve_shared_queue(vm_id: &str, name: &str) -> Result<Option<u32>, Stat
         ) {
             Status::Ok => Ok(Some(return_id)),
             Status::NotFound => Ok(None),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[resolve_shared_queue] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -586,7 +661,10 @@ pub fn dequeue_shared_queue(queue_id: u32) -> Result<Option<Bytes>, Status> {
             }
             Status::Empty => Ok(None),
             Status::NotFound => Err(Status::NotFound),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[dequeue_shared_queue] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -608,7 +686,10 @@ pub fn enqueue_shared_queue(queue_id: u32, value: Option<&[u8]>) -> Result<(), S
         ) {
             Status::Ok => Ok(()),
             Status::NotFound => Err(Status::NotFound),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[enqueue_shared_queue] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -621,7 +702,10 @@ pub fn resume_downstream() -> Result<(), Status> {
     unsafe {
         match proxy_continue_stream(StreamType::Downstream) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status =>{
+                error!("[resume_downstream] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -630,7 +714,10 @@ pub fn resume_upstream() -> Result<(), Status> {
     unsafe {
         match proxy_continue_stream(StreamType::Upstream) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[resume_upstream] unexpected status: {}", status as u32);
+                Err(status)
+            }
         }
     }
 }
@@ -639,7 +726,10 @@ pub fn resume_http_request() -> Result<(), Status> {
     unsafe {
         match proxy_continue_stream(StreamType::HttpRequest) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[resume_http_request] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -648,7 +738,10 @@ pub fn resume_http_response() -> Result<(), Status> {
     unsafe {
         match proxy_continue_stream(StreamType::HttpResponse) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[resume_http_response] unexpected status: {}", status as u32);
+                Err(status)
+            }
         }
     }
 }
@@ -661,7 +754,10 @@ pub fn close_downstream() -> Result<(), Status> {
     unsafe {
         match proxy_close_stream(StreamType::Downstream) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status =>{
+                error!("[close_downstream] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -669,7 +765,10 @@ pub fn close_upstream() -> Result<(), Status> {
     unsafe {
         match proxy_close_stream(StreamType::Upstream) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[close_upstream] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -678,7 +777,10 @@ pub fn reset_http_request() -> Result<(), Status> {
     unsafe {
         match proxy_close_stream(StreamType::HttpRequest) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[reset_http_request] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -687,7 +789,10 @@ pub fn reset_http_response() -> Result<(), Status> {
     unsafe {
         match proxy_close_stream(StreamType::HttpResponse) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[reset_http_response] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -723,7 +828,10 @@ pub fn send_http_response(
             -1,
         ) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[send_http_response] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -746,7 +854,10 @@ pub fn send_grpc_response(
             grpc_status as i32,
         ) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[send_grpc_response] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -795,7 +906,10 @@ pub fn dispatch_http_call(
             }
             Status::BadArgument => Err(Status::BadArgument),
             Status::InternalFailure => Err(Status::InternalFailure),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -848,7 +962,10 @@ pub fn dispatch_grpc_call(
             }
             Status::ParseFailure => Err(Status::ParseFailure),
             Status::InternalFailure => Err(Status::InternalFailure),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -893,7 +1010,10 @@ pub fn open_grpc_stream(
             }
             Status::ParseFailure => Err(Status::ParseFailure),
             Status::InternalFailure => Err(Status::InternalFailure),
-            status => panic!("unexpected status: {}", status as u32),
+            status =>{
+                error!("[open_grpc_stream] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -922,7 +1042,10 @@ pub fn send_grpc_stream_message(
             Status::Ok => Ok(()),
             Status::BadArgument => Err(Status::BadArgument),
             Status::NotFound => Err(Status::NotFound),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[send_grpc_stream_message] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -936,7 +1059,10 @@ pub fn cancel_grpc_call(token_id: u32) -> Result<(), Status> {
         match proxy_grpc_cancel(token_id) {
             Status::Ok => Ok(()),
             Status::NotFound => Err(Status::NotFound),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -946,7 +1072,10 @@ pub fn cancel_grpc_stream(token_id: u32) -> Result<(), Status> {
         match proxy_grpc_cancel(token_id) {
             Status::Ok => Ok(()),
             Status::NotFound => Err(Status::NotFound),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -960,7 +1089,10 @@ pub fn close_grpc_stream(token_id: u32) -> Result<(), Status> {
         match proxy_grpc_close(token_id) {
             Status::Ok => Ok(()),
             Status::NotFound => Err(Status::NotFound),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[proxy_grpc_close] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -981,22 +1113,25 @@ pub fn get_grpc_status() -> Result<(u32, Option<String>), Status> {
         match proxy_get_status(&mut return_code, &mut return_data, &mut return_size) {
             Status::Ok => {
                 if !return_data.is_null() {
-                    Ok((
-                        return_code,
-                        Some(
-                            String::from_utf8(Vec::from_raw_parts(
-                                return_data,
-                                return_size,
-                                return_size,
-                            ))
-                            .unwrap(),
-                        ),
-                    ))
+                    match String::from_utf8(Vec::from_raw_parts(
+                        return_data,
+                        return_size,
+                        return_size,
+                    )) {
+                        Ok(return_data) => Ok((return_code, Some(return_data))),
+                        Err(e) => {
+                            error!("failed to parse grpc_status: {}", e);
+                            Err(Status::InternalFailure)
+                        }
+                    }
                 } else {
                     Ok((return_code, None))
                 }
             }
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -1010,7 +1145,10 @@ pub fn set_effective_context(context_id: u32) -> Result<(), Status> {
         match proxy_set_effective_context(context_id) {
             Status::Ok => Ok(()),
             Status::BadArgument => Err(Status::BadArgument),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[set_effective_context] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -1056,7 +1194,10 @@ pub fn call_foreign_function(
             Status::BadArgument => Err(Status::BadArgument),
             Status::SerializationFailure => Err(Status::SerializationFailure),
             Status::InternalFailure => Err(Status::InternalFailure),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[call_foreign_function] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -1069,7 +1210,10 @@ pub fn done() -> Result<(), Status> {
     unsafe {
         match proxy_done() {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[done] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -1088,7 +1232,10 @@ pub fn define_metric(metric_type: MetricType, name: &str) -> Result<u32, Status>
     unsafe {
         match proxy_define_metric(metric_type, name.as_ptr(), name.len(), &mut return_id) {
             Status::Ok => Ok(return_id),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[define_metric] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -1104,7 +1251,10 @@ pub fn get_metric(metric_id: u32) -> Result<u64, Status> {
             Status::Ok => Ok(return_value),
             Status::NotFound => Err(Status::NotFound),
             Status::BadArgument => Err(Status::BadArgument),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[get_metric] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -1118,7 +1268,10 @@ pub fn record_metric(metric_id: u32, value: u64) -> Result<(), Status> {
         match proxy_record_metric(metric_id, value) {
             Status::Ok => Ok(()),
             Status::NotFound => Err(Status::NotFound),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -1133,7 +1286,10 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
             Status::Ok => Ok(()),
             Status::NotFound => Err(Status::NotFound),
             Status::BadArgument => Err(Status::BadArgument),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                error!("[increment_metric] unexpected status: {}", status as u32);
+                Err(status)
+            },
         }
     }
 }
@@ -1141,6 +1297,7 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
 mod utils {
     use crate::types::Bytes;
     use std::convert::TryFrom;
+    use log::error;
 
     pub(super) fn serialize_property_path(path: Vec<&str>) -> Bytes {
         if path.is_empty() {
@@ -1199,48 +1356,189 @@ mod utils {
         bytes
     }
 
+
     pub(super) fn deserialize_map(bytes: &[u8]) -> Vec<(String, String)> {
         let mut map = Vec::new();
+
+        // 如果数据为空，直接返回空的 Vec
         if bytes.is_empty() {
             return map;
         }
-        let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[0..4]).unwrap()) as usize;
+
+        // 确保数据至少有 4 个字节来读取大小信息
+        if bytes.len() < 4 {
+            error!("[deserialize_map] Insufficient bytes to extract size");
+            return map; // 数据不足，返回空的 Vec
+        }
+
+        // 尝试读取前 4 个字节作为大小信息
+        let size = match <[u8; 4]>::try_from(&bytes[0..4]) {
+            Ok(byte_array) => u32::from_le_bytes(byte_array) as usize,
+            Err(_) => {
+                error!("Failed to convert bytes to array when extracting size.");
+                return map; // 转换失败，返回空的 Vec
+            },
+        };
+
+        // 计算出初始偏移量 `p`
         let mut p = 4 + size * 8;
+
+        // 遍历每个键值对
         for n in 0..size {
             let s = 4 + n * 8;
-            let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s..s + 4]).unwrap()) as usize;
-            let key = bytes[p..p + size].to_vec();
-            p += size + 1;
-            let size =
-                u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s + 4..s + 8]).unwrap()) as usize;
-            let value = bytes[p..p + size].to_vec();
-            p += size + 1;
-            map.push((
-                String::from_utf8(key).unwrap(),
-                String::from_utf8(value).unwrap(),
-            ));
+
+            // 确保有足够的数据来处理当前条目
+            if bytes.len() < s + 8 || bytes.len() < p {
+                error!("Insufficient bytes to read key-value pair.");
+                return map;
+            }
+
+            // 读取 key 的大小
+            let key_size = match <[u8; 4]>::try_from(&bytes[s..s + 4]) {
+                Ok(byte_array) => u32::from_le_bytes(byte_array) as usize,
+                Err(_) => {
+                    error!("Failed to convert bytes to array when extracting key size.");
+                    return map;
+                },
+            };
+
+            // 确保有足够的字节用于 key
+            if bytes.len() < p + key_size {
+                error!("Insufficient bytes to read the key.");
+                return map;
+            }
+
+            // 提取 key 的字节数组
+            let key = bytes[p..p + key_size].to_vec();
+            p += key_size + 1; // 跳过 key 后的 '\0' 字节
+
+            // 读取 value 的大小
+            let value_size = match <[u8; 4]>::try_from(&bytes[s + 4..s + 8]) {
+                Ok(byte_array) => u32::from_le_bytes(byte_array) as usize,
+                Err(_) => {
+                    error!("Failed to convert bytes to array when extracting value size.");
+                    return map;
+                },
+            };
+
+            // 确保有足够的字节用于 value
+            if bytes.len() < p + value_size {
+                error!("Insufficient bytes to read the value.");
+                return map;
+            }
+
+            // 提取 value 的字节数组
+            let value = bytes[p..p + value_size].to_vec();
+            p += value_size + 1; // 跳过 value 后的 '\0' 字节
+
+            // 尝试将 key 和 value 转换为 String，处理转换失败的情况
+            let key_string = String::from_utf8(key).unwrap_or_else(|e| {
+                error!("Failed to convert key to String: {}", e);
+                String::new() // 或者根据你的需求返回默认值
+            });
+
+            let value_string = String::from_utf8(value).unwrap_or_else(|e| {
+                error!("Failed to convert value to String: {}", e);
+                String::new() // 或者根据你的需求返回默认值
+            });
+
+            // 将成功转换的键值对推入 map
+            map.push((key_string, value_string));
         }
         map
     }
 
     pub(super) fn deserialize_map_bytes(bytes: &[u8]) -> Vec<(String, Bytes)> {
         let mut map = Vec::new();
+
+        // 如果输入字节为空，直接返回空的 Vec
         if bytes.is_empty() {
             return map;
         }
-        let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[0..4]).unwrap()) as usize;
+
+        // 尝试读取前 4 个字节作为大小信息
+        let size = match <[u8; 4]>::try_from(&bytes[0..4]) {
+            Ok(byte_array) => u32::from_le_bytes(byte_array) as usize,
+            Err(_) => {
+                error!("Failed to read map size from bytes.");
+                return map;
+            }
+        };
+
         let mut p = 4 + size * 8;
+
+        // 遍历每个键值对
         for n in 0..size {
             let s = 4 + n * 8;
-            let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s..s + 4]).unwrap()) as usize;
-            let key = bytes[p..p + size].to_vec();
-            p += size + 1;
-            let size =
-                u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s + 4..s + 8]).unwrap()) as usize;
-            let value = bytes[p..p + size].to_vec();
-            p += size + 1;
-            map.push((String::from_utf8(key).unwrap(), value));
+
+            // 尝试读取键的大小
+            let key_size = match <[u8; 4]>::try_from(&bytes[s..s + 4]) {
+                Ok(byte_array) => u32::from_le_bytes(byte_array) as usize,
+                Err(_) => {
+                    error!("Failed to read key size from bytes.");
+                    return map;
+                }
+            };
+
+            // 确保有足够的字节来读取 key
+            if p + key_size > bytes.len() {
+                error!("Insufficient bytes to read key.");
+                return map;
+            }
+
+            let key = bytes[p..p + key_size].to_vec();
+            p += key_size + 1; // 跳过 key 后的 '\0' 字符
+
+            // 尝试读取值的大小
+            let value_size = match <[u8; 4]>::try_from(&bytes[s + 4..s + 8]) {
+                Ok(byte_array) => u32::from_le_bytes(byte_array) as usize,
+                Err(_) => {
+                    error!("Failed to read value size from bytes.");
+                    return map;
+                }
+            };
+
+            // 确保有足够的字节来读取 value
+            if p + value_size > bytes.len() {
+                error!("Insufficient bytes to read value.");
+                return map;
+            }
+
+            let value = bytes[p..p + value_size].to_vec();
+            p += value_size + 1; // 跳过 value 后的 '\0' 字符
+
+            // 尝试将 key 从字节转换为 UTF-8 字符串
+            match String::from_utf8(key) {
+                Ok(key_string) => map.push((key_string, Bytes::from(value))),
+                Err(e) => {
+                    error!("Failed to convert key to String: {}", e);
+                    return map;
+                }
+            }
         }
+
         map
     }
+
+    //
+    // pub(super) fn deserialize_map_bytes(bytes: &[u8]) -> Vec<(String, Bytes)> {
+    //     let mut map = Vec::new();
+    //     if bytes.is_empty() {
+    //         return map;
+    //     }
+    //     let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[0..4]).unwrap()) as usize;
+    //     let mut p = 4 + size * 8;
+    //     for n in 0..size {
+    //         let s = 4 + n * 8;
+    //         let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s..s + 4]).unwrap()) as usize;
+    //         let key = bytes[p..p + size].to_vec();
+    //         p += size + 1;
+    //         let size =
+    //             u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s + 4..s + 8]).unwrap()) as usize;
+    //         let value = bytes[p..p + size].to_vec();
+    //         p += size + 1;
+    //         map.push((String::from_utf8(key).unwrap(), value));
+    //     }
+    //     map
+    // }
 }
