@@ -72,10 +72,7 @@ pub trait Context {
     ///
     /// # Returns
     ///
-    /// * `OK` on success.
-    /// * `BAD_ARGUMENT` for unknown upstream, or when headers are missing required `:authority`, `:method` and/or `:path` values.
-    /// * `INTERNAL_FAILURE' when the host failed to send requested HTTP call.
-    /// * `INVALID_MEMORY_ACCESS` when `upstream_data`, `upstream_size`, `headers_data`, `headers_size`, `body_data`, `body_size`, `trailers_data`, `trailers_size` and/or `return_call_id` point to invalid memory address.
+    /// A Result containing the token id of the request, or an error status.
     ///
     /// # Example
     ///
@@ -130,13 +127,13 @@ pub trait Context {
         hostcalls::dispatch_http_call(upstream, headers, body, trailers, timeout)
     }
 
-    /// Called when HTTP response for call_id sent using proxy_http_call is received.
+    /// Called when HTTP response using `dispatch_http_call` is received.
     ///
     /// If `num_headers` is 0, then the HTTP call failed.
     ///
-    /// All `num_headers` headers can be retrieved using `self.get_http_response_headers()` or individually `self.get_http_response_header()`.
+    /// All headers can be retrieved using `self.get_http_response_headers()` or individually `self.get_http_response_header(name)`.
     ///
-    /// All `num_trailers` trailers can be retrieved using `self.get_http_response_trailers()` or individually `self.get_http_response_trailer()`.
+    /// All trailers can be retrieved using `self.get_http_response_trailers()` or individually `self.get_http_response_trailer(name)`.
     ///
     /// # Arguments
     ///
@@ -640,7 +637,7 @@ pub trait HttpContext: Context {
     ///
     /// Paused request can be resumed using `self.resume_http_request()` or closed using `self.reset_http_request()`.
     ///
-    /// Additionally, instead of forwarding request upstream, a HTTP response can be sent using `self.send_http_response()`.
+    /// Additionally, instead of forwarding requests upstream, a HTTP response can be sent using `self.send_http_response()`.
     ///
     /// # Arguments
     ///
@@ -722,7 +719,7 @@ pub trait HttpContext: Context {
         hostcalls::set_map_bytes(MapType::HttpRequestHeaders, headers).unwrap()
     }
 
-    /// Get a specific HTTP request header.
+    /// Get a specific HTTP request header by name.
     ///
     /// # Arguments
     ///
@@ -973,9 +970,9 @@ pub trait HttpContext: Context {
         hostcalls::reset_http_response().unwrap()
     }
 
-    /// Sends an HTTP response with the body and serialized headers.
+    /// Sends an HTTP response with the specified status code, headers, and body.
     ///
-    /// This can be used as long as HTTP response headers were not sent downstream.
+    /// This can be used as long as HTTP response headers were not sent downstream yet.
     ///
     /// # Arguments
     ///
@@ -1000,7 +997,7 @@ pub trait HttpContext: Context {
     ///       // Send an HTTP response with a status code of 200 and a body of "Hello, World!"
     ///       self.send_http_response(200, vec![("A header", "Some Value")], Some(b"Hello, World!"));
     ///     } else {
-    ///       // Send an HTTP response with a status code of 403 and a body of "Forbidden"
+    ///       // Send an HTTP response with a status code of 307, redirecting to authenticate-here.com, and a body of "Forbidden"
     ///       self.send_http_response(307, vec![("location", "https://authenticate-here.com")], Some(b"Forbidden"));
     ///     }
     ///
