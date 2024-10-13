@@ -134,6 +134,9 @@ jobs:
     - name: Package (docs)
       run: cargo doc --no-deps --target=wasm32-unknown-unknown
 
+    - name: Test (docs)
+      run: cargo test --doc
+
     - name: Package (publish)
       run: cargo publish --dry-run --target=wasm32-unknown-unknown
 
@@ -181,6 +184,9 @@ jobs:
 
     - name: Package (docs)
       run: cargo doc --no-deps --target=wasm32-unknown-unknown
+
+    - name: Test (docs)
+      run: cargo test --doc
 
     - name: Package (publish)
       run: cargo publish --dry-run --target=wasm32-unknown-unknown
@@ -230,6 +236,9 @@ jobs:
 
     - name: Package (docs)
       run: cargo doc --no-deps --target=wasm32-unknown-unknown
+
+    - name: Test (docs)
+      run: cargo test --doc
 
     - name: Package (publish)
       run: cargo publish --dry-run --target=wasm32-unknown-unknown
