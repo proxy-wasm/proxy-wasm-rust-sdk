@@ -131,9 +131,9 @@ pub trait Context {
     ///
     /// If `num_headers` is 0, then the HTTP call failed.
     ///
-    /// All headers can be retrieved using `self.get_http_response_headers()` or individually `self.get_http_response_header(name)`.
+    /// All headers can be retrieved using `self.get_http_call_response_headers()` or individually `self.get_http_call_response_header(name)`.
     ///
-    /// All trailers can be retrieved using `self.get_http_response_trailers()` or individually `self.get_http_response_trailer(name)`.
+    /// All trailers can be retrieved using `self.get_http_call_response_trailers()` or individually `self.get_http_call_response_trailer(name)`.
     ///
     /// # Arguments
     ///
@@ -365,11 +365,13 @@ pub trait RootContext: Context {
     ///         serde_json::from_slice::<MyVmConfiguration>(&vm_configuration).unwrap();
     ///
     ///     // Do something with the parsed vm configuration
-    ///     debug!("vm_configuration: {:?}", parsed_vm_configuration)
+    ///     debug!("vm_configuration: {:?}", parsed_vm_configuration);
     ///
     ///     true
     ///   }
     /// }
+    ///
+    /// # impl Context for MyRootContext {}
     /// ```
     fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
         true
@@ -404,11 +406,13 @@ pub trait RootContext: Context {
     ///         serde_json::from_slice::<MyVmConfiguration>(&vm_configuration).unwrap();
     ///
     ///     // Do something with the parsed vm configuration
-    ///     debug!("vm_configuration: {:?}", parsed_vm_configuration)
+    ///     debug!("vm_configuration: {:?}", parsed_vm_configuration);
     ///
     ///     true
     ///   }
     /// }
+    ///
+    /// # impl Context for MyRootContext {}
     /// ```
     fn get_vm_configuration(&self) -> Option<Bytes> {
         hostcalls::get_buffer(BufferType::VmConfiguration, 0, usize::MAX).unwrap()
@@ -448,11 +452,13 @@ pub trait RootContext: Context {
     ///         serde_json::from_slice::<MyPluginConfiguration>(&plugin_configuration).unwrap();
     ///
     ///     // Do something with the parsed plugin configuration
-    ///     debug!("plugin_configuration: {:?}", parsed_plugin_configuration)
+    ///     debug!("plugin_configuration: {:?}", parsed_plugin_configuration);
     ///
     ///     true
     ///   }
     /// }
+    ///
+    /// # impl Context for MyRootContext {}
     /// ```
     fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
         true
@@ -487,11 +493,13 @@ pub trait RootContext: Context {
     ///         serde_json::from_slice::<MyPluginConfiguration>(&plugin_configuration).unwrap();
     ///
     ///     // Do something with the parsed plugin configuration
-    ///     debug!("plugin_configuration: {:?}", parsed_plugin_configuration)
+    ///     debug!("plugin_configuration: {:?}", parsed_plugin_configuration);
     ///
     ///     true
     ///   }
     /// }
+    ///
+    /// # impl Context for MyRootContext {}
     /// ```
     fn get_plugin_configuration(&self) -> Option<Bytes> {
         hostcalls::get_buffer(BufferType::PluginConfiguration, 0, usize::MAX).unwrap()
@@ -525,6 +533,8 @@ pub trait RootContext: Context {
     ///     info!("tick!")
     ///   }
     /// }
+    ///
+    /// # impl Context for MyRootContext {}
     /// ```
     fn set_tick_period(&self, period: Duration) {
         hostcalls::set_tick_period(period).unwrap()
@@ -556,6 +566,8 @@ pub trait RootContext: Context {
     ///     info!("tick!")
     ///   }
     /// }
+    ///
+    /// # impl Context for MyRootContext {}
     /// ```
     fn on_tick(&mut self) {}
 
@@ -671,6 +683,8 @@ pub trait HttpContext: Context {
     ///     Action::Continue
     ///    }
     /// }
+    ///
+    /// # impl Context for MyPlugin {}
     /// ```
     fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
         Action::Continue
@@ -702,6 +716,8 @@ pub trait HttpContext: Context {
     ///     Action::Continue
     ///    }
     /// }
+    ///
+    /// # impl Context for MyPlugin {}
     /// ```
     fn get_http_request_headers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpRequestHeaders).unwrap()
@@ -732,7 +748,7 @@ pub trait HttpContext: Context {
     /// # Example
     ///
     /// ```rust
-    /// use proxy_wasm::traits:*;
+    /// use proxy_wasm::traits::*;
     /// use proxy_wasm::types::*;
     /// use log::debug;
     ///
@@ -749,6 +765,8 @@ pub trait HttpContext: Context {
     ///     Action::Continue
     ///   }
     /// }
+    ///
+    /// # impl Context for MyPlugin {}
     /// ```
     fn get_http_request_header(&self, name: &str) -> Option<String> {
         hostcalls::get_map_value(MapType::HttpRequestHeaders, name).unwrap()
@@ -788,6 +806,8 @@ pub trait HttpContext: Context {
     ///     Action::Continue
     ///   }
     /// }
+    ///
+    /// # impl Context for MyPlugin {}
     /// ```
     fn add_http_request_header(&self, name: &str, value: &str) {
         hostcalls::add_map_value(MapType::HttpRequestHeaders, name, value).unwrap()
@@ -1004,6 +1024,8 @@ pub trait HttpContext: Context {
     ///     Action::Pause
     ///   }
     /// }
+    ///
+    /// # impl Context for MyPlugin {}
     /// ```
     fn send_http_response(
         &self,
