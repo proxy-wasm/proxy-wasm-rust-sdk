@@ -94,6 +94,12 @@ where
 
     pub fn all_of(promises: Vec<Rc<Self>>) -> Rc<Promise<Vec<T>>> {
         let next_promise = Promise::new();
+
+        if promises.is_empty() {
+            next_promise.fulfill(vec![]);
+            return next_promise;
+        }
+
         let total = promises.len();
         let results = Rc::new(RefCell::new(vec![None; total]));
         let remaining = Rc::new(RefCell::new(total));
@@ -186,41 +192,59 @@ mod tests {
 
     #[test]
     fn test_promise_fulfill() {
+        let touched = Rc::new(RefCell::new(false));
+        let touched_clone = touched.clone();
+
         let promise = Promise::<i32>::new();
-        let next_promise = promise.then(|result| {
+        let _next_promise = promise.then(move |result| {
             assert_eq!(result, 42);
+            *touched_clone.borrow_mut() = true;
         });
 
         promise.fulfill(42);
+        assert_eq!(true, touched.take())
     }
 
     #[test]
     fn test_promise_reject() {
+        let touched = Rc::new(RefCell::new(false));
+        let touched_clone = touched.clone();
+
         let promise = Promise::<String>::new();
-        let next_promise = promise.catch(|err| {
+        let _next_promise = promise.catch(move |err| {
             assert_eq!(err, "Error");
+            *touched_clone.borrow_mut() = true;
         });
 
         promise.reject("Error".to_string());
+        assert_eq!(true, touched.take())
     }
 
     #[test]
     fn test_promise_chain() {
+        let touched = Rc::new(RefCell::new(false));
+        let touched_clone = touched.clone();
+
         let promise = Promise::<i32>::new();
         let next_promise = promise.then(|result| {
             assert_eq!(result, 10);
             20
         });
 
-        next_promise.then(|result| {
+        next_promise.then(move |result| {
             assert_eq!(result, 20);
+            *touched_clone.borrow_mut() = true;
         });
 
         promise.fulfill(10);
+        assert_eq!(true, touched.take())
     }
 
     #[test]
     fn test_all_of_success() {
+        let touched = Rc::new(RefCell::new(false));
+        let touched_clone = touched.clone();
+
         let promise1 = Promise::<i32>::new();
         let promise2 = Promise::<i32>::new();
 
@@ -230,18 +254,24 @@ mod tests {
         promise2.fulfill(100);
 
         all_promise
-            .then(|results| {
+            .then(move |results| {
                 assert_eq!(results.len(), 2);
                 assert_eq!(results[0], 42);
                 assert_eq!(results[1], 100);
+                *touched_clone.borrow_mut() = true;
             })
             .catch(|_err| {
                 panic!("Should not reach here");
             });
+
+        assert_eq!(true, touched.take())
     }
 
     #[test]
     fn test_all_of_failure() {
+        let touched = Rc::new(RefCell::new(false));
+        let touched_clone = touched.clone();
+
         let promise1 = Promise::<i32>::new();
         let promise2 = Promise::<i32>::new();
 
@@ -254,13 +284,19 @@ mod tests {
             .then(|_results| {
                 panic!("Should not reach here");
             })
-            .catch(|err| {
+            .catch(move |err| {
                 assert_eq!(err, "Error 1");
+                *touched_clone.borrow_mut() = true;
             });
+
+        assert_eq!(true, touched.take())
     }
 
     #[test]
     fn test_all_of_mixed_results() {
+        let touched = Rc::new(RefCell::new(false));
+        let touched_clone = touched.clone();
+
         let promise1 = Promise::<i32>::new();
         let promise2 = Promise::<i32>::new();
 
@@ -273,19 +309,30 @@ mod tests {
             .then(|_| {
                 panic!("Should not reach here");
             })
-            .catch(|reason| assert_eq!(reason, "Error".to_string()));
+            .catch(move |reason| {
+                assert_eq!(reason, "Error".to_string());
+                *touched_clone.borrow_mut() = true;
+            });
+
+        assert_eq!(true, touched.take())
     }
 
     #[test]
     fn test_all_of_empty() {
+        let touched = Rc::new(RefCell::new(false));
+        let touched_clone = touched.clone();
+
         let all_promise = Promise::<i32>::all_of(vec![]);
 
         all_promise
-            .then(|results| {
+            .then(move |results| {
                 assert!(results.is_empty());
+                *touched_clone.borrow_mut() = true;
             })
             .catch(|_err| {
                 panic!("Should not reach here");
             });
+
+        assert_eq!(true, touched.take())
     }
 }
