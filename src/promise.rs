@@ -21,10 +21,13 @@ enum PromiseState<T> {
     Rejected(String),
 }
 
+type ThenCallbackRef<T> = RefCell<Option<Box<dyn FnOnce(T)>>>;
+type CatchCallbackRef = RefCell<Option<Box<dyn FnOnce(String)>>>;
+
 pub struct Promise<T> {
     state: RefCell<PromiseState<T>>,
-    then_callback: RefCell<Option<Box<dyn FnOnce(T)>>>,
-    catch_callback: RefCell<Option<Box<dyn FnOnce(String)>>>,
+    then_callback: ThenCallbackRef<T>,
+    catch_callback: CatchCallbackRef,
 }
 
 impl<T> Promise<T>
@@ -202,7 +205,7 @@ mod tests {
         });
 
         promise.fulfill(42);
-        assert_eq!(true, touched.take())
+        assert!(touched.take())
     }
 
     #[test]
@@ -217,7 +220,7 @@ mod tests {
         });
 
         promise.reject("Error".to_string());
-        assert_eq!(true, touched.take())
+        assert!(touched.take())
     }
 
     #[test]
@@ -237,7 +240,7 @@ mod tests {
         });
 
         promise.fulfill(10);
-        assert_eq!(true, touched.take())
+        assert!(touched.take())
     }
 
     #[test]
@@ -264,7 +267,7 @@ mod tests {
                 panic!("Should not reach here");
             });
 
-        assert_eq!(true, touched.take())
+        assert!(touched.take())
     }
 
     #[test]
@@ -289,7 +292,7 @@ mod tests {
                 *touched_clone.borrow_mut() = true;
             });
 
-        assert_eq!(true, touched.take())
+        assert!(touched.take())
     }
 
     #[test]
@@ -314,7 +317,7 @@ mod tests {
                 *touched_clone.borrow_mut() = true;
             });
 
-        assert_eq!(true, touched.take())
+        assert!(touched.take())
     }
 
     #[test]
@@ -333,6 +336,6 @@ mod tests {
                 panic!("Should not reach here");
             });
 
-        assert_eq!(true, touched.take())
+        assert!(touched.take())
     }
 }

@@ -25,9 +25,11 @@ proxy_wasm::main! {{
     proxy_wasm::set_http_context(|_, _| -> Box<dyn HttpContext> { Box::new(HttpParallelCall::default()) });
 }}
 
+type OnHttpResponseArgs = (u32, usize, usize, usize);
+
 #[derive(Default)]
 struct HttpParallelCall {
-    m: HashMap<u32, Rc<Promise<(u32, usize, usize, usize)>>>,
+    m: HashMap<u32, Rc<Promise<OnHttpResponseArgs>>>,
 }
 
 impl HttpContext for HttpParallelCall {
@@ -70,10 +72,10 @@ impl HttpContext for HttpParallelCall {
         Promise::all_of(vec![
             promise1
                 .then(|(_, _, _body_size, _)| get_http_call_response_body_string(0, _body_size))
-                .then(|body| body.unwrap_or_else(|| "".to_string())),
+                .then(|body| body.unwrap_or_default()),
             promise2
                 .then(|(_, _, _body_size, _)| get_http_call_response_body_string(0, _body_size))
-                .then(|body| body.unwrap_or_else(|| "".to_string())),
+                .then(|body| body.unwrap_or_default()),
         ])
         .then(|results| {
             send_http_response(
