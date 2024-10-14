@@ -2,7 +2,7 @@
 publish = false
 name = "proxy-wasm-example-http-parallel-call"
 version = "0.0.1"
-authors = ["Zhuozhi Ji <jizhuozhi.george@google.com>"]
+authors = ["Zhuozhi Ji <jizhuozhi.george@bytedance.com>"]
 description = "Proxy-Wasm plugin example: HTTP parallel call"
 license = "Apache-2.0"
 edition = "2018"

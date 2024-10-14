@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod allocator;
+pub mod callout;
+mod dispatcher;
 pub mod hostcalls;
-pub mod promise;
+mod logger;
 pub mod traits;
 pub mod types;
-
-mod allocator;
-mod dispatcher;
-mod logger;
 
 // For crate-type="cdylib".
 #[cfg(not(wasi_exec_model_reactor))]
