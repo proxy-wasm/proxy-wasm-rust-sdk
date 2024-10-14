@@ -66,7 +66,7 @@ where
         match &*self.state.borrow() {
             PromiseState::Pending => {
                 *self.then_callback.borrow_mut() = Some(Box::new(move |value| {
-                    let result = f(value.clone());
+                    let result = f(value);
                     new_promise_clone.fulfill(result);
                 }));
                 let new_promise_for_catch = new_promise.clone();
@@ -135,7 +135,7 @@ where
                 .catch(move |reason| {
                     if !*rejected_clone_for_catch.borrow() {
                         *rejected_clone_for_catch.borrow_mut() = true;
-                        next_promise_clone_for_catch.reject(reason.clone());
+                        next_promise_clone_for_catch.reject(reason);
                     }
                 });
         }
@@ -164,7 +164,7 @@ where
                 })
                 .catch(move |err| {
                     if first_error_clone.borrow().is_none() {
-                        *first_error_clone.borrow_mut() = Some(err.clone());
+                        *first_error_clone.borrow_mut() = Some(err);
                     }
 
                     *remaining_clone_for_catch.borrow_mut() -= 1;
