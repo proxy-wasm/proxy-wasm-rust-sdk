@@ -146,7 +146,7 @@ where
         let next_promise = Promise::new();
         let total = promises.len();
         let remaining = Rc::new(RefCell::new(total));
-        let first_error = Rc::new(RefCell::new(None)); // 用来保存第一个错误
+        let first_error = Rc::new(RefCell::new(None));
 
         for promise in promises {
             let next_promise_clone = next_promise.clone();
