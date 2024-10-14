@@ -19,9 +19,9 @@ $ docker compose up
 
 #### Access granted.
 
-Send HTTP request to `localhost:10000/headers`:
+Send HTTP request to `localhost:10000/`:
 
 ```sh
-$ curl localhost:10000/headers
+$ curl localhost:10000/
 Hello, World!\n
 ```

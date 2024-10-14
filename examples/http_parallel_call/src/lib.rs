@@ -13,8 +13,8 @@
 // limitations under the License.
 
 use proxy_wasm::callout::http::HttpClient;
-use proxy_wasm::hostcalls;
 use proxy_wasm::callout::promise::Promise;
+use proxy_wasm::hostcalls;
 use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
 use std::time::Duration;
@@ -32,40 +32,40 @@ struct HttpParallelCall {
 impl HttpContext for HttpParallelCall {
     fn on_http_request_headers(&mut self, _: usize, _: bool) -> Action {
         // "Hello, "
-        let promise1 = self.client.dispatch(
-            "httpbin",
-            vec![
-                (":method", "GET"),
-                (":path", "/base64/SGVsbG8sIA=="),
-                (":authority", "httpbin.org"),
-            ],
-            None,
-            vec![],
-            Duration::from_secs(1),
-        );
+        let promise1 = self
+            .client
+            .dispatch(
+                "httpbin",
+                vec![
+                    (":method", "GET"),
+                    (":path", "/base64/SGVsbG8sIA=="),
+                    (":authority", "httpbin.org"),
+                ],
+                None,
+                vec![],
+                Duration::from_secs(1),
+            )
+            .then(|(_, _, body_size, _)| get_http_call_response_body_string(0, body_size))
+            .then(|body| body.unwrap_or_default());
 
         // "World!"
-        let promise2 = self.client.dispatch(
-            "httpbin",
-            vec![
-                (":method", "GET"),
-                (":path", "/base64/V29ybGQh"),
-                (":authority", "httpbin.org"),
-            ],
-            None,
-            vec![],
-            Duration::from_secs(1),
-        );
+        let promise2 = self
+            .client
+            .dispatch(
+                "httpbin",
+                vec![
+                    (":method", "GET"),
+                    (":path", "/base64/V29ybGQh"),
+                    (":authority", "httpbin.org"),
+                ],
+                None,
+                vec![],
+                Duration::from_secs(1),
+            )
+            .then(|(_, _, body_size, _)| get_http_call_response_body_string(0, body_size))
+            .then(|body| body.unwrap_or_default());
 
-        Promise::all_of(vec![
-            promise1
-                .then(|(_, _, body_size, _)| get_http_call_response_body_string(0, body_size))
-                .then(|body| body.unwrap_or_default()),
-            promise2
-                .then(|(_, _, body_size, _)| get_http_call_response_body_string(0, body_size))
-                .then(|body| body.unwrap_or_default()),
-        ])
-        .then(|results| {
+        Promise::all_of(vec![promise1, promise2]).then(|results| {
             send_http_response(
                 200,
                 vec![],
