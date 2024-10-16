@@ -14,9 +14,10 @@
 
 use proxy_wasm::callout::http::HttpClient;
 use proxy_wasm::callout::promise::Promise;
-use proxy_wasm::hostcalls;
 use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::time::Duration;
 
 proxy_wasm::main! {{
@@ -24,16 +25,21 @@ proxy_wasm::main! {{
     proxy_wasm::set_http_context(|_, _| -> Box<dyn HttpContext> { Box::new(HttpParallelCall::default()) });
 }}
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 struct HttpParallelCall {
-    client: HttpClient,
+    client: Rc<RefCell<HttpClient>>,
 }
 
 impl HttpContext for HttpParallelCall {
     fn on_http_request_headers(&mut self, _: usize, _: bool) -> Action {
+        let self_clone_for_promise1 = self.clone();
+        let self_clone_for_promise2 = self.clone();
+        let self_clone_for_join = self.clone();
+
         // "Hello, "
         let promise1 = self
             .client
+            .borrow_mut()
             .dispatch(
                 "httpbin",
                 vec![
@@ -45,12 +51,17 @@ impl HttpContext for HttpParallelCall {
                 vec![],
                 Duration::from_secs(1),
             )
-            .then(|(_, _, body_size, _)| get_http_call_response_body_string(0, body_size))
-            .then(|body| body.unwrap_or_default());
+            .then(move |(_, _, body_size, _)| {
+                match self_clone_for_promise1.get_http_call_response_body(0, body_size) {
+                    None => "".to_owned(),
+                    Some(bytes) => String::from_utf8(bytes.to_vec()).unwrap(),
+                }
+            });
 
         // "World!"
         let promise2 = self
             .client
+            .borrow_mut()
             .dispatch(
                 "httpbin",
                 vec![
@@ -62,11 +73,15 @@ impl HttpContext for HttpParallelCall {
                 vec![],
                 Duration::from_secs(1),
             )
-            .then(|(_, _, body_size, _)| get_http_call_response_body_string(0, body_size))
-            .then(|body| body.unwrap_or_default());
+            .then(move |(_, _, body_size, _)| {
+                match self_clone_for_promise2.get_http_call_response_body(0, body_size) {
+                    None => "".to_owned(),
+                    Some(bytes) => String::from_utf8(bytes.to_vec()).unwrap(),
+                }
+            });
 
-        Promise::all_of(vec![promise1, promise2]).then(|results| {
-            send_http_response(
+        Promise::all_of(vec![promise1, promise2]).then(move |results| {
+            self_clone_for_join.send_http_response(
                 200,
                 vec![],
                 Some(format!("{}{}\n", results[0], results[1]).as_bytes()),
@@ -91,20 +106,7 @@ impl Context for HttpParallelCall {
         num_trailers: usize,
     ) {
         self.client
+            .borrow_mut()
             .callback(token_id, num_headers, body_size, num_trailers)
     }
-}
-
-fn get_http_call_response_body_string(start: usize, max_size: usize) -> Option<String> {
-    match hostcalls::get_buffer(BufferType::HttpCallResponseBody, start, max_size).unwrap() {
-        None => None,
-        Some(bytes) => {
-            let body_string = String::from_utf8(bytes.to_vec()).unwrap();
-            Some(body_string)
-        }
-    }
-}
-
-fn send_http_response(status_code: u32, headers: Vec<(&str, &str)>, body: Option<&[u8]>) {
-    hostcalls::send_http_response(status_code, headers, body).unwrap()
 }
