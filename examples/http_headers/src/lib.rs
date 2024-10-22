@@ -44,14 +44,22 @@ impl Context for HttpHeaders {}
 impl HttpContext for HttpHeaders {
     fn on_http_request_headers(&mut self, _: usize, _: bool) -> Action {
         for (name, value) in &self.get_http_request_headers() {
-            info!("#{} -> {}: {}", self.context_id, name, value);
+            info!(
+                "#{} -> {}: {}",
+                self.context_id,
+                name,
+                value.to_str().unwrap_or("<non-printable>")
+            );
         }
 
         match self.get_http_request_header(":path") {
             Some(path) if path == "/hello" => {
                 self.send_http_response(
                     200,
-                    vec![("Hello", "World"), ("Powered-By", "proxy-wasm")],
+                    vec![
+                        ("Hello", &HeaderValue::from_static("World")),
+                        ("Powered-By", &HeaderValue::from_static("proxy-wasm")),
+                    ],
                     Some(b"Hello, World!\n"),
                 );
                 Action::Pause
@@ -62,7 +70,12 @@ impl HttpContext for HttpHeaders {
 
     fn on_http_response_headers(&mut self, _: usize, _: bool) -> Action {
         for (name, value) in &self.get_http_response_headers() {
-            info!("#{} <- {}: {}", self.context_id, name, value);
+            info!(
+                "#{} <- {}: {}",
+                self.context_id,
+                name,
+                value.to_str().unwrap_or("<non-printable>")
+            );
         }
         Action::Continue
     }

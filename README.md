@@ -14,6 +14,13 @@
 [license-badge]: https://img.shields.io/github/license/proxy-wasm/proxy-wasm-rust-sdk
 [license-link]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/blob/main/LICENSE
 
+## Crate features
+
+This crate supports the following optional features:
+
+- `header-value` - uses RFC-compliant `HeaderValue` instead of UTF-8 `String` for HTTP header and trailer values.
+  This will become the default in future releases.
+
 ## Examples
 
 - [Hello World](./examples/hello_world/)

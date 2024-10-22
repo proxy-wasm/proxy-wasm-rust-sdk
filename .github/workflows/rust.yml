@@ -94,7 +94,9 @@ jobs:
 
     - name: Format (rules_rust)
       run: |
+        sed -i'' -E 's/^default = \[\]/default = \[\"header-value\"\]/' Cargo.toml
         bazelisk --noworkspace_rc run --noenable_bzlmod //bazel/cargo:crates_vendor
+        git checkout Cargo.toml
         git diff --exit-code
 
   msrv:
@@ -147,6 +149,12 @@ jobs:
 
     - name: Clippy (wasm32-wasi)
       run: cargo clippy --release --all-targets --target=wasm32-wasi
+
+    - name: Build (header-value)
+      run: cargo build --release --all-targets --target=wasm32-wasi --features header-value
+
+    - name: Clippy (header-value)
+      run: cargo clippy --release --all-targets --target=wasm32-wasi --features header-value
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
@@ -210,6 +218,12 @@ jobs:
     - name: Clippy (wasm32-wasip1)
       run: cargo clippy --release --all-targets --target=wasm32-wasip1
 
+    - name: Build (header-value)
+      run: cargo build --release --all-targets --target=wasm32-wasip1 --features header-value
+
+    - name: Clippy (header-value)
+      run: cargo clippy --release --all-targets --target=wasm32-wasip1 --features header-value
+
     - name: Format (rustfmt)
       run: cargo fmt -- --check
 
@@ -272,6 +286,12 @@ jobs:
 
     - name: Clippy (wasm32-wasip1)
       run: cargo clippy --release --all-targets --target=wasm32-wasip1
+
+    - name: Build (header-value)
+      run: cargo build --release --all-targets --target=wasm32-wasip1 --features header-value
+
+    - name: Clippy (header-value)
+      run: cargo clippy --release --all-targets --target=wasm32-wasip1 --features header-value
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check

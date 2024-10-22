@@ -11,7 +11,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 log = "0.4"
-proxy-wasm = { path = "../../" }
+proxy-wasm = { path = "../../", features = ["header-value"] }
 
 [profile.release]
 lto = true
