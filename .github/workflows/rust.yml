@@ -307,6 +307,9 @@ jobs:
         ./rustup-init.sh -y
         rm rustup-init.sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+        export PATH=$PATH:$HOME/.cargo/bin
+        cargo install cargo-audit
+        cargo install cargo-outdated
 
     - name: Update Rust
       run: |
@@ -368,9 +371,12 @@ jobs:
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
         chmod +x ./rustup-init.sh
-        ./rustup-init.sh -y
+        ./rustup-init.sh -y --default-toolchain nightly
         rm rustup-init.sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+        export PATH=$PATH:$HOME/.cargo/bin
+        cargo install cargo-audit
+        cargo install cargo-outdated
 
     - name: Update Rust
       run: |
