@@ -40,6 +40,7 @@ All tests can be executed using:
 
 Individual tests can be executed using `-j` and `--matrix` parameters, e.g.:
 
+    act -j bazel
     act -j stable
     act -j nightly
     act -j examples --matrix example:http_auth_random
