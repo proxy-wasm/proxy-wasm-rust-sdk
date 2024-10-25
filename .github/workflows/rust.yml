@@ -326,9 +326,11 @@ jobs:
       run: cargo verify-project
 
     - name: Run cargo audit
+      if: ${{ !env.ACT }}
       run: cargo audit
 
     - name: Run cargo outdated
+      if: ${{ !env.ACT }}
       run: cargo outdated --root-deps-only --exit-code 1
 
     - name: Validate Envoy config
@@ -397,9 +399,11 @@ jobs:
       run: cargo verify-project
 
     - name: Run cargo audit
+      if: ${{ !env.ACT }}
       run: cargo audit
 
     - name: Run cargo outdated
+      if: ${{ !env.ACT }}
       run: cargo outdated --root-deps-only --exit-code 1
 
     - name: Rename .wasm to match expected filename
