@@ -396,8 +396,9 @@ jobs:
     - name: Format (manifest)
       run: cargo verify-project
 
-    - name: Run cargo audit
-      run: cargo audit
+    # TODO: Re-enable once cargo audit supports Cargo lockfile v4.
+    #- name: Run cargo audit
+    #  run: cargo audit
 
     - name: Run cargo outdated
       run: cargo outdated --root-deps-only --exit-code 1
