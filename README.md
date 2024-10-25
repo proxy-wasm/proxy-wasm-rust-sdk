@@ -28,10 +28,29 @@
 - [Extending Envoy with WASM and Rust](https://antweiss.com/blog/extending-envoy-with-wasm-and-rust/)
 - [Writing Envoy filters in Rust with WebAssembly](https://content.red-badger.com/resources/extending-istio-with-rust-and-webassembly)
 
-## Updating dependencies
+## Contributing
+
+### Testing
+
+GitHub Actions can be executed locally using the [`act`] tool.
+
+All tests can be executed using:
+
+    act
+
+Individual tests can be executed using `-j` and `--matrix` parameters, e.g.:
+
+    act -j stable
+    act -j nightly
+    act -j examples --matrix example:http_auth_random
+
+### Updating Bazel dependencies
 
 When updating dependencies, you need to regenerate Bazel `BUILD` files to match updated `Cargo.toml`:
 
 ```sh
 bazel run //bazel/cargo:crates_vendor -- --repin all
 ```
+
+
+[`act`]: https://github.com/nektos/act
