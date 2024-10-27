@@ -109,6 +109,7 @@ jobs:
         path: |
           ~/.cargo/.crates.toml
           ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
           ~/.cargo/bin
           ~/.cargo/registry
           ~/.rustup
@@ -171,6 +172,7 @@ jobs:
         path: |
           ~/.cargo/.crates.toml
           ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
           ~/.cargo/bin
           ~/.cargo/registry
           ~/.rustup
@@ -232,6 +234,7 @@ jobs:
         path: |
           ~/.cargo/.crates.toml
           ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
           ~/.cargo/bin
           ~/.cargo/registry
           ~/.rustup
@@ -291,6 +294,7 @@ jobs:
         path: |
           ~/.cargo/.crates.toml
           ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
           ~/.cargo/bin
           ~/.cargo/registry
           ~/.rustup
@@ -323,6 +327,7 @@ jobs:
         path: |
           ~/.cargo/.crates.toml
           ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
           ~/.cargo/bin
           ~/.cargo/registry
           ~/.rustup
@@ -374,6 +379,7 @@ jobs:
         path: |
           ~/.cargo/.crates.toml
           ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
           ~/.cargo/bin
           ~/.cargo/registry
           ~/.rustup
@@ -451,6 +457,7 @@ jobs:
         path: |
           ~/.cargo/.crates.toml
           ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
           ~/.cargo/bin
           ~/.cargo/registry
           ~/.rustup
