@@ -295,6 +295,7 @@ def aliases(
 _NORMAL_DEPENDENCIES = {
     "": {
         _COMMON_CONDITION: {
+            "bytes": Label("@crates_vendor__bytes-1.8.0//:bytes"),
             "hashbrown": Label("@crates_vendor__hashbrown-0.15.0//:hashbrown"),
             "http": Label("@crates_vendor__http-1.1.0//:http"),
             "log": Label("@crates_vendor__log-0.4.22//:log"),
@@ -495,6 +496,7 @@ def crate_repositories():
     )
 
     return [
+        struct(repo = "crates_vendor__bytes-1.8.0", is_dev_dep = False),
         struct(repo = "crates_vendor__hashbrown-0.15.0", is_dev_dep = False),
         struct(repo = "crates_vendor__http-1.1.0", is_dev_dep = False),
         struct(repo = "crates_vendor__log-0.4.22", is_dev_dep = False),

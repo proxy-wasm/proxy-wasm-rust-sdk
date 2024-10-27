@@ -153,8 +153,9 @@ pub fn get_map(map_type: MapType) -> Result<Vec<(String, HeaderValue)>, Status> 
         match proxy_get_header_map_pairs(map_type, &mut return_data, &mut return_size) {
             Status::Ok => {
                 if !return_data.is_null() {
-                    let serialized_map = Vec::from_raw_parts(return_data, return_size, return_size);
-                    Ok(utils::deserialize_map(&serialized_map))
+                    let serialized_map =
+                        bytes::Bytes::from(std::slice::from_raw_parts(return_data, return_size));
+                    Ok(utils::deserialize_map(serialized_map))
                 } else {
                     Ok(Vec::new())
                 }
@@ -1174,6 +1175,8 @@ mod utils {
     use crate::types::Bytes;
     #[cfg(feature = "header-value")]
     use crate::types::HeaderValue;
+    #[cfg(feature = "header-value")]
+    use bytes::Buf;
     use std::convert::TryFrom;
 
     pub(super) fn serialize_property_path(path: Vec<&str>) -> Bytes {
@@ -1221,25 +1224,26 @@ mod utils {
     }
 
     #[cfg(feature = "header-value")]
-    pub(super) fn deserialize_map(bytes: &[u8]) -> Vec<(String, HeaderValue)> {
-        let mut map = Vec::new();
+    pub(super) fn deserialize_map(mut bytes: bytes::Bytes) -> Vec<(String, HeaderValue)> {
         if bytes.is_empty() {
-            return map;
+            return Vec::new();
         }
-        let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[0..4]).unwrap()) as usize;
-        let mut p = 4 + size * 8;
-        for n in 0..size {
-            let s = 4 + n * 8;
-            let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s..s + 4]).unwrap()) as usize;
-            let key = bytes[p..p + size].to_vec();
-            p += size + 1;
-            let size =
-                u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s + 4..s + 8]).unwrap()) as usize;
-            let value = &bytes[p..p + size];
-            p += size + 1;
+        let size = bytes.get_u32_le() as usize;
+        let mut sizes = bytes.split_to(size * 8);
+        let mut map = Vec::with_capacity(size);
+        for _ in 0..size {
+            let size = sizes.get_u32_le() as usize;
+            let key = bytes.split_to(size);
+            bytes.advance(1);
+            let size = sizes.get_u32_le() as usize;
+            let value = bytes.split_to(size);
+            bytes.advance(1);
             map.push((
-                String::from_utf8(key).unwrap(),
-                HeaderValue::from_bytes(value).unwrap(),
+                String::from_utf8(key.to_vec()).unwrap(),
+                // We're intentionally using the unchecked variant in order to retain
+                // values accepted by the hosts and proxies that don't enforce strict
+                // RFC compliance on HTTP field values.
+                unsafe { HeaderValue::from_maybe_shared_unchecked(value) },
             ));
         }
         map

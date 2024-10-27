@@ -11,13 +11,14 @@ edition = "2018"
 build = "build.rs"
 
 [dependencies]
+bytes = { version = "1", optional = true }
 hashbrown = "0.15"
 http = { version = "1", optional = true }
 log = "0.4"
 
 [features]
 default = []
-header-value = ["dep:http"]
+header-value = ["dep:bytes", "dep:http"]
 
 [profile.release]
 lto = true
