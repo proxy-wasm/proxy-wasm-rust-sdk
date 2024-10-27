@@ -33,7 +33,7 @@ filegroup(
 # Workspace Member Dependencies
 alias(
     name = "hashbrown",
-    actual = "@crates_vendor__hashbrown-0.14.5//:hashbrown",
+    actual = "@crates_vendor__hashbrown-0.15.0//:hashbrown",
     tags = ["manual"],
 )
 
@@ -45,6 +45,6 @@ alias(
 
 alias(
     name = "proxy-wasm",
-    actual = "@crates_vendor__proxy-wasm-0.2.2//:proxy_wasm",
+    actual = "@crates_vendor__proxy-wasm-0.2.3-dev//:proxy_wasm",
     tags = ["manual"],
 )
