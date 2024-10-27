@@ -17,8 +17,8 @@ Individual tests can be executed using `-j` and `--matrix` parameters, e.g.:
 
 ## Updating Bazel dependencies
 
-When adding and/or updating Cargo dependencies, the existing Bazel `BUILD` files
-must be regenerated to match the updated `Cargo.toml`:
+When adding or updating Cargo dependencies, the existing Bazel `BUILD` files
+must be regenerated using the [`bazelisk`] tool:
 
 ```sh
 bazelisk run //bazel/cargo:crates_vendor -- --repin all
