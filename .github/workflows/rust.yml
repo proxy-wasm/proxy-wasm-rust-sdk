@@ -38,6 +38,14 @@ jobs:
       with:
         go-version: '^1.16'
 
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/go/pkg/mod
+        key: licenses-${{ hashFiles('.github/workflows/rust.yml') }}
+
     - name: Check licenses
       run: |
         go install github.com/google/addlicense@latest
@@ -53,11 +61,6 @@ jobs:
       with:
         go-version: '^1.16'
 
-    - name: Install dependencies
-      if: ${{ env.ACT }}
-      run: |
-        go install github.com/bazelbuild/bazelisk@v1.19.0
-
     - name: Cache
       uses: actions/cache@v2
       with:
@@ -66,9 +69,16 @@ jobs:
           ~/.cache/bazelisk
           ~/.cargo/.crates.toml
           ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
           ~/.cargo/bin
           ~/.cargo/registry
-        key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.Bazel.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+          ~/go/pkg/mod
+        key: bazel-${{ hashFiles('BUILD', 'WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.Bazel.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+
+    - name: Install dependencies
+      if: ${{ env.ACT }}
+      run: |
+        go install github.com/bazelbuild/bazelisk@v1.19.0
 
     - name: Build (wasm32-unknown-unknown)
       run: bazelisk --noworkspace_rc build --noenable_bzlmod --platforms=@rules_rust//rust/platform:wasm //...
@@ -95,6 +105,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.rustup
+          **/target
+        key: msrv-${{ hashFiles('Cargo.toml') }}
 
     - name: Install dependencies
       if: ${{ env.ACT }}
@@ -145,6 +169,20 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.rustup
+          **/target
+        key: stable-${{ hashFiles('Cargo.toml') }}
+
     - name: Install dependencies
       if: ${{ env.ACT }}
       run: |
@@ -193,6 +231,20 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.rustup
+          **/target
+        key: nightly-${{ hashFiles('Cargo.toml') }}
+
     - name: Install dependencies
       if: ${{ env.ACT }}
       run: |
@@ -239,6 +291,19 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.rustup
+        key: outdated-${{ hashFiles('Cargo.toml') }}
+
     - name: Install dependencies
       if: ${{ env.ACT }}
       run: |
@@ -258,6 +323,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.rustup
+        key: audit-${{ hashFiles('Cargo.toml') }}
 
     - name: Install dependencies
       if: ${{ env.ACT }}
@@ -297,6 +375,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.rustup
+          **/target
+        key: example-${{ matrix.example }}-${{ hashFiles('Cargo.toml') }}
 
     - name: Install dependencies
       if: ${{ env.ACT }}
@@ -363,6 +455,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.rustup
+          **/target
+        key: reactor-${{ matrix.example }}-${{ hashFiles('Cargo.toml') }}
 
     - name: Install dependencies
       if: ${{ env.ACT }}
