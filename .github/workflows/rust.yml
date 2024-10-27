@@ -67,6 +67,11 @@ jobs:
         path: |
           ~/.cache/bazel
           ~/.cache/bazelisk
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
           ~/go/pkg/mod
         key: bazel-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.Bazel.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
