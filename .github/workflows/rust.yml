@@ -80,8 +80,7 @@ jobs:
       run: |
         go install github.com/bazelbuild/buildtools/buildifier@latest
         export PATH=$PATH:$(go env GOPATH)/bin
-        buildifier -mode=check WORKSPACE
-        buildifier -mode=check BUILD
+        buildifier -mode=check -r .
 
     - name: Format (rules_rust)
       run: |
