@@ -353,7 +353,7 @@ jobs:
         cp -p bazel/cargo/Cargo.Bazel.lock Cargo.lock
         cargo audit
 
-  example:
+  examples:
     runs-on: ubuntu-latest
 
     strategy:
@@ -433,7 +433,7 @@ jobs:
           --mode validate \
           -c envoy.yaml
 
-  reactor:
+  reactors:
     runs-on: ubuntu-latest
 
     strategy:
@@ -475,7 +475,7 @@ jobs:
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
         chmod +x ./rustup-init.sh
-        ./rustup-init.sh -y
+        ./rustup-init.sh -y --default-toolchain nightly
         rm rustup-init.sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
