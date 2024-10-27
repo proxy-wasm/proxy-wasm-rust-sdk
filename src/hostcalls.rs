@@ -1165,10 +1165,10 @@ mod utils {
             size += name.len() + value.len() + 10;
         }
         let mut bytes: Bytes = Vec::with_capacity(size);
-        bytes.extend_from_slice(&map.len().to_le_bytes());
+        bytes.extend_from_slice(&(map.len() as u32).to_le_bytes());
         for (name, value) in &map {
-            bytes.extend_from_slice(&name.len().to_le_bytes());
-            bytes.extend_from_slice(&value.len().to_le_bytes());
+            bytes.extend_from_slice(&(name.len() as u32).to_le_bytes());
+            bytes.extend_from_slice(&(value.len() as u32).to_le_bytes());
         }
         for (name, value) in &map {
             bytes.extend_from_slice(name.as_bytes());
@@ -1185,10 +1185,10 @@ mod utils {
             size += name.len() + value.len() + 10;
         }
         let mut bytes: Bytes = Vec::with_capacity(size);
-        bytes.extend_from_slice(&map.len().to_le_bytes());
+        bytes.extend_from_slice(&(map.len() as u32).to_le_bytes());
         for (name, value) in &map {
-            bytes.extend_from_slice(&name.len().to_le_bytes());
-            bytes.extend_from_slice(&value.len().to_le_bytes());
+            bytes.extend_from_slice(&(name.len() as u32).to_le_bytes());
+            bytes.extend_from_slice(&(value.len() as u32).to_le_bytes());
         }
         for (name, value) in &map {
             bytes.extend_from_slice(name.as_bytes());
@@ -1242,5 +1242,119 @@ mod utils {
             map.push((String::from_utf8(key).unwrap(), value));
         }
         map
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[cfg(nightly)]
+        use test::Bencher;
+
+        static MAP: &[(&str, &str)] = &[
+            (":method", "GET"),
+            (":path", "/bytes/1"),
+            (":authority", "httpbin.org"),
+            ("Powered-By", "proxy-wasm"),
+        ];
+
+        #[rustfmt::skip]
+        static SERIALIZED_MAP: &[u8] = &[
+            // num entries
+            4, 0, 0, 0,
+            // len (":method", "GET")
+            7, 0, 0, 0, 3, 0, 0, 0,
+            // len (":path", "/bytes/1")
+            5, 0, 0, 0, 8, 0, 0, 0,
+            // len (":authority", "httpbin.org")
+            10, 0, 0, 0, 11, 0, 0, 0,
+            // len ("Powered-By", "proxy-wasm")
+            10, 0, 0, 0, 10, 0, 0, 0,
+            // ":method"
+            58, 109, 101, 116, 104, 111, 100, 0,
+            // "GET"
+            71, 69, 84, 0,
+            // ":path"
+            58, 112, 97, 116, 104, 0,
+            // "/bytes/1"
+            47, 98, 121, 116, 101, 115, 47, 49, 0,
+            // ":authority"
+            58, 97, 117, 116, 104, 111, 114, 105, 116, 121, 0,
+            // "httpbin.org"
+            104, 116, 116, 112, 98, 105, 110, 46, 111, 114, 103, 0,
+            // "Powered-By"
+            80, 111, 119, 101, 114, 101, 100, 45, 66, 121, 0,
+            // "proxy-wasm"
+            112, 114, 111, 120, 121, 45, 119, 97, 115, 109, 0,
+        ];
+
+        #[test]
+        fn test_serialize_map() {
+            let serialized_map = serialize_map(MAP.to_vec());
+            assert_eq!(serialized_map, SERIALIZED_MAP);
+        }
+
+        #[test]
+        fn test_serialize_map_bytes() {
+            let map: Vec<(&str, &[u8])> = MAP.iter().map(|x| (x.0, x.1.as_bytes())).collect();
+            let serialized_map = serialize_map_bytes(map);
+            assert_eq!(serialized_map, SERIALIZED_MAP);
+        }
+
+        #[test]
+        fn test_deserialize_map() {
+            let map = deserialize_map(SERIALIZED_MAP);
+            assert_eq!(map.len(), MAP.len());
+            for (got, expected) in map.into_iter().zip(MAP) {
+                assert_eq!(got.0, expected.0);
+                assert_eq!(got.1, expected.1);
+            }
+        }
+
+        #[test]
+        fn test_deserialize_map_bytes() {
+            let map = deserialize_map_bytes(SERIALIZED_MAP);
+            assert_eq!(map.len(), MAP.len());
+            for (got, expected) in map.into_iter().zip(MAP) {
+                assert_eq!(got.0, expected.0);
+                assert_eq!(got.1, expected.1.as_bytes());
+            }
+        }
+
+        #[cfg(nightly)]
+        #[bench]
+        fn bench_serialize_map(b: &mut Bencher) {
+            let map = MAP.to_vec();
+            b.iter(|| {
+                serialize_map(test::black_box(map.clone()));
+            });
+        }
+
+        #[cfg(nightly)]
+        #[bench]
+        fn bench_serialize_map_bytes(b: &mut Bencher) {
+            let map: Vec<(&str, &[u8])> = MAP.iter().map(|x| (x.0, x.1.as_bytes())).collect();
+            b.iter(|| {
+                serialize_map_bytes(test::black_box(map.clone()));
+            });
+        }
+
+        #[cfg(nightly)]
+        #[bench]
+        fn bench_deserialize_map(b: &mut Bencher) {
+            let serialized_map = SERIALIZED_MAP.to_vec();
+            b.iter(|| {
+                deserialize_map(test::black_box(&serialized_map));
+            });
+        }
+
+        #[cfg(nightly)]
+        #[bench]
+        fn bench_deserialize_map_bytes(b: &mut Bencher) {
+            let serialized_map = SERIALIZED_MAP.to_vec();
+            b.iter(|| {
+                deserialize_map_bytes(test::black_box(&serialized_map));
+            });
+        }
     }
 }

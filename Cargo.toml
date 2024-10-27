@@ -20,3 +20,11 @@ opt-level = 3
 codegen-units = 1
 panic = "abort"
 strip = "debuginfo"
+
+[profile.test]
+inherits = "release"
+debug = true
+
+[profile.bench]
+inherits = "release"
+debug = true

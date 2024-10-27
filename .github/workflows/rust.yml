@@ -148,6 +148,9 @@ jobs:
     - name: Clippy (wasm32-wasi)
       run: cargo clippy --release --all-targets --target=wasm32-wasi
 
+    - name: Test
+      run: cargo test
+
     - name: Format (rustfmt)
       run: cargo fmt -- --check
 
@@ -209,6 +212,9 @@ jobs:
 
     - name: Clippy (wasm32-wasip1)
       run: cargo clippy --release --all-targets --target=wasm32-wasip1
+
+    - name: Test
+      run: cargo test
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
@@ -272,6 +278,12 @@ jobs:
 
     - name: Clippy (wasm32-wasip1)
       run: cargo clippy --release --all-targets --target=wasm32-wasip1
+
+    - name: Test
+      run: cargo test
+
+    - name: Bench
+      run: cargo bench
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
