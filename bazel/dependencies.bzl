@@ -13,8 +13,8 @@
 # limitations under the License.
 
 load("@proxy_wasm_rust_sdk//bazel/cargo/remote:defs.bzl", "crate_repositories")
-load("@rules_rust//rust:repositories.bzl", "rust_repositories")
 load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
+load("@rules_rust//rust:repositories.bzl", "rust_repositories")
 
 def proxy_wasm_rust_sdk_dependencies():
     rust_repositories()
