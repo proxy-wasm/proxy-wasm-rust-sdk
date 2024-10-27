@@ -119,7 +119,7 @@ jobs:
           ~/.cargo/registry
           ~/.rustup
           **/target
-        key: msrv-${{ hashFiles('.github/workflows/rust.yml', 'Cargo.toml') }}
+        key: msrv-${{ hashFiles('Cargo.toml') }}
 
     - name: Install dependencies
       if: ${{ env.ACT }}
@@ -182,7 +182,7 @@ jobs:
           ~/.cargo/registry
           ~/.rustup
           **/target
-        key: stable-${{ hashFiles('.github/workflows/rust.yml', 'Cargo.toml') }}
+        key: stable-${{ hashFiles('Cargo.toml') }}
 
     - name: Install dependencies
       if: ${{ env.ACT }}
@@ -244,7 +244,7 @@ jobs:
           ~/.cargo/registry
           ~/.rustup
           **/target
-        key: nightly-${{ hashFiles('.github/workflows/rust.yml', 'Cargo.toml') }}
+        key: nightly-${{ hashFiles('Cargo.toml') }}
 
     - name: Install dependencies
       if: ${{ env.ACT }}
@@ -303,7 +303,7 @@ jobs:
           ~/.cargo/bin
           ~/.cargo/registry
           ~/.rustup
-        key: outdated-${{ hashFiles('.github/workflows/rust.yml', 'Cargo.toml') }}
+        key: outdated-${{ hashFiles('Cargo.toml') }}
 
     - name: Install dependencies
       if: ${{ env.ACT }}
@@ -336,7 +336,7 @@ jobs:
           ~/.cargo/bin
           ~/.cargo/registry
           ~/.rustup
-        key: audit-${{ hashFiles('.github/workflows/rust.yml', 'Cargo.toml') }}
+        key: audit-${{ hashFiles('Cargo.toml') }}
 
     - name: Install dependencies
       if: ${{ env.ACT }}
@@ -389,7 +389,7 @@ jobs:
           ~/.cargo/registry
           ~/.rustup
           **/target
-        key: example-${{ matrix.example }}-${{ hashFiles('.github/workflows/rust.yml', 'Cargo.toml') }}
+        key: example-${{ matrix.example }}-${{ hashFiles('Cargo.toml') }}
 
     - name: Install dependencies
       if: ${{ env.ACT }}
@@ -467,7 +467,7 @@ jobs:
           ~/.cargo/registry
           ~/.rustup
           **/target
-        key: reactor-${{ matrix.example }}-${{ hashFiles('.github/workflows/rust.yml', 'Cargo.toml') }}
+        key: reactor-${{ matrix.example }}-${{ hashFiles('Cargo.toml') }}
 
     - name: Install dependencies
       if: ${{ env.ACT }}
