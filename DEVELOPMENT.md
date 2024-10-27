@@ -15,6 +15,9 @@ Individual tests can be executed using `-j` and `--matrix` parameters, e.g.:
     act -j nightly
     act -j examples --matrix example:http_auth_random
 
+By default, all jobs are cached in `~/.cache/actcache`. This can be disabled
+using the `--no-cache-server` parameter.
+
 ## Updating Bazel dependencies
 
 When adding or updating Cargo dependencies, the existing Bazel `BUILD` files
