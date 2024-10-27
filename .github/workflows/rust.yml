@@ -400,8 +400,9 @@ jobs:
     #- name: Run cargo audit
     #  run: cargo audit
 
-    - name: Run cargo outdated
-      run: cargo outdated --root-deps-only --exit-code 1
+    # TODO: Re-enable once cargo outdated supports Cargo lockfile v4.
+    #- name: Run cargo outdated
+    #  run: cargo outdated --root-deps-only --exit-code 1
 
     - name: Rename .wasm to match expected filename
       run: |
