@@ -1,6 +1,6 @@
 [package]
 name = "proxy-wasm"
-version = "0.2.2"
+version = "0.2.3-dev"
 authors = ["Piotr Sikora <piotrsikora@google.com>"]
 rust-version = "1.64"
 description = "WebAssembly for Proxies"
