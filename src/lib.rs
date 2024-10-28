@@ -55,7 +55,7 @@ macro_rules! main {
 }
 
 pub fn set_log_level(level: types::LogLevel) {
-    logger::set_log_level(level);
+    let _ = logger::set_log_level(level);
 }
 
 pub fn set_root_context(callback: types::NewRootContext) {
