@@ -288,14 +288,6 @@ extern "C" {
     ) -> Status;
 }
 
-extern "C" {
-    fn proxy_remove_header_map_value(
-        map_type: MapType,
-        key_data: *const u8,
-        key_size: usize,
-    ) -> Status;
-}
-
 pub fn set_map_value(map_type: MapType, key: &str, value: Option<&str>) -> Result<(), Status> {
     unsafe {
         if let Some(value) = value {
@@ -316,6 +308,14 @@ pub fn set_map_value(map_type: MapType, key: &str, value: Option<&str>) -> Resul
             }
         }
     }
+}
+
+extern "C" {
+    fn proxy_remove_header_map_value(
+        map_type: MapType,
+        key_data: *const u8,
+        key_size: usize,
+    ) -> Status;
 }
 
 pub fn remove_map_value(map_type: MapType, key: &str) -> Result<(), Status> {
