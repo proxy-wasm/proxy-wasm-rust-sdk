@@ -85,7 +85,7 @@ pub fn get_buffer(
     buffer_type: BufferType,
     start: usize,
     max_size: usize,
-) -> Result<Option<Bytes>, Status> {
+) -> Result<Option<Vec<u8>>, Status> {
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
     unsafe {
@@ -163,7 +163,7 @@ pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
     }
 }
 
-pub fn get_map_bytes(map_type: MapType) -> Result<Vec<(String, Bytes)>, Status> {
+pub fn get_map_bytes(map_type: MapType) -> Result<Vec<(String, Vec<u8>)>, Status> {
     unsafe {
         let mut return_data: *mut u8 = null_mut();
         let mut return_size: usize = 0;
@@ -250,7 +250,7 @@ pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<String>, Sta
     }
 }
 
-pub fn get_map_value_bytes(map_type: MapType, key: &str) -> Result<Option<Bytes>, Status> {
+pub fn get_map_value_bytes(map_type: MapType, key: &str) -> Result<Option<Vec<u8>>, Status> {
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
     unsafe {
@@ -393,7 +393,7 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn get_property(path: Vec<&str>) -> Result<Option<Bytes>, Status> {
+pub fn get_property(path: Vec<&str>) -> Result<Option<Vec<u8>>, Status> {
     let serialized_path = utils::serialize_property_path(path);
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
@@ -457,7 +457,7 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn get_shared_data(key: &str) -> Result<(Option<Bytes>, Option<u32>), Status> {
+pub fn get_shared_data(key: &str) -> Result<(Option<Vec<u8>>, Option<u32>), Status> {
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
     let mut return_cas: u32 = 0;
@@ -568,7 +568,7 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn dequeue_shared_queue(queue_id: u32) -> Result<Option<Bytes>, Status> {
+pub fn dequeue_shared_queue(queue_id: u32) -> Result<Option<Vec<u8>>, Status> {
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
     unsafe {
@@ -1029,7 +1029,7 @@ extern "C" {
 pub fn call_foreign_function(
     function_name: &str,
     arguments: Option<&[u8]>,
-) -> Result<Option<Bytes>, Status> {
+) -> Result<Option<Vec<u8>>, Status> {
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
     unsafe {
@@ -1139,10 +1139,9 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
 }
 
 mod utils {
-    use crate::types::Bytes;
     use std::convert::TryFrom;
 
-    pub(super) fn serialize_property_path(path: Vec<&str>) -> Bytes {
+    pub(super) fn serialize_property_path(path: Vec<&str>) -> Vec<u8> {
         if path.is_empty() {
             return Vec::new();
         }
@@ -1150,7 +1149,7 @@ mod utils {
         for part in &path {
             size += part.len() + 1;
         }
-        let mut bytes: Bytes = Vec::with_capacity(size);
+        let mut bytes = Vec::with_capacity(size);
         for part in &path {
             bytes.extend_from_slice(part.as_bytes());
             bytes.push(0);
@@ -1159,12 +1158,12 @@ mod utils {
         bytes
     }
 
-    pub(super) fn serialize_map(map: Vec<(&str, &str)>) -> Bytes {
+    pub(super) fn serialize_map(map: Vec<(&str, &str)>) -> Vec<u8> {
         let mut size: usize = 4;
         for (name, value) in &map {
             size += name.len() + value.len() + 10;
         }
-        let mut bytes: Bytes = Vec::with_capacity(size);
+        let mut bytes = Vec::with_capacity(size);
         bytes.extend_from_slice(&map.len().to_le_bytes());
         for (name, value) in &map {
             bytes.extend_from_slice(&name.len().to_le_bytes());
@@ -1179,12 +1178,12 @@ mod utils {
         bytes
     }
 
-    pub(super) fn serialize_map_bytes(map: Vec<(&str, &[u8])>) -> Bytes {
+    pub(super) fn serialize_map_bytes(map: Vec<(&str, &[u8])>) -> Vec<u8> {
         let mut size: usize = 4;
         for (name, value) in &map {
             size += name.len() + value.len() + 10;
         }
-        let mut bytes: Bytes = Vec::with_capacity(size);
+        let mut bytes = Vec::with_capacity(size);
         bytes.extend_from_slice(&map.len().to_le_bytes());
         for (name, value) in &map {
             bytes.extend_from_slice(&name.len().to_le_bytes());
@@ -1223,7 +1222,7 @@ mod utils {
         map
     }
 
-    pub(super) fn deserialize_map_bytes(bytes: &[u8]) -> Vec<(String, Bytes)> {
+    pub(super) fn deserialize_map_bytes(bytes: &[u8]) -> Vec<(String, Vec<u8>)> {
         let mut map = Vec::new();
         if bytes.is_empty() {
             return map;
