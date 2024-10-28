@@ -38,6 +38,14 @@ jobs:
       with:
         go-version: '^1.16'
 
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/go/pkg/mod
+        key: licenses-${{ hashFiles('.github/workflows/rust.yml') }}
+
     - name: Check licenses
       run: |
         go install github.com/google/addlicense@latest
@@ -53,11 +61,6 @@ jobs:
       with:
         go-version: '^1.16'
 
-    - name: Install dependencies
-      if: ${{ env.ACT }}
-      run: |
-        go install github.com/bazelbuild/bazelisk@v1.19.0
-
     - name: Cache
       uses: actions/cache@v2
       with:
@@ -66,22 +69,28 @@ jobs:
           ~/.cache/bazelisk
           ~/.cargo/.crates.toml
           ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
           ~/.cargo/bin
           ~/.cargo/registry
-        key: ${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.Bazel.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+          ~/go/pkg/mod
+        key: bazel-${{ hashFiles('BUILD', 'WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.Bazel.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+
+    - name: Install dependencies
+      if: ${{ env.ACT }}
+      run: |
+        go install github.com/bazelbuild/bazelisk@v1.19.0
 
     - name: Build (wasm32-unknown-unknown)
       run: bazelisk --noworkspace_rc build --noenable_bzlmod --platforms=@rules_rust//rust/platform:wasm //...
 
-    - name: Build (wasm32-wasi)
+    - name: Build (wasm32-wasip1)
       run: bazelisk --noworkspace_rc build --noenable_bzlmod --platforms=@rules_rust//rust/platform:wasi //...
 
     - name: Format (buildifier)
       run: |
         go install github.com/bazelbuild/buildtools/buildifier@latest
         export PATH=$PATH:$(go env GOPATH)/bin
-        buildifier -mode=check WORKSPACE
-        buildifier -mode=check BUILD
+        buildifier -mode=check -r .
 
     - name: Format (rules_rust)
       run: |
@@ -96,6 +105,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.rustup
+          **/target
+        key: msrv-${{ hashFiles('Cargo.toml') }}
 
     - name: Install dependencies
       if: ${{ env.ACT }}
@@ -146,6 +169,20 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.rustup
+          **/target
+        key: stable-${{ hashFiles('Cargo.toml') }}
+
     - name: Install dependencies
       if: ${{ env.ACT }}
       run: |
@@ -159,7 +196,7 @@ jobs:
       run: |
         rustup toolchain install stable --component clippy --component rustfmt
         rustup target add wasm32-unknown-unknown
-        rustup target add wasm32-wasi
+        rustup target add wasm32-wasip1
 
     - name: Build (wasm32-unknown-unknown)
       run: cargo build --release --all-targets --target=wasm32-unknown-unknown
@@ -167,11 +204,11 @@ jobs:
     - name: Clippy (wasm32-unknown-unknown)
       run: cargo clippy --release --all-targets --target=wasm32-unknown-unknown
 
-    - name: Build (wasm32-wasi)
-      run: cargo build --release --all-targets --target=wasm32-wasi
+    - name: Build (wasm32-wasip1)
+      run: cargo build --release --all-targets --target=wasm32-wasip1
 
-    - name: Clippy (wasm32-wasi)
-      run: cargo clippy --release --all-targets --target=wasm32-wasi
+    - name: Clippy (wasm32-wasip1)
+      run: cargo clippy --release --all-targets --target=wasm32-wasip1
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
@@ -194,6 +231,20 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.rustup
+          **/target
+        key: nightly-${{ hashFiles('Cargo.toml') }}
+
     - name: Install dependencies
       if: ${{ env.ACT }}
       run: |
@@ -208,7 +259,7 @@ jobs:
         rustup toolchain install nightly --component clippy --component rustfmt
         rustup default nightly
         rustup target add wasm32-unknown-unknown
-        rustup target add wasm32-wasi
+        rustup target add wasm32-wasip1
 
     - name: Build (wasm32-unknown-unknown)
       run: cargo build --release --all-targets --target=wasm32-unknown-unknown
@@ -216,11 +267,11 @@ jobs:
     - name: Clippy (wasm32-unknown-unknown)
       run: cargo clippy --release --all-targets --target=wasm32-unknown-unknown
 
-    - name: Build (wasm32-wasi)
-      run: cargo build --release --all-targets --target=wasm32-wasi
+    - name: Build (wasm32-wasip1)
+      run: cargo build --release --all-targets --target=wasm32-wasip1
 
-    - name: Clippy (wasm32-wasi)
-      run: cargo clippy --release --all-targets --target=wasm32-wasi
+    - name: Clippy (wasm32-wasip1)
+      run: cargo clippy --release --all-targets --target=wasm32-wasip1
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
@@ -239,6 +290,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.rustup
+        key: outdated-${{ hashFiles('Cargo.toml') }}
 
     - name: Install dependencies
       if: ${{ env.ACT }}
@@ -260,6 +324,19 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.rustup
+        key: audit-${{ hashFiles('Cargo.toml') }}
+
     - name: Install dependencies
       if: ${{ env.ACT }}
       run: |
@@ -276,7 +353,7 @@ jobs:
         cp -p bazel/cargo/Cargo.Bazel.lock Cargo.lock
         cargo audit
 
-  example:
+  examples:
     runs-on: ubuntu-latest
 
     strategy:
@@ -300,6 +377,20 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.rustup
+          **/target
+        key: example-${{ matrix.example }}-${{ hashFiles('Cargo.toml') }}
+
     - name: Install dependencies
       if: ${{ env.ACT }}
       run: |
@@ -312,13 +403,13 @@ jobs:
     - name: Update Rust
       run: |
         rustup toolchain install stable --component clippy --component rustfmt
-        rustup target add wasm32-wasi
+        rustup target add wasm32-wasip1
 
-    - name: Build (wasm32-wasi)
-      run: cargo build --release --target=wasm32-wasi
+    - name: Build (wasm32-wasip1)
+      run: cargo build --release --target=wasm32-wasip1
 
-    - name: Clippy (wasm32-wasi)
-      run: cargo clippy --release --target=wasm32-wasi
+    - name: Clippy (wasm32-wasip1)
+      run: cargo clippy --release --target=wasm32-wasip1
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
@@ -327,21 +418,23 @@ jobs:
       run: cargo verify-project
 
     - name: Run cargo audit
+      if: ${{ !env.ACT }}
       run: cargo audit
 
     - name: Run cargo outdated
+      if: ${{ !env.ACT }}
       run: cargo outdated --root-deps-only --exit-code 1
 
     - name: Validate Envoy config
       run: |
         docker run --rm \
           -v $(pwd)/envoy.yaml:/envoy.yaml \
-          -v $(pwd)/target/wasm32-wasi/release:/etc/envoy/proxy-wasm-plugins \
+          -v $(pwd)/target/wasm32-wasip1/release:/etc/envoy/proxy-wasm-plugins \
           envoyproxy/envoy:v1.31-latest \
           --mode validate \
           -c envoy.yaml
 
-  reactor:
+  reactors:
     runs-on: ubuntu-latest
 
     strategy:
@@ -365,20 +458,34 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Cache
+      if: ${{ env.ACT }}
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.rustup
+          **/target
+        key: reactor-${{ matrix.example }}-${{ hashFiles('Cargo.toml') }}
+
     - name: Install dependencies
       if: ${{ env.ACT }}
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
         chmod +x ./rustup-init.sh
-        ./rustup-init.sh -y
+        ./rustup-init.sh -y --default-toolchain nightly
         rm rustup-init.sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
     - name: Update Rust
       run: |
         rustup toolchain install nightly --component clippy --component rustfmt
-        rustup +nightly target add wasm32-wasi
         rustup default nightly
+        rustup target add wasm32-wasip1
 
     - name: Change crate type from library to binary
       run: |
@@ -386,11 +493,11 @@ jobs:
         grep -v '^crate-type' Cargo.tmp > Cargo.toml
         mv src/lib.rs src/main.rs
 
-    - name: Build (wasm32-wasi)
-      run: cargo build --release --target=wasm32-wasi
+    - name: Build (wasm32-wasip1)
+      run: cargo build --release --target=wasm32-wasip1
 
-    - name: Clippy (wasm32-wasi)
-      run: cargo clippy --release --target=wasm32-wasi
+    - name: Clippy (wasm32-wasip1)
+      run: cargo clippy --release --target=wasm32-wasip1
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
@@ -398,15 +505,19 @@ jobs:
     - name: Format (manifest)
       run: cargo verify-project
 
-    - name: Run cargo audit
-      run: cargo audit
+    # TODO: Re-enable once cargo audit supports Cargo lockfile v4.
+    #- name: Run cargo audit
+    #  if: ${{ !env.ACT }}
+    #  run: cargo audit
 
-    - name: Run cargo outdated
-      run: cargo outdated --root-deps-only --exit-code 1
+    # TODO: Re-enable once cargo outdated supports Cargo lockfile v4.
+    #- name: Run cargo outdated
+    #  if: ${{ !env.ACT }}
+    #  run: cargo outdated --root-deps-only --exit-code 1
 
     - name: Rename .wasm to match expected filename
       run: |
-        cd target/wasm32-wasi/release
+        cd target/wasm32-wasip1/release
         for file in $(ls -1 *.wasm); do \
           mv $file $(echo $file | sed 's/-/_/g'); \
         done
@@ -415,7 +526,7 @@ jobs:
       run: |
         docker run --rm \
           -v $(pwd)/envoy.yaml:/envoy.yaml \
-          -v $(pwd)/target/wasm32-wasi/release:/etc/envoy/proxy-wasm-plugins \
+          -v $(pwd)/target/wasm32-wasip1/release:/etc/envoy/proxy-wasm-plugins \
           envoyproxy/envoy:v1.31-latest \
           --mode validate \
           -c envoy.yaml

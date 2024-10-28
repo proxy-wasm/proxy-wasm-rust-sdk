@@ -29,10 +29,6 @@
 - [Extending Envoy with WASM and Rust](https://antweiss.com/blog/extending-envoy-with-wasm-and-rust/)
 - [Writing Envoy filters in Rust with WebAssembly](https://content.red-badger.com/resources/extending-istio-with-rust-and-webassembly)
 
-## Updating dependencies
+## Contributing changes
 
-When updating dependencies, you need to regenerate Bazel `BUILD` files to match updated `Cargo.toml`:
-
-```sh
-bazel run //bazel/cargo:crates_vendor -- --repin all
-```
+See [CONTRIBUTING.md](./CONTRIBUTING.md) and [DEVELOPMENT.md](./DEVELOPMENT.md) files.
