@@ -1321,6 +1321,63 @@ mod utils {
             }
         }
 
+        #[test]
+        fn test_deserialize_map_roundtrip() {
+            let map = deserialize_map(SERIALIZED_MAP);
+            // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
+            let map_refs: Vec<(&str, &str)> =
+                map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
+            let serialized_map = serialize_map(map_refs);
+            assert_eq!(serialized_map, SERIALIZED_MAP);
+        }
+
+        #[test]
+        fn test_deserialize_map_roundtrip_bytes() {
+            let map = deserialize_map_bytes(SERIALIZED_MAP);
+            // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
+            let map_refs: Vec<(&str, &[u8])> =
+                map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
+            let serialized_map = serialize_map_bytes(map_refs);
+            assert_eq!(serialized_map, SERIALIZED_MAP);
+        }
+
+        #[test]
+        fn test_deserialize_map_all_chars() {
+            // 0x00-0x7f are valid single-byte UTF-8 characters.
+            for i in 0..0x7f {
+                let serialized_src = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
+                let map = deserialize_map(&serialized_src);
+                // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
+                let map_refs: Vec<(&str, &str)> =
+                    map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
+                let serialized_map = serialize_map(map_refs);
+                assert_eq!(serialized_map, serialized_src);
+            }
+            // 0x80-0xff are invalid single-byte UTF-8 characters.
+            for i in 0x80..0xff {
+                let serialized_src = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
+                std::panic::set_hook(Box::new(|_| {}));
+                let result = std::panic::catch_unwind(|| {
+                    deserialize_map(&serialized_src);
+                });
+                assert!(result.is_err());
+            }
+        }
+
+        #[test]
+        fn test_deserialize_map_all_chars_bytes() {
+            // All 256 single-byte characters are allowed when emitting bytes.
+            for i in 0..0xff {
+                let serialized_src = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
+                let map = deserialize_map_bytes(&serialized_src);
+                // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
+                let map_refs: Vec<(&str, &[u8])> =
+                    map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
+                let serialized_map = serialize_map_bytes(map_refs);
+                assert_eq!(serialized_map, serialized_src);
+            }
+        }
+
         #[cfg(nightly)]
         #[bench]
         fn bench_serialize_map(b: &mut Bencher) {
