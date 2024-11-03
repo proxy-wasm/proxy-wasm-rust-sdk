@@ -1289,6 +1289,34 @@ mod utils {
         ];
 
         #[test]
+        fn test_serialize_map_empty() {
+            let serialized_map = serialize_map(vec![]);
+            assert_eq!(serialized_map, [0, 0, 0, 0]);
+        }
+
+        #[test]
+        fn test_serialize_map_empty_bytes() {
+            let serialized_map = serialize_map_bytes(vec![]);
+            assert_eq!(serialized_map, [0, 0, 0, 0]);
+        }
+
+        #[test]
+        fn test_deserialize_map_empty() {
+            let map = deserialize_map(&[]);
+            assert_eq!(map, []);
+            let map = deserialize_map(&[0, 0, 0, 0]);
+            assert_eq!(map, []);
+        }
+
+        #[test]
+        fn test_deserialize_map_empty_bytes() {
+            let map = deserialize_map_bytes(&[]);
+            assert_eq!(map, []);
+            let map = deserialize_map_bytes(&[0, 0, 0, 0]);
+            assert_eq!(map, []);
+        }
+
+        #[test]
         fn test_serialize_map() {
             let serialized_map = serialize_map(MAP.to_vec());
             assert_eq!(serialized_map, SERIALIZED_MAP);
