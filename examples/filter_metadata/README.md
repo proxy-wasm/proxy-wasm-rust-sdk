@@ -17,9 +17,15 @@ and has a matching Envoy configuration.
 $ docker compose up
 ```
 
-Send HTTP request to `localhost:10000/` with a `x-custom-metadata` header value.
+Send a HTTP request to `localhost:10000/` will return the configured response. 
 
-> Not setting the header will return the configured welcome message.
+```sh
+$ curl localhost:10000/
+Welcome, set the `x-custom-metadata` header to change the response!
+```
+
+
+Send a HTTP request to `localhost:10000/` with a `x-custom-metadata` header value.
 
 ```sh
 $ curl localhost:10000/ -H "x-custom-metadata: some-value"
