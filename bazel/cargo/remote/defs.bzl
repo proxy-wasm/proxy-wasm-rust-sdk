@@ -310,11 +310,17 @@ _NORMAL_ALIASES = {
 
 _NORMAL_DEV_DEPENDENCIES = {
     "": {
+        _COMMON_CONDITION: {
+            "serde": Label("@crates_vendor__serde-1.0.214//:serde"),
+            "serde_json": Label("@crates_vendor__serde_json-1.0.132//:serde_json"),
+        },
     },
 }
 
 _NORMAL_DEV_ALIASES = {
     "": {
+        _COMMON_CONDITION: {
+        },
     },
 }
 
@@ -335,6 +341,8 @@ _PROC_MACRO_DEV_DEPENDENCIES = {
 
 _PROC_MACRO_DEV_ALIASES = {
     "": {
+        _COMMON_CONDITION: {
+        },
     },
 }
 
@@ -445,6 +453,16 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crates_vendor__itoa-1.0.11",
+        sha256 = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/itoa/1.0.11/download"],
+        strip_prefix = "itoa-1.0.11",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.itoa-1.0.11.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crates_vendor__log-0.4.22",
         sha256 = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24",
         type = "tar.gz",
@@ -453,7 +471,99 @@ def crate_repositories():
         build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.log-0.4.22.bazel"),
     )
 
+    maybe(
+        http_archive,
+        name = "crates_vendor__memchr-2.7.4",
+        sha256 = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/memchr/2.7.4/download"],
+        strip_prefix = "memchr-2.7.4",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.memchr-2.7.4.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__proc-macro2-1.0.89",
+        sha256 = "f139b0662de085916d1fb67d2b4169d1addddda1919e696f3252b740b629986e",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/proc-macro2/1.0.89/download"],
+        strip_prefix = "proc-macro2-1.0.89",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.proc-macro2-1.0.89.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__quote-1.0.37",
+        sha256 = "b5b9d34b8991d19d98081b46eacdd8eb58c6f2b201139f7c5f643cc155a633af",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/quote/1.0.37/download"],
+        strip_prefix = "quote-1.0.37",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.quote-1.0.37.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__ryu-1.0.18",
+        sha256 = "f3cb5ba0dc43242ce17de99c180e96db90b235b8a9fdc9543c96d2209116bd9f",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/ryu/1.0.18/download"],
+        strip_prefix = "ryu-1.0.18",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.ryu-1.0.18.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__serde-1.0.214",
+        sha256 = "f55c3193aca71c12ad7890f1785d2b73e1b9f63a0bbc353c08ef26fe03fc56b5",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/serde/1.0.214/download"],
+        strip_prefix = "serde-1.0.214",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.serde-1.0.214.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__serde_derive-1.0.214",
+        sha256 = "de523f781f095e28fa605cdce0f8307e451cc0fd14e2eb4cd2e98a355b147766",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/serde_derive/1.0.214/download"],
+        strip_prefix = "serde_derive-1.0.214",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.serde_derive-1.0.214.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__serde_json-1.0.132",
+        sha256 = "d726bfaff4b320266d395898905d0eba0345aae23b54aee3a737e260fd46db03",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/serde_json/1.0.132/download"],
+        strip_prefix = "serde_json-1.0.132",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.serde_json-1.0.132.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__syn-2.0.87",
+        sha256 = "25aa4ce346d03a6dcd68dd8b4010bcb74e54e62c90c573f394c46eae99aba32d",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/syn/2.0.87/download"],
+        strip_prefix = "syn-2.0.87",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.syn-2.0.87.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__unicode-ident-1.0.13",
+        sha256 = "e91b56cd4cadaeb79bbf1a5645f6b4f8dc5bde8834ad5894a8db35fda9efa1fe",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/unicode-ident/1.0.13/download"],
+        strip_prefix = "unicode-ident-1.0.13",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.unicode-ident-1.0.13.bazel"),
+    )
+
     return [
         struct(repo = "crates_vendor__hashbrown-0.15.0", is_dev_dep = False),
         struct(repo = "crates_vendor__log-0.4.22", is_dev_dep = False),
+        struct(repo = "crates_vendor__serde-1.0.214", is_dev_dep = True),
+        struct(repo = "crates_vendor__serde_json-1.0.132", is_dev_dep = True),
     ]
