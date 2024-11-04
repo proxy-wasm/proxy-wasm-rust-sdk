@@ -58,7 +58,7 @@ pub trait Context {
         hostcalls::enqueue_shared_queue(queue_id, value)
     }
 
-    /// Sends HTTP request with serialized `headers`, `body`, and serialized trailers to upstream.
+    /// Sends HTTP request with serialized `headers`, `body`, and serialized `trailers` to upstream.
     ///
     /// `on_http_call_response()` will be called with `token_id` when the response is received by the host, or after the timeout.
     ///
@@ -72,7 +72,10 @@ pub trait Context {
     ///
     /// # Returns
     ///
-    /// A Result containing the token id of the request, or an error status.
+    /// A Result containing either
+    ///
+    /// * `Ok(token_id)` - The token id of the request
+    /// * `Err(Status)` - An error status
     ///
     /// # Example
     ///
@@ -349,8 +352,8 @@ pub trait Context {
     ///
     /// impl Context for MyPlugin {
     ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
-    ///      let header = self.get_http_call_response_header("content-type");
-    ///      debug!("Received response header: {:?}", header);
+    ///      let content_type = self.get_http_call_response_header("content-type");
+    ///      debug!("Content-Type: {:?}", content_type);
     ///
     ///      // Resume the HTTP request after processing the response
     ///      self.resume_http_request();
@@ -404,9 +407,9 @@ pub trait Context {
     ///
     /// impl Context for MyPlugin {
     ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
-    ///      let header = self.get_http_call_response_header_bytes("content-type").unwrap();
-    ///      let header_str = String::from_utf8(header).unwrap();
-    ///      debug!("Received response header: {:?}", header_str);
+    ///      let content_type = self.get_http_call_response_header_bytes("content-type").unwrap();
+    ///      let content_type_str = String::from_utf8(content_type).unwrap();
+    ///      debug!("Content-Type: {:?}", content_type_str);
     ///
     ///      // Resume the HTTP request after processing the response
     ///      self.resume_http_request();
@@ -532,7 +535,7 @@ pub trait Context {
     ///
     /// * `Vec<(String, Bytes)>` - the HTTP call response trailers
     ///
-    ///     /// # Example
+    /// # Example
     ///
     /// ```rust
     /// use proxy_wasm::traits::*;
@@ -566,13 +569,10 @@ pub trait Context {
     /// impl Context for MyPlugin {
     ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
     ///      let trailers = self.get_http_call_response_trailers_bytes();
-    ///      for (name, value) in trailers {
-    ///        let value_str = String::from_utf8(value).unwrap();
-    ///        debug!("Received response trailer: {:?}", (name, value_str));
+    ///      debug!("Received response trailers: {:?}", trailers);
     ///
-    ///        // Resume the HTTP call after processing the response
-    ///        self.resume_http_request();
-    ///      }
+    ///      // Resume the HTTP call after processing the response
+    ///      self.resume_http_request();
     ///    }
     /// }
     /// ```
@@ -590,7 +590,7 @@ pub trait Context {
     ///
     /// * `Option<String>` - the HTTP call response trailer or `None` if the trailer is not found
     ///
-    ///     /// # Example
+    /// # Example
     ///
     /// ```rust
     /// use proxy_wasm::traits::*;
@@ -623,8 +623,8 @@ pub trait Context {
     ///
     /// impl Context for MyPlugin {
     ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
-    ///      let trailer = self.get_http_call_response_trailer("content-type").unwrap();
-    ///      debug!("Received response trailer: {:?}", trailer);
+    ///      let content_type = self.get_http_call_response_trailer("content-type").unwrap();
+    ///      debug!("Content-Type: {:?}", content_type);
     ///
     ///      // Resume the HTTP call after processing the response
     ///      self.resume_http_request();
@@ -678,9 +678,9 @@ pub trait Context {
     ///
     /// impl Context for MyPlugin {
     ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
-    ///      let trailer = self.get_http_call_response_trailer_bytes("content-type").unwrap();
-    ///      let trailer_str = String::from_utf8(trailer).unwrap();
-    ///      debug!("Received response trailer: {:?}", trailer_str);
+    ///      let content_type = self.get_http_call_response_trailer_bytes("content-type").unwrap();
+    ///      let content_type_str = String::from_utf8(content_type).unwrap();
+    ///      debug!("Content-Type: {:?}", content_type_str);
     ///
     ///      // Resume the HTTP call after processing the response
     ///      self.resume_http_request();
