@@ -22,6 +22,7 @@
 - [HTTP Response body](./examples/http_body/)
 - [HTTP Configuration](./examples/http_config/)
 - [gRPC Auth (random)](./examples/grpc_auth_random/)
+- [Filter metadata](./examples/filter_metadata/)
 
 ## Articles & blog posts from the community
 
