@@ -31,16 +31,16 @@ impl HttpContext for MetadataHttp {
             "metadata",
             "filter_metadata",
             "envoy.filters.http.lua",
-            "x-custom-metadata",
+            "uppercased-custom-metadata",
         ]) {
             Some(metadata) => match String::from_utf8(metadata) {
                 Ok(data) => {
                     self.send_http_response(
                         200,
-                        vec![("Powered-By", "proxy-wasm")],
+                        vec![("Powered-By", "proxy-wasm"), ("uppercased-metadata", &data)],
                         Some(
                             format!(
-                                "Custom response with `x-custom-metadata` value {:?}!\n",
+                                "Custom response with Envoy metadata: {:?}!\n",
                                 data
                             )
                             .as_bytes(),

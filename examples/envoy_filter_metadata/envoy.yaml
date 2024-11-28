@@ -39,7 +39,7 @@ static_resources:
                           body:
                             inline_string: "Welcome, set the `x-custom-metadata` header to change the response!\n"
               http_filters:
-                # Set metadata
+                # Set uppercase metadata in Lua filter
                 - name: envoy.filters.http.lua
                   typed_config:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
@@ -50,7 +50,7 @@ static_resources:
                           local data = headers:get("x-custom-metadata")
 
                           if data then
-                            request_handle:streamInfo():dynamicMetadata():set("envoy.filters.http.lua", "x-custom-metadata", data)
+                            request_handle:streamInfo():dynamicMetadata():set("envoy.filters.http.lua", "uppercased-custom-metadata", string.upper(data))
                           end
 
                           request_handle:logInfo("Metadata set by lua filter")
@@ -62,12 +62,12 @@ static_resources:
                     type_url: type.googleapis.com/envoy.extensions.filters.http.wasm.v3.Wasm
                     value:
                       config:
-                        name: "metadata_filter"
+                        name: "envoy_metadata_filter"
                         vm_config:
                           runtime: "envoy.wasm.runtime.v8"
                           code:
                             local:
-                              filename: "/etc/envoy/proxy-wasm-plugins/proxy_wasm_example_filter_metadata.wasm"
+                              filename: "/etc/envoy/proxy-wasm-plugins/proxy_wasm_example_envoy_filter_metadata.wasm"
                 - name: envoy.filters.http.router
                   typed_config:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router

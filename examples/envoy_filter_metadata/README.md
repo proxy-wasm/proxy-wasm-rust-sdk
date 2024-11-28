@@ -1,6 +1,6 @@
-## Proxy-Wasm plugin example: Metadata
+## Proxy-Wasm plugin example: Envoy metadata
 
-Proxy-Wasm plugin that demonstrates reading metadata set by other filters
+Proxy-Wasm plugin that demonstrates reading metadata set by other Envoy filters
 
 ### Building
 
@@ -24,10 +24,10 @@ $ curl localhost:10000/
 Welcome, set the `x-custom-metadata` header to change the response!
 ```
 
-
-Send a HTTP request to `localhost:10000/` with a `x-custom-metadata` header value.
+Send a HTTP request to `localhost:10000/` with a `x-custom-metadata` header value to get the uppercased value in the response. 
+The response will also set a response header `uppercased-metadata: SOME-VALUE`.
 
 ```sh
 $ curl localhost:10000/ -H "x-custom-metadata: some-value"
-Custom response with `x-custom-metadata` value "some-value"
+Custom response with Envoy metadata: "SOME-VALUE"!
 ```

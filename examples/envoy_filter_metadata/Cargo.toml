@@ -1,9 +1,9 @@
 [package]
 publish = false
-name = "proxy-wasm-example-filter-metadata"
+name = "proxy-wasm-example-envoy-filter-metadata"
 version = "0.0.1"
 authors = ["Martijn Swaagma <martijn@swaagman.online>"]
-description = "Proxy-Wasm plugin example: Filter metadata"
+description = "Proxy-Wasm plugin example: Envoy filter metadata"
 license = "Apache-2.0"
 edition = "2018"
 
