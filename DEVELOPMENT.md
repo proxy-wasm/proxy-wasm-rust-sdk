@@ -6,8 +6,8 @@ It is expected that the host environment is completely trusted and compliant
 with the [Proxy-Wasm ABI specification] (currently v0.2.1).
 
 This means that receiving unexpected callback, status, lifecycle flow and/or
-incorrectly serialized parameters is considered a permanent failure and will
-result in a `panic`.
+incorrectly serialized parameters from the host environment is considered
+a permanent failure and will result in `panic`.
 
 ## Testing
 
