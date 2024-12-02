@@ -312,11 +312,12 @@ jobs:
         ./rustup-init.sh -y
         rm rustup-init.sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-        export PATH=$PATH:$HOME/.cargo/bin
-        cargo install cargo-outdated
 
     - name: Run cargo outdated
-      run: cargo outdated --root-deps-only --exit-code 1
+      run: |
+        # TODO: Switch back to the official version once it supports Cargo lockfile v4.
+        cargo install --git https://github.com/MonterraByte/cargo-outdated.git --branch cargo-update
+        cargo outdated --root-deps-only --exit-code 1
 
   audit:
     runs-on: ubuntu-latest
@@ -420,9 +421,10 @@ jobs:
       if: ${{ !env.ACT }}
       run: cargo audit
 
-    - name: Run cargo outdated
-      if: ${{ !env.ACT }}
-      run: cargo outdated --root-deps-only --exit-code 1
+    # TODO: Re-enable once cargo outdated supports Cargo lockfile v4.
+    #- name: Run cargo outdated
+    #  if: ${{ !env.ACT }}
+    #  run: cargo outdated --root-deps-only --exit-code 1
 
     - name: Validate Envoy config
       run: |
@@ -503,10 +505,9 @@ jobs:
     - name: Format (manifest)
       run: cargo verify-project
 
-    # TODO: Re-enable once cargo audit supports Cargo lockfile v4.
-    #- name: Run cargo audit
-    #  if: ${{ !env.ACT }}
-    #  run: cargo audit
+    - name: Run cargo audit
+      if: ${{ !env.ACT }}
+      run: cargo audit
 
     # TODO: Re-enable once cargo outdated supports Cargo lockfile v4.
     #- name: Run cargo outdated
