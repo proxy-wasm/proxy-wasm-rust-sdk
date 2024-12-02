@@ -17,17 +17,17 @@ and has a matching Envoy configuration.
 $ docker compose up
 ```
 
-Send a HTTP request to `localhost:10000/` will return the configured response. 
+Send a HTTP request to `localhost:10000` will return the configured response. 
 
 ```sh
-$ curl localhost:10000/
+$ curl localhost:10000
 Welcome, set the `x-custom-metadata` header to change the response!
 ```
 
-Send a HTTP request to `localhost:10000/` with a `x-custom-metadata` header value to get the uppercased value in the response. 
+Send a HTTP request to `localhost:10000` with a `x-custom-metadata` header value to get the uppercased value in the response. 
 The response will also set a response header `uppercased-metadata: SOME-VALUE`.
 
 ```sh
-$ curl localhost:10000/ -H "x-custom-metadata: some-value"
-Custom response with Envoy metadata: "SOME-VALUE"!
+$ curl localhost:10000 -H "x-custom-metadata: some-value"
+Custom response with Envoy metadata: "SOME-VALUE"
 ```

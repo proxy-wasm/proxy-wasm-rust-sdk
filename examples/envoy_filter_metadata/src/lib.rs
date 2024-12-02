@@ -40,7 +40,7 @@ impl HttpContext for MetadataHttp {
                         vec![("Powered-By", "proxy-wasm"), ("uppercased-metadata", &data)],
                         Some(
                             format!(
-                                "Custom response with Envoy metadata: {:?}!\n",
+                                "Custom response with Envoy metadata: {:?}\n",
                                 data
                             )
                             .as_bytes(),
