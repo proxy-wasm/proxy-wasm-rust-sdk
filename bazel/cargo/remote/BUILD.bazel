@@ -32,8 +32,20 @@ filegroup(
 
 # Workspace Member Dependencies
 alias(
+    name = "bytes",
+    actual = "@crates_vendor__bytes-1.8.0//:bytes",
+    tags = ["manual"],
+)
+
+alias(
     name = "hashbrown",
     actual = "@crates_vendor__hashbrown-0.15.0//:hashbrown",
+    tags = ["manual"],
+)
+
+alias(
+    name = "http",
+    actual = "@crates_vendor__http-1.1.0//:http",
     tags = ["manual"],
 )
 

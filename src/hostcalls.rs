@@ -145,6 +145,27 @@ extern "C" {
     ) -> Status;
 }
 
+#[cfg(feature = "header-value")]
+pub fn get_map(map_type: MapType) -> Result<Vec<(String, HeaderValue)>, Status> {
+    unsafe {
+        let mut return_data: *mut u8 = null_mut();
+        let mut return_size: usize = 0;
+        match proxy_get_header_map_pairs(map_type, &mut return_data, &mut return_size) {
+            Status::Ok => {
+                if !return_data.is_null() {
+                    let serialized_map =
+                        bytes::Bytes::from(std::slice::from_raw_parts(return_data, return_size));
+                    Ok(utils::deserialize_map(serialized_map))
+                } else {
+                    Ok(Vec::new())
+                }
+            }
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+#[cfg(not(feature = "header-value"))]
 pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
     unsafe {
         let mut return_data: *mut u8 = null_mut();
@@ -189,7 +210,10 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn set_map(map_type: MapType, map: Vec<(&str, &str)>) -> Result<(), Status> {
+pub fn set_map<V>(map_type: MapType, map: Vec<(&str, V)>) -> Result<(), Status>
+where
+    V: AsRef<[u8]>,
+{
     let serialized_map = utils::serialize_map(map);
     unsafe {
         match proxy_set_header_map_pairs(map_type, serialized_map.as_ptr(), serialized_map.len()) {
@@ -200,13 +224,7 @@ pub fn set_map(map_type: MapType, map: Vec<(&str, &str)>) -> Result<(), Status> 
 }
 
 pub fn set_map_bytes(map_type: MapType, map: Vec<(&str, &[u8])>) -> Result<(), Status> {
-    let serialized_map = utils::serialize_map_bytes(map);
-    unsafe {
-        match proxy_set_header_map_pairs(map_type, serialized_map.as_ptr(), serialized_map.len()) {
-            Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
-        }
-    }
+    set_map(map_type, map)
 }
 
 extern "C" {
@@ -219,6 +237,38 @@ extern "C" {
     ) -> Status;
 }
 
+#[cfg(feature = "header-value")]
+pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<HeaderValue>, Status> {
+    let mut return_data: *mut u8 = null_mut();
+    let mut return_size: usize = 0;
+    unsafe {
+        match proxy_get_header_map_value(
+            map_type,
+            key.as_ptr(),
+            key.len(),
+            &mut return_data,
+            &mut return_size,
+        ) {
+            Status::Ok => {
+                if !return_data.is_null() {
+                    match HeaderValue::from_bytes(std::slice::from_raw_parts(
+                        return_data,
+                        return_size,
+                    )) {
+                        Ok(value) => Ok(Some(value)),
+                        Err(_) => panic!("illegal field value in: {}", key),
+                    }
+                } else {
+                    Ok(None)
+                }
+            }
+            Status::NotFound => Ok(None),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+#[cfg(not(feature = "header-value"))]
 pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<String>, Status> {
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
@@ -296,15 +346,18 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn set_map_value(map_type: MapType, key: &str, value: Option<&str>) -> Result<(), Status> {
+pub fn set_map_value<V>(map_type: MapType, key: &str, value: Option<V>) -> Result<(), Status>
+where
+    V: AsRef<[u8]>,
+{
     unsafe {
         if let Some(value) = value {
             match proxy_replace_header_map_value(
                 map_type,
                 key.as_ptr(),
                 key.len(),
-                value.as_ptr(),
-                value.len(),
+                value.as_ref().as_ptr(),
+                value.as_ref().len(),
             ) {
                 Status::Ok => Ok(()),
                 status => panic!("unexpected status: {}", status as u32),
@@ -323,25 +376,7 @@ pub fn set_map_value_bytes(
     key: &str,
     value: Option<&[u8]>,
 ) -> Result<(), Status> {
-    unsafe {
-        if let Some(value) = value {
-            match proxy_replace_header_map_value(
-                map_type,
-                key.as_ptr(),
-                key.len(),
-                value.as_ptr(),
-                value.len(),
-            ) {
-                Status::Ok => Ok(()),
-                status => panic!("unexpected status: {}", status as u32),
-            }
-        } else {
-            match proxy_remove_header_map_value(map_type, key.as_ptr(), key.len()) {
-                Status::Ok => Ok(()),
-                status => panic!("unexpected status: {}", status as u32),
-            }
-        }
-    }
+    set_map_value(map_type, key, value)
 }
 
 extern "C" {
@@ -354,14 +389,17 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn add_map_value(map_type: MapType, key: &str, value: &str) -> Result<(), Status> {
+pub fn add_map_value<V>(map_type: MapType, key: &str, value: V) -> Result<(), Status>
+where
+    V: AsRef<[u8]>,
+{
     unsafe {
         match proxy_add_header_map_value(
             map_type,
             key.as_ptr(),
             key.len(),
-            value.as_ptr(),
-            value.len(),
+            value.as_ref().as_ptr(),
+            value.as_ref().len(),
         ) {
             Status::Ok => Ok(()),
             status => panic!("unexpected status: {}", status as u32),
@@ -370,18 +408,7 @@ pub fn add_map_value(map_type: MapType, key: &str, value: &str) -> Result<(), St
 }
 
 pub fn add_map_value_bytes(map_type: MapType, key: &str, value: &[u8]) -> Result<(), Status> {
-    unsafe {
-        match proxy_add_header_map_value(
-            map_type,
-            key.as_ptr(),
-            key.len(),
-            value.as_ptr(),
-            value.len(),
-        ) {
-            Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
-        }
-    }
+    add_map_value(map_type, key, value)
 }
 
 extern "C" {
@@ -705,11 +732,14 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn send_http_response(
+pub fn send_http_response<V>(
     status_code: u32,
-    headers: Vec<(&str, &str)>,
+    headers: Vec<(&str, V)>,
     body: Option<&[u8]>,
-) -> Result<(), Status> {
+) -> Result<(), Status>
+where
+    V: AsRef<[u8]>,
+{
     let serialized_headers = utils::serialize_map(headers);
     unsafe {
         match proxy_send_local_response(
@@ -766,13 +796,16 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn dispatch_http_call(
+pub fn dispatch_http_call<V>(
     upstream: &str,
-    headers: Vec<(&str, &str)>,
+    headers: Vec<(&str, V)>,
     body: Option<&[u8]>,
-    trailers: Vec<(&str, &str)>,
+    trailers: Vec<(&str, V)>,
     timeout: Duration,
-) -> Result<u32, Status> {
+) -> Result<u32, Status>
+where
+    V: AsRef<[u8]>,
+{
     let serialized_headers = utils::serialize_map(headers);
     let serialized_trailers = utils::serialize_map(trailers);
     let mut return_token: u32 = 0;
@@ -1140,6 +1173,10 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
 
 mod utils {
     use crate::types::Bytes;
+    #[cfg(feature = "header-value")]
+    use crate::types::HeaderValue;
+    #[cfg(feature = "header-value")]
+    use bytes::Buf;
     use std::convert::TryFrom;
 
     pub(super) fn serialize_property_path(path: Vec<&str>) -> Bytes {
@@ -1159,46 +1196,60 @@ mod utils {
         bytes
     }
 
-    pub(super) fn serialize_map(map: Vec<(&str, &str)>) -> Bytes {
+    pub(super) fn serialize_map<V>(map: Vec<(&str, V)>) -> Bytes
+    where
+        V: AsRef<[u8]>,
+    {
         let mut size: usize = 4;
         for (name, value) in &map {
-            size += name.len() + value.len() + 10;
+            size += name.len() + value.as_ref().len() + 10;
         }
         let mut bytes: Bytes = Vec::with_capacity(size);
         bytes.extend_from_slice(&map.len().to_le_bytes());
         for (name, value) in &map {
             bytes.extend_from_slice(&name.len().to_le_bytes());
-            bytes.extend_from_slice(&value.len().to_le_bytes());
+            bytes.extend_from_slice(&value.as_ref().len().to_le_bytes());
         }
         for (name, value) in &map {
             bytes.extend_from_slice(name.as_bytes());
             bytes.push(0);
-            bytes.extend_from_slice(value.as_bytes());
+            bytes.extend_from_slice(value.as_ref());
             bytes.push(0);
         }
         bytes
     }
 
     pub(super) fn serialize_map_bytes(map: Vec<(&str, &[u8])>) -> Bytes {
-        let mut size: usize = 4;
-        for (name, value) in &map {
-            size += name.len() + value.len() + 10;
-        }
-        let mut bytes: Bytes = Vec::with_capacity(size);
-        bytes.extend_from_slice(&map.len().to_le_bytes());
-        for (name, value) in &map {
-            bytes.extend_from_slice(&name.len().to_le_bytes());
-            bytes.extend_from_slice(&value.len().to_le_bytes());
-        }
-        for (name, value) in &map {
-            bytes.extend_from_slice(name.as_bytes());
-            bytes.push(0);
-            bytes.extend_from_slice(value);
-            bytes.push(0);
-        }
-        bytes
+        serialize_map(map)
     }
 
+    #[cfg(feature = "header-value")]
+    pub(super) fn deserialize_map(mut bytes: bytes::Bytes) -> Vec<(String, HeaderValue)> {
+        if bytes.is_empty() {
+            return Vec::new();
+        }
+        let size = bytes.get_u32_le() as usize;
+        let mut sizes = bytes.split_to(size * 8);
+        let mut map = Vec::with_capacity(size);
+        for _ in 0..size {
+            let size = sizes.get_u32_le() as usize;
+            let key = bytes.split_to(size);
+            bytes.advance(1);
+            let size = sizes.get_u32_le() as usize;
+            let value = bytes.split_to(size);
+            bytes.advance(1);
+            map.push((
+                String::from_utf8(key.to_vec()).unwrap(),
+                // We're intentionally using the unchecked variant in order to retain
+                // values accepted by the hosts and proxies that don't enforce strict
+                // RFC compliance on HTTP field values.
+                unsafe { HeaderValue::from_maybe_shared_unchecked(value) },
+            ));
+        }
+        map
+    }
+
+    #[cfg(not(feature = "header-value"))]
     pub(super) fn deserialize_map(bytes: &[u8]) -> Vec<(String, String)> {
         if bytes.is_empty() {
             return Vec::new();
