@@ -1,0 +1,10 @@
+version: "1"
+rules:
+  - base: main
+    upstream: proxy-wasm:main
+    mergeMethod: rebase
+    mergeUnstable: false
+    conflictReviewers:
+      - casimiro
+      - thibaultcha
+conflictLabel: "rebase-conflict"
