@@ -30,7 +30,7 @@ on:
 jobs:
 
   licenses:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v2
@@ -53,7 +53,7 @@ jobs:
         addlicense -check -ignore "bazel/cargo/remote/**" .
 
   bazel:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v2
@@ -98,7 +98,7 @@ jobs:
         git diff --exit-code
 
   msrv:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     env:
       RUSTFLAGS: -D warnings
@@ -161,7 +161,7 @@ jobs:
       run: cargo publish --dry-run --target=wasm32-unknown-unknown
 
   stable:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     env:
       RUSTFLAGS: -D warnings
@@ -223,7 +223,7 @@ jobs:
       run: cargo publish --dry-run --target=wasm32-unknown-unknown
 
   nightly:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     env:
       RUSTFLAGS: -D warnings
@@ -286,7 +286,7 @@ jobs:
       run: cargo publish --dry-run --target=wasm32-unknown-unknown
 
   outdated:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v2
@@ -315,12 +315,11 @@ jobs:
 
     - name: Run cargo outdated
       run: |
-        # TODO: Switch back to the official version once it supports Cargo lockfile v4.
-        cargo install --git https://github.com/MonterraByte/cargo-outdated.git --branch cargo-update
+        cargo install cargo-outdated
         cargo outdated --root-deps-only --exit-code 1
 
   audit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v2
@@ -346,16 +345,15 @@ jobs:
         ./rustup-init.sh -y
         rm rustup-init.sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-        export PATH=$PATH:$HOME/.cargo/bin
-        cargo install cargo-audit
 
     - name: Run cargo audit
       run: |
         cp -p bazel/cargo/Cargo.Bazel.lock Cargo.lock
+        cargo install cargo-audit
         cargo audit
 
   examples:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     strategy:
       matrix:
@@ -417,15 +415,6 @@ jobs:
     - name: Format (manifest)
       run: cargo verify-project
 
-    - name: Run cargo audit
-      if: ${{ !env.ACT }}
-      run: cargo audit
-
-    # TODO: Re-enable once cargo outdated supports Cargo lockfile v4.
-    #- name: Run cargo outdated
-    #  if: ${{ !env.ACT }}
-    #  run: cargo outdated --root-deps-only --exit-code 1
-
     - name: Validate Envoy config
       run: |
         docker run --rm \
@@ -436,7 +425,7 @@ jobs:
           -c envoy.yaml
 
   reactors:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     strategy:
       matrix:
@@ -504,15 +493,6 @@ jobs:
 
     - name: Format (manifest)
       run: cargo verify-project
-
-    - name: Run cargo audit
-      if: ${{ !env.ACT }}
-      run: cargo audit
-
-    # TODO: Re-enable once cargo outdated supports Cargo lockfile v4.
-    #- name: Run cargo outdated
-    #  if: ${{ !env.ACT }}
-    #  run: cargo outdated --root-deps-only --exit-code 1
 
     - name: Rename .wasm to match expected filename
       run: |
