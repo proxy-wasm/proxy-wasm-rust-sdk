@@ -46,10 +46,13 @@ jobs:
           ~/go/pkg/mod
         key: licenses-${{ hashFiles('.github/workflows/rust.yml') }}
 
-    - name: Check licenses
+    - name: Install dependencies
       run: |
         go install github.com/google/addlicense@latest
         export PATH=$PATH:$(go env GOPATH)/bin
+
+    - name: Check licenses
+      run: |
         addlicense -check -ignore "bazel/cargo/remote/**" .
 
   bazel:
@@ -76,9 +79,10 @@ jobs:
         key: bazel-${{ hashFiles('BUILD', 'WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.Bazel.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Install dependencies
-      if: ${{ env.ACT }}
       run: |
-        go install github.com/bazelbuild/bazelisk@v1.19.0
+        go install github.com/bazelbuild/bazelisk@latest
+        go install github.com/bazelbuild/buildtools/buildifier@latest
+        export PATH=$PATH:$(go env GOPATH)/bin
 
     - name: Build (wasm32-unknown-unknown)
       run: bazelisk --noworkspace_rc build --noenable_bzlmod --platforms=@rules_rust//rust/platform:wasm //...
@@ -88,8 +92,6 @@ jobs:
 
     - name: Format (buildifier)
       run: |
-        go install github.com/bazelbuild/buildtools/buildifier@latest
-        export PATH=$PATH:$(go env GOPATH)/bin
         buildifier -mode=check -r .
 
     - name: Format (rules_rust)
