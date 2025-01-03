@@ -120,7 +120,7 @@ jobs:
           **/target
         key: msrv-${{ hashFiles('Cargo.toml') }}
 
-    - name: Install dependencies
+    - name: Install Rustup
       if: ${{ env.ACT }}
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
@@ -183,7 +183,7 @@ jobs:
           **/target
         key: stable-${{ hashFiles('Cargo.toml') }}
 
-    - name: Install dependencies
+    - name: Install Rustup
       if: ${{ env.ACT }}
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
@@ -245,7 +245,7 @@ jobs:
           **/target
         key: nightly-${{ hashFiles('Cargo.toml') }}
 
-    - name: Install dependencies
+    - name: Install Rustup
       if: ${{ env.ACT }}
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
@@ -304,7 +304,7 @@ jobs:
           ~/.rustup
         key: outdated-${{ hashFiles('Cargo.toml') }}
 
-    - name: Install dependencies
+    - name: Install Rustup
       if: ${{ env.ACT }}
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
@@ -337,7 +337,7 @@ jobs:
           ~/.rustup
         key: audit-${{ hashFiles('Cargo.toml') }}
 
-    - name: Install dependencies
+    - name: Install Rustup
       if: ${{ env.ACT }}
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
@@ -389,7 +389,7 @@ jobs:
           **/target
         key: example-${{ matrix.example }}-${{ hashFiles('Cargo.toml') }}
 
-    - name: Install dependencies
+    - name: Install Rustup
       if: ${{ env.ACT }}
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
@@ -461,7 +461,7 @@ jobs:
           **/target
         key: reactor-${{ matrix.example }}-${{ hashFiles('Cargo.toml') }}
 
-    - name: Install dependencies
+    - name: Install Rustup
       if: ${{ env.ACT }}
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
