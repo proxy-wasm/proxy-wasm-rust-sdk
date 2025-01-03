@@ -48,7 +48,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        go install github.com/google/addlicense@latest
+        go install github.com/google/addlicense@v1.1.1
         export PATH=$PATH:$(go env GOPATH)/bin
 
     - name: Check licenses
@@ -76,12 +76,12 @@ jobs:
           ~/.cargo/bin
           ~/.cargo/registry
           ~/go/pkg/mod
-        key: bazel-${{ hashFiles('BUILD', 'WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.Bazel.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        key: bazel-${{ hashFiles('.github/workflows/rust.yml', 'BUILD', 'WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.Bazel.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Install dependencies
       run: |
-        go install github.com/bazelbuild/bazelisk@latest
-        go install github.com/bazelbuild/buildtools/buildifier@latest
+        go install github.com/bazelbuild/bazelisk@v1.25.0
+        go install github.com/bazelbuild/buildtools/buildifier@v0.0.0-20241212155839-a9c248f4b684
         export PATH=$PATH:$(go env GOPATH)/bin
 
     - name: Build (wasm32-unknown-unknown)
@@ -303,7 +303,7 @@ jobs:
           ~/.cargo/bin
           ~/.cargo/registry
           ~/.rustup
-        key: outdated-${{ hashFiles('Cargo.toml') }}
+        key: outdated-${{ hashFiles('.github/workflows/rust.yml', 'Cargo.toml') }}
 
     - name: Install Rustup
       if: ${{ env.ACT }}
@@ -314,9 +314,9 @@ jobs:
         rm rustup-init.sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-    - name: Install cargo outdated
+    - name: Install dependencies
       run: |
-        cargo install cargo-outdated
+        cargo install cargo-outdated --version 0.16.0
 
     - name: Run cargo outdated (main)
       run: |
@@ -345,7 +345,7 @@ jobs:
           ~/.cargo/bin
           ~/.cargo/registry
           ~/.rustup
-        key: audit-${{ hashFiles('Cargo.toml') }}
+        key: audit-${{ hashFiles('.github/workflows/rust.yml', 'Cargo.toml') }}
 
     - name: Install Rustup
       if: ${{ env.ACT }}
@@ -356,9 +356,9 @@ jobs:
         rm rustup-init.sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-    - name: Install cargo audit
+    - name: Install dependencies
       run: |
-        cargo install cargo-audit
+        cargo install cargo-audit --version 0.21.0
 
     - name: Run cargo audit (main)
       run: |
