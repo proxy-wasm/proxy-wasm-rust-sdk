@@ -292,7 +292,6 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Cache
-      if: ${{ env.ACT }}
       uses: actions/cache@v2
       with:
         path: |
@@ -313,10 +312,20 @@ jobs:
         rm rustup-init.sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-    - name: Run cargo outdated
+    - name: Install cargo outdated
       run: |
         cargo install cargo-outdated
+
+    - name: Run cargo outdated (main)
+      run: |
         cargo outdated --root-deps-only --exit-code 1
+
+    - name: Run cargo outdated (examples)
+      run: |
+        for example in $(find examples -name Cargo.toml); do \
+          cd $(dirname $GITHUB_WORKSPACE/$example); \
+          cargo outdated --root-deps-only --exit-code 1; \
+        done
 
   audit:
     runs-on: ubuntu-24.04
@@ -325,7 +334,6 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Cache
-      if: ${{ env.ACT }}
       uses: actions/cache@v2
       with:
         path: |
@@ -346,11 +354,21 @@ jobs:
         rm rustup-init.sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-    - name: Run cargo audit
+    - name: Install cargo audit
+      run: |
+        cargo install cargo-audit
+
+    - name: Run cargo audit (main)
       run: |
         cp -p bazel/cargo/Cargo.Bazel.lock Cargo.lock
-        cargo install cargo-audit
         cargo audit
+
+    - name: Run cargo audit (examples)
+      run: |
+        for example in $(find examples -name Cargo.toml); do \
+          cd $(dirname $GITHUB_WORKSPACE/$example); \
+          cargo audit; \
+        done
 
   examples:
     runs-on: ubuntu-24.04
