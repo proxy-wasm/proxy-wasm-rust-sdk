@@ -384,6 +384,7 @@ jobs:
         - 'http_config'
         - 'http_headers'
         - 'grpc_auth_random'
+        - 'envoy_filter_metadata'
 
     defaults:
       run:
@@ -456,6 +457,7 @@ jobs:
         - 'http_config'
         - 'http_headers'
         - 'grpc_auth_random'
+        - 'envoy_filter_metadata'
 
     defaults:
       run:
