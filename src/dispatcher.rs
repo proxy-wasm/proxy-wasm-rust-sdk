@@ -555,12 +555,7 @@ impl Dispatcher {
         }
     }
 
-    fn on_foreign_function(
-        &self,
-        context_id: u32,
-        function_id: u32,
-        arugments_size: usize,
-    ) {
+    fn on_foreign_function(&self, context_id: u32, function_id: u32, arugments_size: usize) {
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
             hostcalls::set_effective_context(context_id).unwrap();
@@ -750,7 +745,6 @@ pub extern "C" fn proxy_on_foreign_function(
     function_id: u32,
     arguments_size: usize,
 ) {
-    DISPATCHER.with(|dispatcher| {
-        dispatcher.on_foreign_function(context_id, function_id, arguments_size)
-    })
+    DISPATCHER
+        .with(|dispatcher| dispatcher.on_foreign_function(context_id, function_id, arguments_size))
 }
