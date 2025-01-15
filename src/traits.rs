@@ -353,6 +353,10 @@ pub trait HttpContext: Context {
         hostcalls::add_map_value_bytes(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
+    fn remove_http_request_header(&self, name: &str) {
+        hostcalls::remove_map_value(MapType::HttpRequestHeaders, name).unwrap()
+    }
+
     fn on_http_request_body(&mut self, _body_size: usize, _end_of_stream: bool) -> Action {
         Action::Continue
     }
@@ -409,6 +413,10 @@ pub trait HttpContext: Context {
         hostcalls::add_map_value_bytes(MapType::HttpRequestTrailers, name, value).unwrap()
     }
 
+    fn remove_http_request_trailer(&self, name: &str) {
+        hostcalls::remove_map_value(MapType::HttpRequestTrailers, name).unwrap()
+    }
+
     fn resume_http_request(&self) {
         hostcalls::resume_http_request().unwrap()
     }
@@ -459,6 +467,10 @@ pub trait HttpContext: Context {
 
     fn add_http_response_header_bytes(&self, name: &str, value: &[u8]) {
         hostcalls::add_map_value_bytes(MapType::HttpResponseHeaders, name, value).unwrap()
+    }
+
+    fn remove_http_response_header(&self, name: &str) {
+        hostcalls::remove_map_value(MapType::HttpResponseHeaders, name).unwrap()
     }
 
     fn on_http_response_body(&mut self, _body_size: usize, _end_of_stream: bool) -> Action {
@@ -515,6 +527,10 @@ pub trait HttpContext: Context {
 
     fn add_http_response_trailer_bytes(&self, name: &str, value: &[u8]) {
         hostcalls::add_map_value_bytes(MapType::HttpResponseTrailers, name, value).unwrap()
+    }
+
+    fn remove_http_response_trailer(&self, name: &str) {
+        hostcalls::remove_map_value(MapType::HttpResponseTrailers, name).unwrap()
     }
 
     fn resume_http_response(&self) {
