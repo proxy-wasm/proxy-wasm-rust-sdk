@@ -197,6 +197,8 @@ pub trait Context {
         hostcalls::get_grpc_status().unwrap()
     }
 
+    fn on_foreign_function(&mut self, _function_id: u32, _arguments_size: usize) {}
+
     fn call_foreign_function(
         &self,
         function_name: &str,
