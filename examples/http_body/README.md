@@ -5,7 +5,7 @@ Proxy-Wasm plugin that redacts sensitive HTTP responses.
 ### Building
 
 ```sh
-$ cargo build --target wasm32-wasi --release
+$ cargo build --target wasm32-wasip1 --release
 ```
 
 ### Using in Envoy

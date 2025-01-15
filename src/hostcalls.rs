@@ -152,8 +152,8 @@ pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
         match proxy_get_header_map_pairs(map_type, &mut return_data, &mut return_size) {
             Status::Ok => {
                 if !return_data.is_null() {
-                    let serialized_map = Vec::from_raw_parts(return_data, return_size, return_size);
-                    Ok(utils::deserialize_map(&serialized_map))
+                    let serialized_map = std::slice::from_raw_parts(return_data, return_size);
+                    Ok(utils::deserialize_map(serialized_map))
                 } else {
                     Ok(Vec::new())
                 }
@@ -170,8 +170,8 @@ pub fn get_map_bytes(map_type: MapType) -> Result<Vec<(String, Bytes)>, Status> 
         match proxy_get_header_map_pairs(map_type, &mut return_data, &mut return_size) {
             Status::Ok => {
                 if !return_data.is_null() {
-                    let serialized_map = Vec::from_raw_parts(return_data, return_size, return_size);
-                    Ok(utils::deserialize_map_bytes(&serialized_map))
+                    let serialized_map = std::slice::from_raw_parts(return_data, return_size);
+                    Ok(utils::deserialize_map_bytes(serialized_map))
                 } else {
                     Ok(Vec::new())
                 }
@@ -1209,11 +1209,11 @@ mod utils {
     }
 
     pub(super) fn deserialize_map(bytes: &[u8]) -> Vec<(String, String)> {
-        let mut map = Vec::new();
         if bytes.is_empty() {
-            return map;
+            return Vec::new();
         }
         let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[0..4]).unwrap()) as usize;
+        let mut map = Vec::with_capacity(size);
         let mut p = 4 + size * 8;
         for n in 0..size {
             let s = 4 + n * 8;
@@ -1233,11 +1233,11 @@ mod utils {
     }
 
     pub(super) fn deserialize_map_bytes(bytes: &[u8]) -> Vec<(String, Bytes)> {
-        let mut map = Vec::new();
         if bytes.is_empty() {
-            return map;
+            return Vec::new();
         }
         let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[0..4]).unwrap()) as usize;
+        let mut map = Vec::with_capacity(size);
         let mut p = 4 + size * 8;
         for n in 0..size {
             let s = 4 + n * 8;

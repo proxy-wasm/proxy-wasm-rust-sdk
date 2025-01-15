@@ -5,7 +5,7 @@ Proxy-Wasm plugin that injects HTTP response header with a value from Envoy conf
 ### Building
 
 ```sh
-$ cargo build --target wasm32-wasi --release
+$ cargo build --target wasm32-wasip1 --release
 ```
 
 ### Using in Envoy

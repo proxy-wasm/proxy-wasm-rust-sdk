@@ -5,7 +5,7 @@ Proxy-Wasm plugin that grants access based on a result of HTTP callout.
 ### Building
 
 ```sh
-$ cargo build --target wasm32-wasi --release
+$ cargo build --target wasm32-wasip1 --release
 ```
 
 ### Using in Envoy

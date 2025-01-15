@@ -5,7 +5,7 @@ Proxy-Wasm background service plugin that logs time and random numbers.
 ### Building
 
 ```sh
-$ cargo build --target wasm32-wasi --release
+$ cargo build --target wasm32-wasip1 --release
 ```
 
 ### Using in Envoy
