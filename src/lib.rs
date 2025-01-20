@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![cfg_attr(all(test, nightly), feature(test))]
+
+#[cfg(all(test, nightly))]
+extern crate test;
+
 pub mod hostcalls;
 pub mod traits;
 pub mod types;
