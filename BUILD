@@ -29,7 +29,10 @@ cargo_build_script(
 
 rust_library(
     name = "proxy_wasm",
-    srcs = glob(["src/*.rs"]),
+    srcs = glob([
+        "src/*.rs",
+        "src/callout/*.rs",
+    ]),
     edition = "2018",
     visibility = ["//visibility:public"],
     deps = [
