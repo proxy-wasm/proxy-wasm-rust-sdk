@@ -269,7 +269,7 @@ pub fn get_map_value_bytes(map_type: MapType, key: &str) -> Result<Option<Bytes>
                         return_size,
                     )))
                 } else {
-                    Ok(None)
+                    Ok(Some(Vec::new()))
                 }
             }
             Status::NotFound => Ok(None),
