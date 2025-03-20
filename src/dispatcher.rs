@@ -16,7 +16,6 @@ use crate::hostcalls;
 use crate::traits::*;
 use crate::types::*;
 use hashbrown::HashMap;
-use log::trace;
 use std::cell::{Cell, RefCell};
 
 thread_local! {
@@ -35,16 +34,16 @@ pub(crate) fn set_http_context(callback: NewHttpContext) {
     DISPATCHER.with(|dispatcher| dispatcher.set_http_context(callback));
 }
 
-pub(crate) fn register_callout(token_id: u32) {
-    DISPATCHER.with(|dispatcher| dispatcher.register_callout(token_id));
+pub(crate) fn register_callout(token_id: u32) -> Result<(), HostError> {
+    DISPATCHER.with(|dispatcher| dispatcher.register_callout(token_id))
 }
 
-pub(crate) fn register_grpc_callout(token_id: u32) {
-    DISPATCHER.with(|dispatcher| dispatcher.register_grpc_callout(token_id));
+pub(crate) fn register_grpc_callout(token_id: u32) -> Result<(), HostError> {
+    DISPATCHER.with(|dispatcher| dispatcher.register_grpc_callout(token_id))
 }
 
-pub(crate) fn register_grpc_stream(token_id: u32) {
-    DISPATCHER.with(|dispatcher| dispatcher.register_grpc_stream(token_id));
+pub(crate) fn register_grpc_stream(token_id: u32) -> Result<(), HostError> {
+    DISPATCHER.with(|dispatcher| dispatcher.register_grpc_stream(token_id))
 }
 
 struct NoopRoot;
@@ -93,40 +92,46 @@ impl Dispatcher {
         self.new_http_stream.set(Some(callback));
     }
 
-    fn register_callout(&self, token_id: u32) {
+    fn register_callout(&self, token_id: u32) -> Result<(), HostError> {
         if self
             .callouts
             .borrow_mut()
             .insert(token_id, self.active_id.get())
             .is_some()
         {
-            panic!("duplicate token_id")
+            Err("duplicate token_id".into())
+        } else {
+            Ok(())
         }
     }
 
-    fn register_grpc_stream(&self, token_id: u32) {
+    fn register_grpc_stream(&self, token_id: u32) -> Result<(), HostError> {
         if self
             .grpc_streams
             .borrow_mut()
             .insert(token_id, self.active_id.get())
             .is_some()
         {
-            panic!("duplicate token_id")
+            Err("duplicate token_id".into())
+        } else {
+            Ok(())
         }
     }
 
-    fn register_grpc_callout(&self, token_id: u32) {
+    fn register_grpc_callout(&self, token_id: u32) -> Result<(), HostError> {
         if self
             .grpc_callouts
             .borrow_mut()
             .insert(token_id, self.active_id.get())
             .is_some()
         {
-            panic!("duplicate token_id")
+            Err("duplicate token_id".into())
+        } else {
+            Ok(())
         }
     }
 
-    fn create_root_context(&self, context_id: u32) {
+    fn create_root_context(&self, context_id: u32) -> Result<(), HostError> {
         let new_context = match self.new_root.get() {
             Some(f) => f(context_id),
             None => Box::new(NoopRoot),
@@ -137,20 +142,26 @@ impl Dispatcher {
             .insert(context_id, new_context)
             .is_some()
         {
-            panic!("duplicate context_id")
+            Err("duplicate context_id".into())
+        } else {
+            Ok(())
         }
     }
 
-    fn create_stream_context(&self, context_id: u32, root_context_id: u32) {
+    fn create_stream_context(
+        &self,
+        context_id: u32,
+        root_context_id: u32,
+    ) -> Result<(), HostError> {
         let new_context = match self.roots.borrow().get(&root_context_id) {
             Some(root_context) => match self.new_stream.get() {
                 Some(f) => f(context_id, root_context_id),
                 None => match root_context.create_stream_context(context_id) {
                     Some(stream_context) => stream_context,
-                    None => panic!("create_stream_context returned None"),
+                    None => return Err("create_stream_context returned None".into()),
                 },
             },
-            None => panic!("invalid root_context_id"),
+            None => return Err("invalid root_context_id".into()),
         };
         if self
             .streams
@@ -158,20 +169,21 @@ impl Dispatcher {
             .insert(context_id, new_context)
             .is_some()
         {
-            panic!("duplicate context_id")
+            return Err("duplicate context_id".into());
         }
+        Ok(())
     }
 
-    fn create_http_context(&self, context_id: u32, root_context_id: u32) {
+    fn create_http_context(&self, context_id: u32, root_context_id: u32) -> Result<(), HostError> {
         let new_context = match self.roots.borrow().get(&root_context_id) {
             Some(root_context) => match self.new_http_stream.get() {
                 Some(f) => f(context_id, root_context_id),
                 None => match root_context.create_http_context(context_id) {
                     Some(stream_context) => stream_context,
-                    None => panic!("create_http_context returned None"),
+                    None => return Err("create_http_context returned None".into()),
                 },
             },
-            None => panic!("invalid root_context_id"),
+            None => return Err("invalid root_context_id".into()),
         };
         if self
             .http_streams
@@ -179,17 +191,18 @@ impl Dispatcher {
             .insert(context_id, new_context)
             .is_some()
         {
-            panic!("duplicate context_id")
+            return Err("duplicate context_id".into());
         }
+        Ok(())
     }
 
-    fn on_create_context(&self, context_id: u32, root_context_id: u32) {
+    fn on_create_context(&self, context_id: u32, root_context_id: u32) -> Result<(), HostError> {
         if root_context_id == 0 {
-            self.create_root_context(context_id);
+            self.create_root_context(context_id)
         } else if self.new_http_stream.get().is_some() {
-            self.create_http_context(context_id, root_context_id);
+            self.create_http_context(context_id, root_context_id)
         } else if self.new_stream.get().is_some() {
-            self.create_stream_context(context_id, root_context_id);
+            self.create_stream_context(context_id, root_context_id)
         } else if let Some(root_context) = self.roots.borrow().get(&root_context_id) {
             match root_context.get_type() {
                 Some(ContextType::HttpContext) => {
@@ -198,130 +211,157 @@ impl Dispatcher {
                 Some(ContextType::StreamContext) => {
                     self.create_stream_context(context_id, root_context_id)
                 }
-                None => panic!("missing ContextType on root_context"),
+                None => Err("missing ContextType on root_context".into()),
             }
         } else {
-            panic!("invalid root_context_id and missing constructors");
+            Err("invalid root_context_id and missing constructors".into())
         }
     }
 
-    fn on_done(&self, context_id: u32) -> bool {
+    fn on_done(&self, context_id: u32) -> Result<bool, HostError> {
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            http_stream.on_done()
+            Ok(http_stream.on_done())
         } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            stream.on_done()
+            Ok(stream.on_done())
         } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            root.on_done()
+            Ok(root.on_done())
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
-    fn on_log(&self, context_id: u32) {
+    fn on_log(&self, context_id: u32) -> Result<(), HostError> {
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            http_stream.on_log()
+            http_stream.on_log();
+            Ok(())
         } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            stream.on_log()
+            stream.on_log();
+            Ok(())
         } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            root.on_log()
+            root.on_log();
+            Ok(())
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
-    fn on_delete(&self, context_id: u32) {
+    fn on_delete(&self, context_id: u32) -> Result<(), HostError> {
         if !(self.http_streams.borrow_mut().remove(&context_id).is_some()
             || self.streams.borrow_mut().remove(&context_id).is_some()
             || self.roots.borrow_mut().remove(&context_id).is_some())
         {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
+        } else {
+            Ok(())
         }
     }
 
-    fn on_vm_start(&self, context_id: u32, vm_configuration_size: usize) -> bool {
+    fn on_vm_start(
+        &self,
+        context_id: u32,
+        vm_configuration_size: usize,
+    ) -> Result<bool, HostError> {
         if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            root.on_vm_start(vm_configuration_size)
+            Ok(root.on_vm_start(vm_configuration_size))
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
-    fn on_configure(&self, context_id: u32, plugin_configuration_size: usize) -> bool {
+    fn on_configure(
+        &self,
+        context_id: u32,
+        plugin_configuration_size: usize,
+    ) -> Result<bool, HostError> {
         if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            root.on_configure(plugin_configuration_size)
+            Ok(root.on_configure(plugin_configuration_size))
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
-    fn on_tick(&self, context_id: u32) {
+    fn on_tick(&self, context_id: u32) -> Result<(), HostError> {
         if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            root.on_tick()
+            root.on_tick();
+            Ok(())
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
-    fn on_queue_ready(&self, context_id: u32, queue_id: u32) {
+    fn on_queue_ready(&self, context_id: u32, queue_id: u32) -> Result<(), HostError> {
         if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            root.on_queue_ready(queue_id)
+            root.on_queue_ready(queue_id);
+            Ok(())
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
-    fn on_new_connection(&self, context_id: u32) -> Action {
+    fn on_new_connection(&self, context_id: u32) -> Result<Action, HostError> {
         if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            stream.on_new_connection()
+            Ok(stream.on_new_connection())
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
-    fn on_downstream_data(&self, context_id: u32, data_size: usize, end_of_stream: bool) -> Action {
+    fn on_downstream_data(
+        &self,
+        context_id: u32,
+        data_size: usize,
+        end_of_stream: bool,
+    ) -> Result<Action, HostError> {
         if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            stream.on_downstream_data(data_size, end_of_stream)
+            Ok(stream.on_downstream_data(data_size, end_of_stream))
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
-    fn on_downstream_close(&self, context_id: u32, peer_type: PeerType) {
+    fn on_downstream_close(&self, context_id: u32, peer_type: PeerType) -> Result<(), HostError> {
         if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            stream.on_downstream_close(peer_type)
+            stream.on_downstream_close(peer_type);
+            Ok(())
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
-    fn on_upstream_data(&self, context_id: u32, data_size: usize, end_of_stream: bool) -> Action {
+    fn on_upstream_data(
+        &self,
+        context_id: u32,
+        data_size: usize,
+        end_of_stream: bool,
+    ) -> Result<Action, HostError> {
         if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            stream.on_upstream_data(data_size, end_of_stream)
+            Ok(stream.on_upstream_data(data_size, end_of_stream))
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
-    fn on_upstream_close(&self, context_id: u32, peer_type: PeerType) {
+    fn on_upstream_close(&self, context_id: u32, peer_type: PeerType) -> Result<(), HostError> {
         if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            stream.on_upstream_close(peer_type)
+            stream.on_upstream_close(peer_type);
+            Ok(())
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
@@ -330,12 +370,12 @@ impl Dispatcher {
         context_id: u32,
         num_headers: usize,
         end_of_stream: bool,
-    ) -> Action {
+    ) -> Result<Action, HostError> {
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            http_stream.on_http_request_headers(num_headers, end_of_stream)
+            Ok(http_stream.on_http_request_headers(num_headers, end_of_stream))
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
@@ -344,21 +384,25 @@ impl Dispatcher {
         context_id: u32,
         body_size: usize,
         end_of_stream: bool,
-    ) -> Action {
+    ) -> Result<Action, HostError> {
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            http_stream.on_http_request_body(body_size, end_of_stream)
+            Ok(http_stream.on_http_request_body(body_size, end_of_stream))
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
-    fn on_http_request_trailers(&self, context_id: u32, num_trailers: usize) -> Action {
+    fn on_http_request_trailers(
+        &self,
+        context_id: u32,
+        num_trailers: usize,
+    ) -> Result<Action, HostError> {
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            http_stream.on_http_request_trailers(num_trailers)
+            Ok(http_stream.on_http_request_trailers(num_trailers))
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
@@ -367,12 +411,12 @@ impl Dispatcher {
         context_id: u32,
         num_headers: usize,
         end_of_stream: bool,
-    ) -> Action {
+    ) -> Result<Action, HostError> {
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            http_stream.on_http_response_headers(num_headers, end_of_stream)
+            Ok(http_stream.on_http_response_headers(num_headers, end_of_stream))
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
@@ -381,21 +425,25 @@ impl Dispatcher {
         context_id: u32,
         body_size: usize,
         end_of_stream: bool,
-    ) -> Action {
+    ) -> Result<Action, HostError> {
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            http_stream.on_http_response_body(body_size, end_of_stream)
+            Ok(http_stream.on_http_response_body(body_size, end_of_stream))
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
-    fn on_http_response_trailers(&self, context_id: u32, num_trailers: usize) -> Action {
+    fn on_http_response_trailers(
+        &self,
+        context_id: u32,
+        num_trailers: usize,
+    ) -> Result<Action, HostError> {
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            http_stream.on_http_response_trailers(num_trailers)
+            Ok(http_stream.on_http_response_trailers(num_trailers))
         } else {
-            panic!("invalid context_id")
+            Err("invalid context_id".into())
         }
     }
 
@@ -405,68 +453,88 @@ impl Dispatcher {
         num_headers: usize,
         body_size: usize,
         num_trailers: usize,
-    ) {
-        let context_id = self
-            .callouts
-            .borrow_mut()
-            .remove(&token_id)
-            .expect("invalid token_id");
-
-        if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
-            self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            http_stream.on_http_call_response(token_id, num_headers, body_size, num_trailers)
-        } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
-            self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            stream.on_http_call_response(token_id, num_headers, body_size, num_trailers)
-        } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
-            self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            root.on_http_call_response(token_id, num_headers, body_size, num_trailers)
-        }
-    }
-
-    fn on_grpc_receive_initial_metadata(&self, token_id: u32, headers: u32) {
-        let context_id = match self.grpc_streams.borrow_mut().get(&token_id) {
-            Some(id) => *id,
-            None => {
-                // TODO: change back to a panic once underlying issue is fixed.
-                trace!("on_grpc_receive_initial_metadata: invalid token_id");
-                return;
+    ) -> Result<(), HostError> {
+        match self.callouts.borrow_mut().remove(&token_id) {
+            None => Err("invalid token_id".into()),
+            Some(context_id) => {
+                if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
+                    self.active_id.set(context_id);
+                    hostcalls::set_effective_context(context_id).unwrap();
+                    http_stream.on_http_call_response(
+                        token_id,
+                        num_headers,
+                        body_size,
+                        num_trailers,
+                    );
+                    Ok(())
+                } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
+                    self.active_id.set(context_id);
+                    hostcalls::set_effective_context(context_id).unwrap();
+                    stream.on_http_call_response(token_id, num_headers, body_size, num_trailers);
+                    Ok(())
+                } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
+                    self.active_id.set(context_id);
+                    hostcalls::set_effective_context(context_id).unwrap();
+                    root.on_http_call_response(token_id, num_headers, body_size, num_trailers);
+                    Ok(())
+                } else {
+                    Err("invalid context_id, no match found".into())
+                }
             }
-        };
-
-        if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
-            self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            http_stream.on_grpc_stream_initial_metadata(token_id, headers);
-        } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
-            self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            stream.on_grpc_stream_initial_metadata(token_id, headers);
-        } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
-            self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            root.on_grpc_stream_initial_metadata(token_id, headers);
         }
     }
 
-    fn on_grpc_receive(&self, token_id: u32, response_size: usize) {
+    fn on_grpc_receive_initial_metadata(
+        &self,
+        token_id: u32,
+        headers: u32,
+    ) -> Result<(), HostError> {
+        match self.grpc_streams.borrow_mut().get(&token_id) {
+            Some(id) => {
+                let context_id = *id;
+                if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
+                    self.active_id.set(context_id);
+                    hostcalls::set_effective_context(context_id).unwrap();
+                    http_stream.on_grpc_stream_initial_metadata(token_id, headers);
+                    Ok(())
+                } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
+                    self.active_id.set(context_id);
+                    hostcalls::set_effective_context(context_id).unwrap();
+                    stream.on_grpc_stream_initial_metadata(token_id, headers);
+                    Ok(())
+                } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
+                    self.active_id.set(context_id);
+                    hostcalls::set_effective_context(context_id).unwrap();
+                    root.on_grpc_stream_initial_metadata(token_id, headers);
+                    Ok(())
+                } else {
+                    Err("invalid context_id, no match found".into())
+                }
+            }
+            None => Err("invalid token_id".into()),
+        }
+    }
+
+    fn on_grpc_receive(&self, token_id: u32, response_size: usize) -> Result<(), HostError> {
         let context_id = self.grpc_callouts.borrow_mut().remove(&token_id);
         if let Some(context_id) = context_id {
             if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
                 hostcalls::set_effective_context(context_id).unwrap();
                 http_stream.on_grpc_call_response(token_id, 0, response_size);
+                Ok(())
             } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
                 hostcalls::set_effective_context(context_id).unwrap();
                 stream.on_grpc_call_response(token_id, 0, response_size);
+                Ok(())
             } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
                 hostcalls::set_effective_context(context_id).unwrap();
                 root.on_grpc_call_response(token_id, 0, response_size);
+                Ok(())
+            } else {
+                Err("invalid context_id, no match found".into())
             }
         } else {
             let context_id = self.grpc_streams.borrow().get(&token_id).cloned();
@@ -475,62 +543,77 @@ impl Dispatcher {
                     self.active_id.set(context_id);
                     hostcalls::set_effective_context(context_id).unwrap();
                     http_stream.on_grpc_stream_message(token_id, response_size);
+                    Ok(())
                 } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
                     hostcalls::set_effective_context(context_id).unwrap();
                     stream.on_grpc_stream_message(token_id, response_size);
+                    Ok(())
                 } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
                     hostcalls::set_effective_context(context_id).unwrap();
                     root.on_grpc_stream_message(token_id, response_size);
+                    Ok(())
+                } else {
+                    Err("invalid context_id, no match found".into())
                 }
             } else {
-                // TODO: change back to a panic once underlying issue is fixed.
-                trace!("on_grpc_receive_initial_metadata: invalid token_id");
+                Err("invalid token_id".into())
             }
         }
     }
 
-    fn on_grpc_receive_trailing_metadata(&self, token_id: u32, trailers: u32) {
-        let context_id = match self.grpc_streams.borrow_mut().get(&token_id) {
-            Some(id) => *id,
-            None => {
-                // TODO: change back to a panic once underlying issue is fixed.
-                trace!("on_grpc_receive_trailing_metadata: invalid token_id");
-                return;
+    fn on_grpc_receive_trailing_metadata(
+        &self,
+        token_id: u32,
+        trailers: u32,
+    ) -> Result<(), HostError> {
+        match self.grpc_streams.borrow_mut().get(&token_id) {
+            Some(id) => {
+                let context_id = *id;
+                if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
+                    self.active_id.set(context_id);
+                    hostcalls::set_effective_context(context_id).unwrap();
+                    http_stream.on_grpc_stream_trailing_metadata(token_id, trailers);
+                    Ok(())
+                } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
+                    self.active_id.set(context_id);
+                    hostcalls::set_effective_context(context_id).unwrap();
+                    stream.on_grpc_stream_trailing_metadata(token_id, trailers);
+                    Ok(())
+                } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
+                    self.active_id.set(context_id);
+                    hostcalls::set_effective_context(context_id).unwrap();
+                    root.on_grpc_stream_trailing_metadata(token_id, trailers);
+                    Ok(())
+                } else {
+                    Err("invalid context_id, no match found".into())
+                }
             }
-        };
-
-        if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
-            self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            http_stream.on_grpc_stream_trailing_metadata(token_id, trailers);
-        } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
-            self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            stream.on_grpc_stream_trailing_metadata(token_id, trailers);
-        } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
-            self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            root.on_grpc_stream_trailing_metadata(token_id, trailers);
+            None => Err("invalid token_id".into()),
         }
     }
 
-    fn on_grpc_close(&self, token_id: u32, status_code: u32) {
+    fn on_grpc_close(&self, token_id: u32, status_code: u32) -> Result<(), HostError> {
         let context_id = self.grpc_callouts.borrow_mut().remove(&token_id);
         if let Some(context_id) = context_id {
             if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
                 hostcalls::set_effective_context(context_id).unwrap();
                 http_stream.on_grpc_call_response(token_id, status_code, 0);
+                Ok(())
             } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
                 hostcalls::set_effective_context(context_id).unwrap();
                 stream.on_grpc_call_response(token_id, status_code, 0);
+                Ok(())
             } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
                 hostcalls::set_effective_context(context_id).unwrap();
                 root.on_grpc_call_response(token_id, status_code, 0);
+                Ok(())
+            } else {
+                Err("invalid context_id, no match found".into())
             }
         } else {
             let context_id = self.grpc_streams.borrow_mut().remove(&token_id);
@@ -538,19 +621,23 @@ impl Dispatcher {
                 if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
                     hostcalls::set_effective_context(context_id).unwrap();
-                    http_stream.on_grpc_stream_close(token_id, status_code)
+                    http_stream.on_grpc_stream_close(token_id, status_code);
+                    Ok(())
                 } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
                     hostcalls::set_effective_context(context_id).unwrap();
-                    stream.on_grpc_stream_close(token_id, status_code)
+                    stream.on_grpc_stream_close(token_id, status_code);
+                    Ok(())
                 } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
                     hostcalls::set_effective_context(context_id).unwrap();
-                    root.on_grpc_stream_close(token_id, status_code)
+                    root.on_grpc_stream_close(token_id, status_code);
+                    Ok(())
+                } else {
+                    Err("invalid context_id, no match found".into())
                 }
             } else {
-                // TODO: change back to a panic once underlying issue is fixed.
-                trace!("on_grpc_close: invalid token_id, a non-connected stream has closed");
+                Err("on_grpc_close: invalid token_id, a non-connected stream has closed".into())
             }
         }
     }
@@ -574,47 +661,92 @@ impl Dispatcher {
 
 #[no_mangle]
 pub extern "C" fn proxy_on_context_create(context_id: u32, root_context_id: u32) {
-    DISPATCHER.with(|dispatcher| dispatcher.on_create_context(context_id, root_context_id))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_create_context(context_id, root_context_id)
+            .inspect_err(|err| log::error!("proxy_on_done {}", err))
+            .unwrap_or_default()
+    })
 }
 
 #[no_mangle]
 pub extern "C" fn proxy_on_done(context_id: u32) -> bool {
-    DISPATCHER.with(|dispatcher| dispatcher.on_done(context_id))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_done(context_id)
+            .inspect_err(|err| log::error!("proxy_on_done {}", err))
+            .unwrap_or_default()
+    })
 }
 
 #[no_mangle]
 pub extern "C" fn proxy_on_log(context_id: u32) {
-    DISPATCHER.with(|dispatcher| dispatcher.on_log(context_id))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_log(context_id)
+            .inspect_err(|err| log::error!("proxy_on_log {}", err))
+            .unwrap_or_default()
+    })
 }
 
 #[no_mangle]
 pub extern "C" fn proxy_on_delete(context_id: u32) {
-    DISPATCHER.with(|dispatcher| dispatcher.on_delete(context_id))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_delete(context_id)
+            .inspect_err(|err| log::error!("proxy_on_delete {}", err))
+            .unwrap_or_default()
+    })
 }
 
 #[no_mangle]
 pub extern "C" fn proxy_on_vm_start(context_id: u32, vm_configuration_size: usize) -> bool {
-    DISPATCHER.with(|dispatcher| dispatcher.on_vm_start(context_id, vm_configuration_size))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_vm_start(context_id, vm_configuration_size)
+            .inspect_err(|err| log::error!("proxy_on_vm_start {}", err))
+            .unwrap_or_default()
+    })
 }
 
 #[no_mangle]
 pub extern "C" fn proxy_on_configure(context_id: u32, plugin_configuration_size: usize) -> bool {
-    DISPATCHER.with(|dispatcher| dispatcher.on_configure(context_id, plugin_configuration_size))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_configure(context_id, plugin_configuration_size)
+            .inspect_err(|err| log::error!("proxy_on_configure {}", err))
+            .unwrap_or_default()
+    })
 }
 
 #[no_mangle]
 pub extern "C" fn proxy_on_tick(context_id: u32) {
-    DISPATCHER.with(|dispatcher| dispatcher.on_tick(context_id))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_tick(context_id)
+            .inspect_err(|err| log::error!("proxy_on_tick {}", err))
+            .unwrap_or_default()
+    })
 }
 
 #[no_mangle]
 pub extern "C" fn proxy_on_queue_ready(context_id: u32, queue_id: u32) {
-    DISPATCHER.with(|dispatcher| dispatcher.on_queue_ready(context_id, queue_id))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_queue_ready(context_id, queue_id)
+            .inspect_err(|err| log::error!("proxy_on_queue_ready {}", err))
+            .unwrap_or_default()
+    })
 }
 
 #[no_mangle]
 pub extern "C" fn proxy_on_new_connection(context_id: u32) -> Action {
-    DISPATCHER.with(|dispatcher| dispatcher.on_new_connection(context_id))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_new_connection(context_id)
+            .inspect_err(|err| log::error!("proxy_on_new_connection {}", err))
+            .unwrap_or(Action::Continue)
+    })
 }
 
 #[no_mangle]
@@ -623,13 +755,22 @@ pub extern "C" fn proxy_on_downstream_data(
     data_size: usize,
     end_of_stream: bool,
 ) -> Action {
-    DISPATCHER
-        .with(|dispatcher| dispatcher.on_downstream_data(context_id, data_size, end_of_stream))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_downstream_data(context_id, data_size, end_of_stream)
+            .inspect_err(|err| log::error!("proxy_on_downstream_data {}", err))
+            .unwrap_or(Action::Continue)
+    })
 }
 
 #[no_mangle]
 pub extern "C" fn proxy_on_downstream_connection_close(context_id: u32, peer_type: PeerType) {
-    DISPATCHER.with(|dispatcher| dispatcher.on_downstream_close(context_id, peer_type))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_downstream_close(context_id, peer_type)
+            .inspect_err(|err| log::error!("proxy_on_downstream_connection_close {}", err))
+            .unwrap_or_default()
+    })
 }
 
 #[no_mangle]
@@ -638,12 +779,22 @@ pub extern "C" fn proxy_on_upstream_data(
     data_size: usize,
     end_of_stream: bool,
 ) -> Action {
-    DISPATCHER.with(|dispatcher| dispatcher.on_upstream_data(context_id, data_size, end_of_stream))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_upstream_data(context_id, data_size, end_of_stream)
+            .inspect_err(|err| log::error!("proxy_on_upstream_data {}", err))
+            .unwrap_or(Action::Continue)
+    })
 }
 
 #[no_mangle]
 pub extern "C" fn proxy_on_upstream_connection_close(context_id: u32, peer_type: PeerType) {
-    DISPATCHER.with(|dispatcher| dispatcher.on_upstream_close(context_id, peer_type))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_upstream_close(context_id, peer_type)
+            .inspect_err(|err| log::error!("proxy_on_upstream_connection_close {}", err))
+            .unwrap_or_default()
+    })
 }
 
 #[no_mangle]
@@ -653,7 +804,10 @@ pub extern "C" fn proxy_on_request_headers(
     end_of_stream: bool,
 ) -> Action {
     DISPATCHER.with(|dispatcher| {
-        dispatcher.on_http_request_headers(context_id, num_headers, end_of_stream)
+        dispatcher
+            .on_http_request_headers(context_id, num_headers, end_of_stream)
+            .inspect_err(|err| log::error!("proxy_on_request_headers {}", err))
+            .unwrap_or(Action::Continue)
     })
 }
 
@@ -663,13 +817,22 @@ pub extern "C" fn proxy_on_request_body(
     body_size: usize,
     end_of_stream: bool,
 ) -> Action {
-    DISPATCHER
-        .with(|dispatcher| dispatcher.on_http_request_body(context_id, body_size, end_of_stream))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_http_request_body(context_id, body_size, end_of_stream)
+            .inspect_err(|err| log::error!("proxy_on_request_body {}", err))
+            .unwrap_or(Action::Continue)
+    })
 }
 
 #[no_mangle]
 pub extern "C" fn proxy_on_request_trailers(context_id: u32, num_trailers: usize) -> Action {
-    DISPATCHER.with(|dispatcher| dispatcher.on_http_request_trailers(context_id, num_trailers))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_http_request_trailers(context_id, num_trailers)
+            .inspect_err(|err| log::error!("proxy_on_request_trailers {}", err))
+            .unwrap_or(Action::Continue)
+    })
 }
 
 #[no_mangle]
@@ -679,7 +842,10 @@ pub extern "C" fn proxy_on_response_headers(
     end_of_stream: bool,
 ) -> Action {
     DISPATCHER.with(|dispatcher| {
-        dispatcher.on_http_response_headers(context_id, num_headers, end_of_stream)
+        dispatcher
+            .on_http_response_headers(context_id, num_headers, end_of_stream)
+            .inspect_err(|err| log::error!("proxy_on_response_headers {}", err))
+            .unwrap_or(Action::Continue)
     })
 }
 
@@ -689,13 +855,22 @@ pub extern "C" fn proxy_on_response_body(
     body_size: usize,
     end_of_stream: bool,
 ) -> Action {
-    DISPATCHER
-        .with(|dispatcher| dispatcher.on_http_response_body(context_id, body_size, end_of_stream))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_http_response_body(context_id, body_size, end_of_stream)
+            .inspect_err(|err| log::error!("proxy_on_response_body {}", err))
+            .unwrap_or(Action::Continue)
+    })
 }
 
 #[no_mangle]
 pub extern "C" fn proxy_on_response_trailers(context_id: u32, num_trailers: usize) -> Action {
-    DISPATCHER.with(|dispatcher| dispatcher.on_http_response_trailers(context_id, num_trailers))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_http_response_trailers(context_id, num_trailers)
+            .inspect_err(|err| log::error!("proxy_on_response_trailers {}", err))
+            .unwrap_or(Action::Continue)
+    })
 }
 
 #[no_mangle]
@@ -707,7 +882,10 @@ pub extern "C" fn proxy_on_http_call_response(
     num_trailers: usize,
 ) {
     DISPATCHER.with(|dispatcher| {
-        dispatcher.on_http_call_response(token_id, num_headers, body_size, num_trailers)
+        dispatcher
+            .on_http_call_response(token_id, num_headers, body_size, num_trailers)
+            .inspect_err(|err| log::error!("proxy_on_http_call_response {}", err))
+            .unwrap_or_default()
     })
 }
 
@@ -717,12 +895,22 @@ pub extern "C" fn proxy_on_grpc_receive_initial_metadata(
     token_id: u32,
     headers: u32,
 ) {
-    DISPATCHER.with(|dispatcher| dispatcher.on_grpc_receive_initial_metadata(token_id, headers))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_grpc_receive_initial_metadata(token_id, headers)
+            .inspect_err(|err| log::error!("proxy_on_grpc_receive_initial_metadata {}", err))
+            .unwrap_or_default()
+    })
 }
 
 #[no_mangle]
 pub extern "C" fn proxy_on_grpc_receive(_context_id: u32, token_id: u32, response_size: usize) {
-    DISPATCHER.with(|dispatcher| dispatcher.on_grpc_receive(token_id, response_size))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_grpc_receive(token_id, response_size)
+            .inspect_err(|err| log::error!("proxy_on_grpc_receive {}", err))
+            .unwrap_or_default()
+    })
 }
 
 #[no_mangle]
@@ -731,12 +919,22 @@ pub extern "C" fn proxy_on_grpc_receive_trailing_metadata(
     token_id: u32,
     trailers: u32,
 ) {
-    DISPATCHER.with(|dispatcher| dispatcher.on_grpc_receive_trailing_metadata(token_id, trailers))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_grpc_receive_trailing_metadata(token_id, trailers)
+            .inspect_err(|err| log::error!("proxy_on_grpc_receive_trailing_metadata {}", err))
+            .unwrap_or_default()
+    })
 }
 
 #[no_mangle]
 pub extern "C" fn proxy_on_grpc_close(_context_id: u32, token_id: u32, status_code: u32) {
-    DISPATCHER.with(|dispatcher| dispatcher.on_grpc_close(token_id, status_code))
+    DISPATCHER.with(|dispatcher| {
+        dispatcher
+            .on_grpc_close(token_id, status_code)
+            .inspect_err(|err| log::error!("proxy_on_grpc_close {}", err))
+            .unwrap_or_default()
+    })
 }
 
 #[no_mangle]

@@ -1,3 +1,4 @@
 /bazel-*
 target
 Cargo.lock
+.idea/

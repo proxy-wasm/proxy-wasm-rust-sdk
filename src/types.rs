@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::traits::*;
+use std::fmt::{Display, Formatter};
 
 pub type NewRootContext = fn(context_id: u32) -> Box<dyn RootContext>;
 pub type NewStreamContext = fn(context_id: u32, root_context_id: u32) -> Box<dyn StreamContext>;
@@ -140,3 +141,17 @@ pub enum GrpcStatusCode {
 }
 
 pub type Bytes = Vec<u8>;
+
+pub struct HostError(String);
+
+impl From<&str> for HostError {
+    fn from(value: &str) -> Self {
+        HostError(String::from(value))
+    }
+}
+
+impl Display for HostError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
