@@ -459,7 +459,7 @@ impl Dispatcher {
             Some(context_id) => {
                 if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id)?;
                     http_stream.on_http_call_response(
                         token_id,
                         num_headers,
@@ -469,12 +469,12 @@ impl Dispatcher {
                     Ok(())
                 } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id)?;
                     stream.on_http_call_response(token_id, num_headers, body_size, num_trailers);
                     Ok(())
                 } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id)?;
                     root.on_http_call_response(token_id, num_headers, body_size, num_trailers);
                     Ok(())
                 } else {
@@ -494,17 +494,17 @@ impl Dispatcher {
                 let context_id = *id;
                 if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id)?;
                     http_stream.on_grpc_stream_initial_metadata(token_id, headers);
                     Ok(())
                 } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id)?;
                     stream.on_grpc_stream_initial_metadata(token_id, headers);
                     Ok(())
                 } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id)?;
                     root.on_grpc_stream_initial_metadata(token_id, headers);
                     Ok(())
                 } else {
@@ -520,17 +520,17 @@ impl Dispatcher {
         if let Some(context_id) = context_id {
             if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                hostcalls::set_effective_context(context_id)?;
                 http_stream.on_grpc_call_response(token_id, 0, response_size);
                 Ok(())
             } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                hostcalls::set_effective_context(context_id)?;
                 stream.on_grpc_call_response(token_id, 0, response_size);
                 Ok(())
             } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                hostcalls::set_effective_context(context_id)?;
                 root.on_grpc_call_response(token_id, 0, response_size);
                 Ok(())
             } else {
@@ -541,17 +541,17 @@ impl Dispatcher {
             if let Some(context_id) = context_id {
                 if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id)?;
                     http_stream.on_grpc_stream_message(token_id, response_size);
                     Ok(())
                 } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id)?;
                     stream.on_grpc_stream_message(token_id, response_size);
                     Ok(())
                 } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id)?;
                     root.on_grpc_stream_message(token_id, response_size);
                     Ok(())
                 } else {
@@ -573,17 +573,17 @@ impl Dispatcher {
                 let context_id = *id;
                 if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id)?;
                     http_stream.on_grpc_stream_trailing_metadata(token_id, trailers);
                     Ok(())
                 } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id)?;
                     stream.on_grpc_stream_trailing_metadata(token_id, trailers);
                     Ok(())
                 } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id)?;
                     root.on_grpc_stream_trailing_metadata(token_id, trailers);
                     Ok(())
                 } else {
@@ -599,17 +599,17 @@ impl Dispatcher {
         if let Some(context_id) = context_id {
             if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                hostcalls::set_effective_context(context_id)?;
                 http_stream.on_grpc_call_response(token_id, status_code, 0);
                 Ok(())
             } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                hostcalls::set_effective_context(context_id)?;
                 stream.on_grpc_call_response(token_id, status_code, 0);
                 Ok(())
             } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                hostcalls::set_effective_context(context_id)?;
                 root.on_grpc_call_response(token_id, status_code, 0);
                 Ok(())
             } else {
@@ -620,17 +620,17 @@ impl Dispatcher {
             if let Some(context_id) = context_id {
                 if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id)?;
                     http_stream.on_grpc_stream_close(token_id, status_code);
                     Ok(())
                 } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id)?;
                     stream.on_grpc_stream_close(token_id, status_code);
                     Ok(())
                 } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id)?;
                     root.on_grpc_stream_close(token_id, status_code);
                     Ok(())
                 } else {
@@ -642,19 +642,29 @@ impl Dispatcher {
         }
     }
 
-    fn on_foreign_function(&self, context_id: u32, function_id: u32, arugments_size: usize) {
+    fn on_foreign_function(
+        &self,
+        context_id: u32,
+        function_id: u32,
+        arugments_size: usize,
+    ) -> Result<(), HostError> {
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            http_stream.on_foreign_function(function_id, arugments_size)
+            hostcalls::set_effective_context(context_id)?;
+            http_stream.on_foreign_function(function_id, arugments_size);
+            Ok(())
         } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            stream.on_foreign_function(function_id, arugments_size)
+            hostcalls::set_effective_context(context_id)?;
+            stream.on_foreign_function(function_id, arugments_size);
+            Ok(())
         } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            root.on_foreign_function(function_id, arugments_size)
+            hostcalls::set_effective_context(context_id)?;
+            root.on_foreign_function(function_id, arugments_size);
+            Ok(())
+        } else {
+            Err("invalid context_id, no match found".into())
         }
     }
 }
@@ -944,5 +954,10 @@ pub extern "C" fn proxy_on_foreign_function(
     arguments_size: usize,
 ) {
     DISPATCHER
-        .with(|dispatcher| dispatcher.on_foreign_function(context_id, function_id, arguments_size))
+        .with(|dispatcher| {
+            dispatcher
+                .on_foreign_function(context_id, function_id, arguments_size)
+                .inspect_err(|err| log::error!("proxy_on_foreign_function {}", err))
+        })
+        .unwrap_or_default()
 }

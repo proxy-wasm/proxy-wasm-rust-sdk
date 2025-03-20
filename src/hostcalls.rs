@@ -154,7 +154,7 @@ pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
             Status::Ok => {
                 if !return_data.is_null() {
                     let serialized_map = std::slice::from_raw_parts(return_data, return_size);
-                    Ok(utils::deserialize_map(serialized_map))
+                    utils::deserialize_map(serialized_map)
                 } else {
                     Ok(Vec::new())
                 }
@@ -172,7 +172,7 @@ pub fn get_map_bytes(map_type: MapType) -> Result<Vec<(String, Bytes)>, Status> 
             Status::Ok => {
                 if !return_data.is_null() {
                     let serialized_map = std::slice::from_raw_parts(return_data, return_size);
-                    Ok(utils::deserialize_map_bytes(serialized_map))
+                    utils::deserialize_map_bytes(serialized_map)
                 } else {
                     Ok(Vec::new())
                 }
@@ -239,7 +239,7 @@ pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<String>, Sta
                             return_size,
                             return_size,
                         ))
-                        .unwrap(),
+                        .map_err(|_| Status::SerializationFailure)?,
                     ))
                 } else {
                     Ok(None)
@@ -1008,7 +1008,7 @@ pub fn get_grpc_status() -> Result<(u32, Option<String>), Status> {
                                 return_size,
                                 return_size,
                             ))
-                            .unwrap(),
+                            .map_err(|_| Status::SerializationFailure)?,
                         ),
                     ))
                 } else {
@@ -1158,7 +1158,7 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
 }
 
 mod utils {
-    use crate::types::Bytes;
+    use crate::types::{Bytes, Status};
     use std::convert::TryFrom;
 
     pub(super) fn serialize_property_path(path: Vec<&str>) -> Bytes {
@@ -1218,48 +1218,63 @@ mod utils {
         bytes
     }
 
-    pub(super) fn deserialize_map(bytes: &[u8]) -> Vec<(String, String)> {
+    pub(super) fn deserialize_map(bytes: &[u8]) -> Result<Vec<(String, String)>, Status> {
         if bytes.is_empty() {
-            return Vec::new();
+            return Ok(Vec::new());
         }
-        let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[0..4]).unwrap()) as usize;
+        let size = u32::from_le_bytes(
+            <[u8; 4]>::try_from(&bytes[0..4]).map_err(|_| Status::SerializationFailure)?,
+        ) as usize;
         let mut map = Vec::with_capacity(size);
         let mut p = 4 + size * 8;
         for n in 0..size {
             let s = 4 + n * 8;
-            let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s..s + 4]).unwrap()) as usize;
+            let size = u32::from_le_bytes(
+                <[u8; 4]>::try_from(&bytes[s..s + 4]).map_err(|_| Status::SerializationFailure)?,
+            ) as usize;
             let key = bytes[p..p + size].to_vec();
             p += size + 1;
-            let size =
-                u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s + 4..s + 8]).unwrap()) as usize;
+            let size = u32::from_le_bytes(
+                <[u8; 4]>::try_from(&bytes[s + 4..s + 8])
+                    .map_err(|_| Status::SerializationFailure)?,
+            ) as usize;
             let value = bytes[p..p + size].to_vec();
             p += size + 1;
             map.push((
-                String::from_utf8(key).unwrap(),
-                String::from_utf8(value).unwrap(),
+                String::from_utf8(key).map_err(|_| Status::SerializationFailure)?,
+                String::from_utf8(value).map_err(|_| Status::SerializationFailure)?,
             ));
         }
-        map
+        Ok(map)
     }
 
-    pub(super) fn deserialize_map_bytes(bytes: &[u8]) -> Vec<(String, Bytes)> {
+    pub(super) fn deserialize_map_bytes(bytes: &[u8]) -> Result<Vec<(String, Bytes)>, Status> {
         if bytes.is_empty() {
-            return Vec::new();
+            return Ok(Vec::new());
         }
-        let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[0..4]).unwrap()) as usize;
+        let size = u32::from_le_bytes(
+            <[u8; 4]>::try_from(&bytes[0..4]).map_err(|_| Status::SerializationFailure)?,
+        ) as usize;
         let mut map = Vec::with_capacity(size);
         let mut p = 4 + size * 8;
         for n in 0..size {
             let s = 4 + n * 8;
-            let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s..s + 4]).unwrap()) as usize;
+            let size = u32::from_le_bytes(
+                <[u8; 4]>::try_from(&bytes[s..s + 4]).map_err(|_| Status::SerializationFailure)?,
+            ) as usize;
             let key = bytes[p..p + size].to_vec();
             p += size + 1;
-            let size =
-                u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s + 4..s + 8]).unwrap()) as usize;
+            let size = u32::from_le_bytes(
+                <[u8; 4]>::try_from(&bytes[s + 4..s + 8])
+                    .map_err(|_| Status::SerializationFailure)?,
+            ) as usize;
             let value = bytes[p..p + size].to_vec();
             p += size + 1;
-            map.push((String::from_utf8(key).unwrap(), value));
+            map.push((
+                String::from_utf8(key).map_err(|_| Status::SerializationFailure)?,
+                value,
+            ));
         }
-        map
+        Ok(map)
     }
 }

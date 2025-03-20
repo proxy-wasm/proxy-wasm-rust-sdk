@@ -24,9 +24,9 @@ static INITIALIZED: AtomicBool = AtomicBool::new(false);
 
 pub(crate) fn set_log_level(level: LogLevel) {
     if !INITIALIZED.load(Ordering::Relaxed) {
-        log::set_logger(&LOGGER).unwrap();
+        let _ = log::set_logger(&LOGGER);
         panic::set_hook(Box::new(|panic_info| {
-            hostcalls::log(LogLevel::Critical, &panic_info.to_string()).unwrap();
+            let _ = hostcalls::log(LogLevel::Critical, &panic_info.to_string());
         }));
         INITIALIZED.store(true, Ordering::Relaxed);
     }
@@ -64,7 +64,8 @@ impl log::Log for Logger {
             log::Level::Error => LogLevel::Error,
         };
         let message = record.args().to_string();
-        hostcalls::log(level, &message).unwrap();
+        // we never fail on failing to log for now
+        let _ = hostcalls::log(level, &message);
     }
 
     fn flush(&self) {}

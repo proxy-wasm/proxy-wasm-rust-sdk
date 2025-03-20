@@ -150,6 +150,21 @@ impl From<&str> for HostError {
     }
 }
 
+impl From<Status> for HostError {
+    fn from(value: Status) -> Self {
+        match value {
+            Status::Ok => "Status::Ok".into(),
+            Status::NotFound => "Status::NotFound".into(),
+            Status::BadArgument => "Status::BadArgument".into(),
+            Status::SerializationFailure => "Status::SerializationFailure".into(),
+            Status::ParseFailure => "Status::ParseFailure".into(),
+            Status::Empty => "Status::Empty".into(),
+            Status::CasMismatch => "Status::CasMismatch".into(),
+            Status::InternalFailure => "Status::InternalFailure".into(),
+        }
+    }
+}
+
 impl Display for HostError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)
