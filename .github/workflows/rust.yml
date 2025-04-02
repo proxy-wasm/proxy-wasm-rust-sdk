@@ -33,14 +33,14 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-go@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
       with:
         go-version: '^1.16'
 
     - name: Cache
       if: ${{ env.ACT }}
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/go/pkg/mod
@@ -59,13 +59,13 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-go@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
       with:
         go-version: '^1.16'
 
     - name: Cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cache/bazel
@@ -106,11 +106,11 @@ jobs:
       RUSTFLAGS: -D warnings
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Cache
       if: ${{ env.ACT }}
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/.crates.toml
@@ -169,11 +169,11 @@ jobs:
       RUSTFLAGS: -D warnings
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Cache
       if: ${{ env.ACT }}
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/.crates.toml
@@ -231,11 +231,11 @@ jobs:
       RUSTFLAGS: -D warnings
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Cache
       if: ${{ env.ACT }}
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/.crates.toml
@@ -291,10 +291,10 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/.crates.toml
@@ -333,10 +333,10 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/.crates.toml
@@ -394,11 +394,11 @@ jobs:
       RUSTFLAGS: -D warnings
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Cache
       if: ${{ env.ACT }}
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/.crates.toml
@@ -467,11 +467,11 @@ jobs:
       RUSTFLAGS: -D warnings -Z wasi-exec-model=reactor
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Cache
       if: ${{ env.ACT }}
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/.crates.toml
