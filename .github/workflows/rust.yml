@@ -383,6 +383,7 @@ jobs:
         - 'http_body'
         - 'http_config'
         - 'http_headers'
+        - 'http_parallel_call'
         - 'grpc_auth_random'
         - 'envoy_filter_metadata'
 
@@ -456,6 +457,7 @@ jobs:
         - 'http_body'
         - 'http_config'
         - 'http_headers'
+        - 'http_parallel_call'
         - 'grpc_auth_random'
         - 'envoy_filter_metadata'
 

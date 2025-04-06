@@ -21,6 +21,7 @@
 - [HTTP Headers](./examples/http_headers/)
 - [HTTP Response body](./examples/http_body/)
 - [HTTP Configuration](./examples/http_config/)
+- [HTTP Parallel Call](./examples/http_parallel_call/)
 - [gRPC Auth (random)](./examples/grpc_auth_random/)
 - [Envoy filter metadata](./examples/envoy_filter_metadata/)
 
