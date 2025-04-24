@@ -30,39 +30,42 @@ on:
 jobs:
 
   licenses:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-go@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
       with:
         go-version: '^1.16'
 
     - name: Cache
       if: ${{ env.ACT }}
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/go/pkg/mod
         key: licenses-${{ hashFiles('.github/workflows/rust.yml') }}
 
+    - name: Install dependencies
+      run: |
+        go install github.com/google/addlicense@v1.1.1
+        export PATH=$PATH:$(go env GOPATH)/bin
+
     - name: Check licenses
       run: |
-        go install github.com/google/addlicense@latest
-        export PATH=$PATH:$(go env GOPATH)/bin
         addlicense -check -ignore "bazel/cargo/remote/**" .
 
   bazel:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-go@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
       with:
         go-version: '^1.16'
 
     - name: Cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cache/bazel
@@ -73,12 +76,13 @@ jobs:
           ~/.cargo/bin
           ~/.cargo/registry
           ~/go/pkg/mod
-        key: bazel-${{ hashFiles('BUILD', 'WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.Bazel.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        key: bazel-${{ hashFiles('.github/workflows/rust.yml', 'BUILD', 'WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.Bazel.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Install dependencies
-      if: ${{ env.ACT }}
       run: |
-        go install github.com/bazelbuild/bazelisk@v1.19.0
+        go install github.com/bazelbuild/bazelisk@v1.25.0
+        go install github.com/bazelbuild/buildtools/buildifier@v0.0.0-20241212155839-a9c248f4b684
+        export PATH=$PATH:$(go env GOPATH)/bin
 
     - name: Build (wasm32-unknown-unknown)
       run: bazelisk --noworkspace_rc build --noenable_bzlmod --platforms=@rules_rust//rust/platform:wasm //...
@@ -88,8 +92,6 @@ jobs:
 
     - name: Format (buildifier)
       run: |
-        go install github.com/bazelbuild/buildtools/buildifier@latest
-        export PATH=$PATH:$(go env GOPATH)/bin
         buildifier -mode=check -r .
 
     - name: Format (rules_rust)
@@ -98,17 +100,17 @@ jobs:
         git diff --exit-code
 
   msrv:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     env:
       RUSTFLAGS: -D warnings
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Cache
       if: ${{ env.ACT }}
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/.crates.toml
@@ -120,7 +122,7 @@ jobs:
           **/target
         key: msrv-${{ hashFiles('Cargo.toml') }}
 
-    - name: Install dependencies
+    - name: Install Rustup
       if: ${{ env.ACT }}
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
@@ -164,17 +166,17 @@ jobs:
       run: cargo publish --dry-run --target=wasm32-unknown-unknown
 
   stable:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     env:
       RUSTFLAGS: -D warnings
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Cache
       if: ${{ env.ACT }}
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/.crates.toml
@@ -186,7 +188,7 @@ jobs:
           **/target
         key: stable-${{ hashFiles('Cargo.toml') }}
 
-    - name: Install dependencies
+    - name: Install Rustup
       if: ${{ env.ACT }}
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
@@ -229,17 +231,17 @@ jobs:
       run: cargo publish --dry-run --target=wasm32-unknown-unknown
 
   nightly:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     env:
       RUSTFLAGS: -D warnings
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Cache
       if: ${{ env.ACT }}
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/.crates.toml
@@ -251,7 +253,7 @@ jobs:
           **/target
         key: nightly-${{ hashFiles('Cargo.toml') }}
 
-    - name: Install dependencies
+    - name: Install Rustup
       if: ${{ env.ACT }}
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
@@ -298,14 +300,13 @@ jobs:
       run: cargo publish --dry-run --target=wasm32-unknown-unknown
 
   outdated:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Cache
-      if: ${{ env.ACT }}
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/.crates.toml
@@ -314,9 +315,9 @@ jobs:
           ~/.cargo/bin
           ~/.cargo/registry
           ~/.rustup
-        key: outdated-${{ hashFiles('Cargo.toml') }}
+        key: outdated-${{ hashFiles('.github/workflows/rust.yml', 'Cargo.toml') }}
 
-    - name: Install dependencies
+    - name: Install Rustup
       if: ${{ env.ACT }}
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
@@ -324,21 +325,30 @@ jobs:
         ./rustup-init.sh -y
         rm rustup-init.sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-        export PATH=$PATH:$HOME/.cargo/bin
-        cargo install cargo-outdated
 
-    - name: Run cargo outdated
-      run: cargo outdated --root-deps-only --exit-code 1
+    - name: Install dependencies
+      run: |
+        cargo install cargo-outdated --version 0.16.0
+
+    - name: Run cargo outdated (main)
+      run: |
+        cargo outdated --root-deps-only --exit-code 1
+
+    - name: Run cargo outdated (examples)
+      run: |
+        for example in $(find examples -name Cargo.toml); do \
+          cd $(dirname $GITHUB_WORKSPACE/$example); \
+          cargo outdated --root-deps-only --exit-code 1; \
+        done
 
   audit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Cache
-      if: ${{ env.ACT }}
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/.crates.toml
@@ -347,9 +357,9 @@ jobs:
           ~/.cargo/bin
           ~/.cargo/registry
           ~/.rustup
-        key: audit-${{ hashFiles('Cargo.toml') }}
+        key: audit-${{ hashFiles('.github/workflows/rust.yml', 'Cargo.toml') }}
 
-    - name: Install dependencies
+    - name: Install Rustup
       if: ${{ env.ACT }}
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
@@ -357,16 +367,25 @@ jobs:
         ./rustup-init.sh -y
         rm rustup-init.sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-        export PATH=$PATH:$HOME/.cargo/bin
-        cargo install cargo-audit
 
-    - name: Run cargo audit
+    - name: Install dependencies
+      run: |
+        cargo install cargo-audit --version 0.21.0
+
+    - name: Run cargo audit (main)
       run: |
         cp -p bazel/cargo/Cargo.Bazel.lock Cargo.lock
         cargo audit
 
+    - name: Run cargo audit (examples)
+      run: |
+        for example in $(find examples -name Cargo.toml); do \
+          cd $(dirname $GITHUB_WORKSPACE/$example); \
+          cargo audit; \
+        done
+
   examples:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     strategy:
       matrix:
@@ -377,6 +396,7 @@ jobs:
         - 'http_config'
         - 'http_headers'
         - 'grpc_auth_random'
+        - 'envoy_filter_metadata'
 
     defaults:
       run:
@@ -386,11 +406,11 @@ jobs:
       RUSTFLAGS: -D warnings
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Cache
       if: ${{ env.ACT }}
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/.crates.toml
@@ -402,7 +422,7 @@ jobs:
           **/target
         key: example-${{ matrix.example }}-${{ hashFiles('Cargo.toml') }}
 
-    - name: Install dependencies
+    - name: Install Rustup
       if: ${{ env.ACT }}
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
@@ -428,14 +448,6 @@ jobs:
     - name: Format (manifest)
       run: cargo verify-project
 
-    - name: Run cargo audit
-      if: ${{ !env.ACT }}
-      run: cargo audit
-
-    - name: Run cargo outdated
-      if: ${{ !env.ACT }}
-      run: cargo outdated --root-deps-only --exit-code 1
-
     - name: Validate Envoy config
       run: |
         docker run --rm \
@@ -446,7 +458,7 @@ jobs:
           -c envoy.yaml
 
   reactors:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     strategy:
       matrix:
@@ -457,6 +469,7 @@ jobs:
         - 'http_config'
         - 'http_headers'
         - 'grpc_auth_random'
+        - 'envoy_filter_metadata'
 
     defaults:
       run:
@@ -466,11 +479,11 @@ jobs:
       RUSTFLAGS: -D warnings -Z wasi-exec-model=reactor
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Cache
       if: ${{ env.ACT }}
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/.crates.toml
@@ -482,7 +495,7 @@ jobs:
           **/target
         key: reactor-${{ matrix.example }}-${{ hashFiles('Cargo.toml') }}
 
-    - name: Install dependencies
+    - name: Install Rustup
       if: ${{ env.ACT }}
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
@@ -514,16 +527,6 @@ jobs:
 
     - name: Format (manifest)
       run: cargo verify-project
-
-    # TODO: Re-enable once cargo audit supports Cargo lockfile v4.
-    #- name: Run cargo audit
-    #  if: ${{ !env.ACT }}
-    #  run: cargo audit
-
-    # TODO: Re-enable once cargo outdated supports Cargo lockfile v4.
-    #- name: Run cargo outdated
-    #  if: ${{ !env.ACT }}
-    #  run: cargo outdated --root-deps-only --exit-code 1
 
     - name: Rename .wasm to match expected filename
       run: |
