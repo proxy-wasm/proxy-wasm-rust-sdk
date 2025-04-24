@@ -295,7 +295,7 @@ def aliases(
 _NORMAL_DEPENDENCIES = {
     "": {
         _COMMON_CONDITION: {
-            "hashbrown": Label("@crates_vendor__hashbrown-0.15.0//:hashbrown"),
+            "hashbrown": Label("@crates_vendor__hashbrown-0.15.2//:hashbrown"),
             "log": Label("@crates_vendor__log-0.4.22//:log"),
         },
     },
@@ -405,12 +405,12 @@ def crate_repositories():
     """
     maybe(
         http_archive,
-        name = "crates_vendor__allocator-api2-0.2.18",
-        sha256 = "5c6cb57a04249c6480766f7f7cef5467412af1490f8d1e243141daddada3264f",
+        name = "crates_vendor__allocator-api2-0.2.21",
+        sha256 = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923",
         type = "tar.gz",
-        urls = ["https://static.crates.io/crates/allocator-api2/0.2.18/download"],
-        strip_prefix = "allocator-api2-0.2.18",
-        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.allocator-api2-0.2.18.bazel"),
+        urls = ["https://static.crates.io/crates/allocator-api2/0.2.21/download"],
+        strip_prefix = "allocator-api2-0.2.21",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.allocator-api2-0.2.21.bazel"),
     )
 
     maybe(
@@ -425,22 +425,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crates_vendor__foldhash-0.1.3",
-        sha256 = "f81ec6369c545a7d40e4589b5597581fa1c441fe1cce96dd1de43159910a36a2",
+        name = "crates_vendor__foldhash-0.1.4",
+        sha256 = "a0d2fde1f7b3d48b8395d5f2de76c18a528bd6a9cdde438df747bfcba3e05d6f",
         type = "tar.gz",
-        urls = ["https://static.crates.io/crates/foldhash/0.1.3/download"],
-        strip_prefix = "foldhash-0.1.3",
-        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.foldhash-0.1.3.bazel"),
+        urls = ["https://static.crates.io/crates/foldhash/0.1.4/download"],
+        strip_prefix = "foldhash-0.1.4",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.foldhash-0.1.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crates_vendor__hashbrown-0.15.0",
-        sha256 = "1e087f84d4f86bf4b218b927129862374b72199ae7d8657835f1e89000eea4fb",
+        name = "crates_vendor__hashbrown-0.15.2",
+        sha256 = "bf151400ff0baff5465007dd2f3e717f3fe502074ca563069ce3a6629d07b289",
         type = "tar.gz",
-        urls = ["https://static.crates.io/crates/hashbrown/0.15.0/download"],
-        strip_prefix = "hashbrown-0.15.0",
-        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.hashbrown-0.15.0.bazel"),
+        urls = ["https://static.crates.io/crates/hashbrown/0.15.2/download"],
+        strip_prefix = "hashbrown-0.15.2",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.hashbrown-0.15.2.bazel"),
     )
 
     maybe(
@@ -454,6 +454,6 @@ def crate_repositories():
     )
 
     return [
-        struct(repo = "crates_vendor__hashbrown-0.15.0", is_dev_dep = False),
+        struct(repo = "crates_vendor__hashbrown-0.15.2", is_dev_dep = False),
         struct(repo = "crates_vendor__log-0.4.22", is_dev_dep = False),
     ]

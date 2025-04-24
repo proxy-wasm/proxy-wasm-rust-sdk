@@ -279,20 +279,29 @@ pub fn get_map_value_bytes(map_type: MapType, key: &str) -> Result<Option<Vec<u8
 }
 
 extern "C" {
+    fn proxy_remove_header_map_value(
+        map_type: MapType,
+        key_data: *const u8,
+        key_size: usize,
+    ) -> Status;
+}
+
+pub fn remove_map_value(map_type: MapType, key: &str) -> Result<(), Status> {
+    unsafe {
+        match proxy_remove_header_map_value(map_type, key.as_ptr(), key.len()) {
+            Status::Ok => Ok(()),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
     fn proxy_replace_header_map_value(
         map_type: MapType,
         key_data: *const u8,
         key_size: usize,
         value_data: *const u8,
         value_size: usize,
-    ) -> Status;
-}
-
-extern "C" {
-    fn proxy_remove_header_map_value(
-        map_type: MapType,
-        key_data: *const u8,
-        key_size: usize,
     ) -> Status;
 }
 

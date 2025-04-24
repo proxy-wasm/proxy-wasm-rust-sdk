@@ -19,9 +19,6 @@ use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
 use std::time::Duration;
 
-#[cfg(not(all(target_arch = "wasm32", target_os = "unknown")))]
-use getrandom::getrandom;
-
 proxy_wasm::main! {{
     proxy_wasm::set_log_level(LogLevel::Trace);
     proxy_wasm::set_root_context(|_| -> Box<dyn RootContext> { Box::new(HelloWorld) });
@@ -47,7 +44,7 @@ impl RootContext for HelloWorld {
             } else {
                 let now: DateTime<Utc> = Utc::now();
                 let mut buf = [0u8; 1];
-                getrandom(&mut buf).unwrap();
+                getrandom::fill(&mut buf).unwrap();
                 info!("It's {}, your lucky number is {}.", now, buf[0]);
             }
         }
