@@ -190,7 +190,7 @@ extern "C" {
 }
 
 pub fn set_map(map_type: MapType, map: Vec<(&str, &str)>) -> Result<(), Status> {
-    let serialized_map = utils::serialize_map(map);
+    let serialized_map = utils::serialize_map(&map);
     unsafe {
         match proxy_set_header_map_pairs(map_type, serialized_map.as_ptr(), serialized_map.len()) {
             Status::Ok => Ok(()),
@@ -200,7 +200,7 @@ pub fn set_map(map_type: MapType, map: Vec<(&str, &str)>) -> Result<(), Status> 
 }
 
 pub fn set_map_bytes(map_type: MapType, map: Vec<(&str, &[u8])>) -> Result<(), Status> {
-    let serialized_map = utils::serialize_map_bytes(map);
+    let serialized_map = utils::serialize_map_bytes(&map);
     unsafe {
         match proxy_set_header_map_pairs(map_type, serialized_map.as_ptr(), serialized_map.len()) {
             Status::Ok => Ok(()),
@@ -719,7 +719,7 @@ pub fn send_http_response(
     headers: Vec<(&str, &str)>,
     body: Option<&[u8]>,
 ) -> Result<(), Status> {
-    let serialized_headers = utils::serialize_map(headers);
+    let serialized_headers = utils::serialize_map(&headers);
     unsafe {
         match proxy_send_local_response(
             status_code,
@@ -742,7 +742,7 @@ pub fn send_grpc_response(
     grpc_status_message: Option<&str>,
     custom_metadata: Vec<(&str, &[u8])>,
 ) -> Result<(), Status> {
-    let serialized_custom_metadata = utils::serialize_map_bytes(custom_metadata);
+    let serialized_custom_metadata = utils::serialize_map_bytes(&custom_metadata);
     unsafe {
         match proxy_send_local_response(
             200,
@@ -782,8 +782,8 @@ pub fn dispatch_http_call(
     trailers: Vec<(&str, &str)>,
     timeout: Duration,
 ) -> Result<u32, Status> {
-    let serialized_headers = utils::serialize_map(headers);
-    let serialized_trailers = utils::serialize_map(trailers);
+    let serialized_headers = utils::serialize_map(&headers);
+    let serialized_trailers = utils::serialize_map(&trailers);
     let mut return_token: u32 = 0;
     unsafe {
         match proxy_http_call(
@@ -835,7 +835,7 @@ pub fn dispatch_grpc_call(
     timeout: Duration,
 ) -> Result<u32, Status> {
     let mut return_callout_id = 0;
-    let serialized_initial_metadata = utils::serialize_map_bytes(initial_metadata);
+    let serialized_initial_metadata = utils::serialize_map_bytes(&initial_metadata);
     unsafe {
         match proxy_grpc_call(
             upstream_name.as_ptr(),
@@ -883,7 +883,7 @@ pub fn open_grpc_stream(
     initial_metadata: Vec<(&str, &[u8])>,
 ) -> Result<u32, Status> {
     let mut return_stream_id = 0;
-    let serialized_initial_metadata = utils::serialize_map_bytes(initial_metadata);
+    let serialized_initial_metadata = utils::serialize_map_bytes(&initial_metadata);
     unsafe {
         match proxy_grpc_stream(
             upstream_name.as_ptr(),
@@ -1168,18 +1168,18 @@ mod utils {
         bytes
     }
 
-    pub(super) fn serialize_map(map: Vec<(&str, &str)>) -> Bytes {
+    pub(super) fn serialize_map(map: &[(&str, &str)]) -> Bytes {
         let mut size: usize = 4;
-        for (name, value) in &map {
+        for (name, value) in map {
             size += name.len() + value.len() + 10;
         }
         let mut bytes: Bytes = Vec::with_capacity(size);
         bytes.extend_from_slice(&(map.len() as u32).to_le_bytes());
-        for (name, value) in &map {
+        for (name, value) in map {
             bytes.extend_from_slice(&(name.len() as u32).to_le_bytes());
             bytes.extend_from_slice(&(value.len() as u32).to_le_bytes());
         }
-        for (name, value) in &map {
+        for (name, value) in map {
             bytes.extend_from_slice(name.as_bytes());
             bytes.push(0);
             bytes.extend_from_slice(value.as_bytes());
@@ -1188,18 +1188,18 @@ mod utils {
         bytes
     }
 
-    pub(super) fn serialize_map_bytes(map: Vec<(&str, &[u8])>) -> Bytes {
+    pub(super) fn serialize_map_bytes(map: &[(&str, &[u8])]) -> Bytes {
         let mut size: usize = 4;
-        for (name, value) in &map {
+        for (name, value) in map {
             size += name.len() + value.len() + 10;
         }
         let mut bytes: Bytes = Vec::with_capacity(size);
         bytes.extend_from_slice(&(map.len() as u32).to_le_bytes());
-        for (name, value) in &map {
+        for (name, value) in map {
             bytes.extend_from_slice(&(name.len() as u32).to_le_bytes());
             bytes.extend_from_slice(&(value.len() as u32).to_le_bytes());
         }
-        for (name, value) in &map {
+        for (name, value) in map {
             bytes.extend_from_slice(name.as_bytes());
             bytes.push(0);
             bytes.extend_from_slice(value);
@@ -1299,13 +1299,13 @@ mod utils {
 
         #[test]
         fn test_serialize_map_empty() {
-            let serialized_map = serialize_map(vec![]);
+            let serialized_map = serialize_map(&[]);
             assert_eq!(serialized_map, [0, 0, 0, 0]);
         }
 
         #[test]
         fn test_serialize_map_empty_bytes() {
-            let serialized_map = serialize_map_bytes(vec![]);
+            let serialized_map = serialize_map_bytes(&[]);
             assert_eq!(serialized_map, [0, 0, 0, 0]);
         }
 
@@ -1327,14 +1327,14 @@ mod utils {
 
         #[test]
         fn test_serialize_map() {
-            let serialized_map = serialize_map(MAP.to_vec());
+            let serialized_map = serialize_map(MAP);
             assert_eq!(serialized_map, SERIALIZED_MAP);
         }
 
         #[test]
         fn test_serialize_map_bytes() {
             let map: Vec<(&str, &[u8])> = MAP.iter().map(|x| (x.0, x.1.as_bytes())).collect();
-            let serialized_map = serialize_map_bytes(map);
+            let serialized_map = serialize_map_bytes(&map);
             assert_eq!(serialized_map, SERIALIZED_MAP);
         }
 
@@ -1364,7 +1364,7 @@ mod utils {
             // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
             let map_refs: Vec<(&str, &str)> =
                 map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
-            let serialized_map = serialize_map(map_refs);
+            let serialized_map = serialize_map(&map_refs);
             assert_eq!(serialized_map, SERIALIZED_MAP);
         }
 
@@ -1374,7 +1374,7 @@ mod utils {
             // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
             let map_refs: Vec<(&str, &[u8])> =
                 map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
-            let serialized_map = serialize_map_bytes(map_refs);
+            let serialized_map = serialize_map_bytes(&map_refs);
             assert_eq!(serialized_map, SERIALIZED_MAP);
         }
 
@@ -1387,7 +1387,7 @@ mod utils {
                 // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
                 let map_refs: Vec<(&str, &str)> =
                     map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
-                let serialized_map = serialize_map(map_refs);
+                let serialized_map = serialize_map(&map_refs);
                 assert_eq!(serialized_map, serialized_src);
             }
             // 0x80-0xff are invalid single-byte UTF-8 characters.
@@ -1410,7 +1410,7 @@ mod utils {
                 // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
                 let map_refs: Vec<(&str, &[u8])> =
                     map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
-                let serialized_map = serialize_map_bytes(map_refs);
+                let serialized_map = serialize_map_bytes(&map_refs);
                 assert_eq!(serialized_map, serialized_src);
             }
         }
@@ -1420,7 +1420,7 @@ mod utils {
         fn bench_serialize_map(b: &mut Bencher) {
             let map = MAP.to_vec();
             b.iter(|| {
-                serialize_map(test::black_box(map.clone()));
+                serialize_map(test::black_box(&map));
             });
         }
 
@@ -1429,7 +1429,7 @@ mod utils {
         fn bench_serialize_map_bytes(b: &mut Bencher) {
             let map: Vec<(&str, &[u8])> = MAP.iter().map(|x| (x.0, x.1.as_bytes())).collect();
             b.iter(|| {
-                serialize_map_bytes(test::black_box(map.clone()));
+                serialize_map_bytes(test::black_box(&map));
             });
         }
 
