@@ -62,6 +62,70 @@ pub trait Context {
         hostcalls::enqueue_shared_queue(queue_id, value)
     }
 
+    /// Sends HTTP request with serialized `headers`, `body`, and serialized `trailers` to upstream.
+    ///
+    /// `on_http_call_response()` will be called with `token_id` when the response is received by the host, or after the timeout.
+    ///
+    /// # Arguments
+    ///
+    /// * `upstream` - The name of the upstream to send the request to (in your envoy configuration)
+    /// * `headers` - The headers to send with the request (in the form of `Vec<(&str, &str)>`)
+    /// * `body` - The body of the request (in the form of `Option<&[u8]>` - `None` if no body)
+    /// * `trailers` - The trailers to send with the request (in the form of `Vec<(&str, &str)>`)
+    /// * `timeout` - The timeout for the request
+    ///
+    /// # Returns
+    ///
+    /// A Result containing either
+    ///
+    /// * `Ok(token_id)` - The token id of the request
+    /// * `Err(Status)` - An error status
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use std::time::Duration;
+    /// use log::{debug, warn};
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     match self.dispatch_http_call(
+    ///       "google",
+    ///       vec![
+    ///         (":method", "GET"),
+    ///         (":path", "/"),
+    ///         (":authority", "google.com")],
+    ///       None,
+    ///       vec![],
+    ///       Duration::from_secs(5),
+    ///     ) {
+    ///        Ok(_) => Action::Pause,
+    ///        Err(e) => {
+    ///          warn!("Failed to dispatch_http_call: {:?}", e);
+    ///          Action::Pause
+    ///       }
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// impl Context for MyPlugin {
+    ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
+    ///      let headers = self.get_http_call_response_headers();
+    ///      let body = self.get_http_call_response_body(0, body_size).unwrap();
+    ///      let body_str = String::from_utf8(body).unwrap();
+    ///
+    ///      debug!("Received response headers: {:?}", headers);
+    ///      debug!("Received response body: {:?}", body_str);
+    ///
+    ///      // Resume the HTTP request after processing the response
+    ///      self.resume_http_request();
+    ///    }
+    /// }
+    /// ```
     fn dispatch_http_call(
         &self,
         upstream: &str,
@@ -73,6 +137,66 @@ pub trait Context {
         hostcalls::dispatch_http_call(upstream, headers, body, trailers, timeout)
     }
 
+    /// Called when HTTP response using `dispatch_http_call` is received.
+    ///
+    /// If `num_headers` is 0, then the HTTP call failed.
+    ///
+    /// All headers can be retrieved using `self.get_http_call_response_headers()` or individually `self.get_http_call_response_header(name)`.
+    ///
+    /// All trailers can be retrieved using `self.get_http_call_response_trailers()` or individually `self.get_http_call_response_trailer(name)`.
+    ///
+    /// # Arguments
+    ///
+    /// * `token_id` - The token id of the call
+    /// * `num_headers` - The number of headers in the response
+    /// * `body_size` - The size of the body in the response
+    /// * `num_trailers` - The number of trailers in the response
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use std::time::Duration;
+    /// use log::{debug, warn};
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     match self.dispatch_http_call(
+    ///       "google",
+    ///       vec![
+    ///         (":method", "GET"),
+    ///         (":path", "/"),
+    ///         (":authority", "google.com")],
+    ///       None,
+    ///       vec![],
+    ///       Duration::from_secs(5),
+    ///     ) {
+    ///        Ok(_) => Action::Pause,
+    ///        Err(e) => {
+    ///          warn!("Failed to dispatch_http_call: {:?}", e);
+    ///          Action::Pause
+    ///       }
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// impl Context for MyPlugin {
+    ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
+    ///      let headers = self.get_http_call_response_headers();
+    ///      let body = self.get_http_call_response_body(0, body_size).unwrap();
+    ///      let body_str = String::from_utf8(body).unwrap();
+    ///
+    ///      debug!("Received response headers: {:?}", headers);
+    ///      debug!("Received response body: {:?}", body_str);
+    ///
+    ///      // Resume the HTTP request after processing the response
+    ///      self.resume_http_request();
+    ///    }
+    /// }
+    /// ```
     fn on_http_call_response(
         &mut self,
         _token_id: u32,
@@ -82,38 +206,491 @@ pub trait Context {
     ) {
     }
 
+    /// Get the HTTP call response headers.
+    ///
+    /// # Returns
+    ///
+    /// * `Vec<(String, String)>` - the HTTP call response headers
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use std::time::Duration;
+    /// use log::{debug, warn};
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     match self.dispatch_http_call(
+    ///       "google",
+    ///       vec![
+    ///         (":method", "GET"),
+    ///         (":path", "/"),
+    ///         (":authority", "google.com")],
+    ///       None,
+    ///       vec![],
+    ///       Duration::from_secs(5),
+    ///     ) {
+    ///        Ok(_) => Action::Pause,
+    ///        Err(e) => {
+    ///          warn!("Failed to dispatch_http_call: {:?}", e);
+    ///          Action::Pause
+    ///       }
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// impl Context for MyPlugin {
+    ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
+    ///      let headers = self.get_http_call_response_headers();
+    ///
+    ///      debug!("Received response headers: {:?}", headers);
+    ///
+    ///      // Resume the HTTP request after processing the response
+    ///      self.resume_http_request();
+    ///    }
+    /// }
+    /// ```
     fn get_http_call_response_headers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpCallResponseHeaders).unwrap()
     }
 
+    /// Get all HTTP call response headers as bytes.
+    ///
+    /// # Returns
+    ///
+    /// * `Vec<(String, Bytes)>` - a list of HTTP call response headers
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use std::time::Duration;
+    /// use log::{debug, warn};
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     match self.dispatch_http_call(
+    ///       "google",
+    ///       vec![
+    ///         (":method", "GET"),
+    ///         (":path", "/"),
+    ///         (":authority", "google.com")],
+    ///       None,
+    ///       vec![],
+    ///       Duration::from_secs(5),
+    ///     ) {
+    ///        Ok(_) => Action::Pause,
+    ///        Err(e) => {
+    ///          warn!("Failed to dispatch_http_call: {:?}", e);
+    ///          Action::Pause
+    ///       }
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// impl Context for MyPlugin {
+    ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
+    ///      let headers = self.get_http_call_response_headers_bytes();
+    ///
+    ///      for (name, value) in headers {
+    ///         let value_str = String::from_utf8(value).unwrap();
+    ///         debug!("Received response header: {:?} = {:?}", name, value_str);
+    ///
+    ///         // Resume the HTTP call after processing the response
+    ///         self.resume_http_request();
+    ///      }
+    ///    }
+    /// }
+    /// ```
     fn get_http_call_response_headers_bytes(&self) -> Vec<(String, Bytes)> {
         hostcalls::get_map_bytes(MapType::HttpCallResponseHeaders).unwrap()
     }
 
+    /// Get a HTTP call response header by name.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - the name of the header
+    ///
+    /// # Returns
+    ///
+    /// * `Option<String>` - the HTTP call response header or `None` if the header is not found
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use std::time::Duration;
+    /// use log::{debug, warn};
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     match self.dispatch_http_call(
+    ///       "google",
+    ///       vec![
+    ///         (":method", "GET"),
+    ///         (":path", "/"),
+    ///         (":authority", "google.com")],
+    ///       None,
+    ///       vec![],
+    ///       Duration::from_secs(5),
+    ///     ) {
+    ///        Ok(_) => Action::Pause,
+    ///        Err(e) => {
+    ///          warn!("Failed to dispatch_http_call: {:?}", e);
+    ///          Action::Pause
+    ///       }
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// impl Context for MyPlugin {
+    ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
+    ///      let content_type = self.get_http_call_response_header("content-type");
+    ///      debug!("Content-Type: {:?}", content_type);
+    ///
+    ///      // Resume the HTTP request after processing the response
+    ///      self.resume_http_request();
+    ///    }
+    /// }
+    /// ```
     fn get_http_call_response_header(&self, name: &str) -> Option<String> {
         hostcalls::get_map_value(MapType::HttpCallResponseHeaders, name).unwrap()
     }
 
+    /// Get a HTTP call response header by name as bytes.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - the name of the header
+    ///
+    /// # Returns
+    ///
+    /// * `Option<Bytes>` - the HTTP call response header or `None` if the header is not found
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use std::time::Duration;
+    /// use log::{debug, warn};
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     match self.dispatch_http_call(
+    ///       "google",
+    ///       vec![
+    ///         (":method", "GET"),
+    ///         (":path", "/"),
+    ///         (":authority", "google.com")],
+    ///       None,
+    ///       vec![],
+    ///       Duration::from_secs(5),
+    ///     ) {
+    ///        Ok(_) => Action::Pause,
+    ///        Err(e) => {
+    ///          warn!("Failed to dispatch_http_call: {:?}", e);
+    ///          Action::Pause
+    ///       }
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// impl Context for MyPlugin {
+    ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
+    ///      let content_type = self.get_http_call_response_header_bytes("content-type").unwrap();
+    ///      let content_type_str = String::from_utf8(content_type).unwrap();
+    ///      debug!("Content-Type: {:?}", content_type_str);
+    ///
+    ///      // Resume the HTTP request after processing the response
+    ///      self.resume_http_request();
+    ///    }
+    /// }
+    /// ```
     fn get_http_call_response_header_bytes(&self, name: &str) -> Option<Bytes> {
         hostcalls::get_map_value_bytes(MapType::HttpCallResponseHeaders, name).unwrap()
     }
 
+    /// Get the HTTP call response body.
+    ///
+    /// # Arguments
+    ///
+    /// * `start` - the start offset of the body
+    /// * `max_size` - the maximum size of the body
+    ///
+    /// # Returns
+    ///
+    /// * `Option<Bytes>` - the HTTP call response body or `None` if the body is not found
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use std::time::Duration;
+    /// use log::{debug, warn};
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     match self.dispatch_http_call(
+    ///       "google",
+    ///       vec![
+    ///         (":method", "GET"),
+    ///         (":path", "/"),
+    ///         (":authority", "google.com")],
+    ///       None,
+    ///       vec![],
+    ///       Duration::from_secs(5),
+    ///     ) {
+    ///        Ok(_) => Action::Pause,
+    ///        Err(e) => {
+    ///          warn!("Failed to dispatch_http_call: {:?}", e);
+    ///          Action::Pause
+    ///       }
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// impl Context for MyPlugin {
+    ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
+    ///      let body = self.get_http_call_response_body(0, body_size).unwrap();
+    ///      let body_str = String::from_utf8(body).unwrap();
+    ///
+    ///      debug!("Received response body: {:?}", body_str);
+    ///
+    ///      // Resume the HTTP request after processing the response
+    ///      self.resume_http_request();
+    ///    }
+    /// }
+    /// ```
     fn get_http_call_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
         hostcalls::get_buffer(BufferType::HttpCallResponseBody, start, max_size).unwrap()
     }
 
+    /// Get the HTTP call response trailers.
+    ///
+    /// # Returns
+    ///
+    /// * `Vec<(String, String)>` - the HTTP call response trailers
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use std::time::Duration;
+    /// use log::{debug, warn};
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     match self.dispatch_http_call(
+    ///       "google",
+    ///       vec![
+    ///         (":method", "GET"),
+    ///         (":path", "/"),
+    ///         (":authority", "google.com")],
+    ///       None,
+    ///       vec![],
+    ///       Duration::from_secs(5),
+    ///     ) {
+    ///        Ok(_) => Action::Pause,
+    ///        Err(e) => {
+    ///          warn!("Failed to dispatch_http_call: {:?}", e);
+    ///          Action::Pause
+    ///       }
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// impl Context for MyPlugin {
+    ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
+    ///      let trailers = self.get_http_call_response_trailers();
+    ///      debug!("Received response trailers: {:?}", trailers);
+    ///
+    ///      // Resume the HTTP call after processing the response
+    ///      self.resume_http_request();
+    ///    }
+    /// }
+    /// ```
     fn get_http_call_response_trailers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpCallResponseTrailers).unwrap()
     }
 
+    /// Get the HTTP call response trailers as bytes.
+    ///
+    /// # Returns
+    ///
+    /// * `Vec<(String, Bytes)>` - the HTTP call response trailers
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use std::time::Duration;
+    /// use log::{debug, warn};
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     match self.dispatch_http_call(
+    ///       "google",
+    ///       vec![
+    ///         (":method", "GET"),
+    ///         (":path", "/"),
+    ///         (":authority", "google.com")],
+    ///       None,
+    ///       vec![],
+    ///       Duration::from_secs(5),
+    ///     ) {
+    ///        Ok(_) => Action::Pause,
+    ///        Err(e) => {
+    ///          warn!("Failed to dispatch_http_call: {:?}", e);
+    ///          Action::Pause
+    ///       }
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// impl Context for MyPlugin {
+    ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
+    ///      let trailers = self.get_http_call_response_trailers_bytes();
+    ///      debug!("Received response trailers: {:?}", trailers);
+    ///
+    ///      // Resume the HTTP call after processing the response
+    ///      self.resume_http_request();
+    ///    }
+    /// }
+    /// ```
     fn get_http_call_response_trailers_bytes(&self) -> Vec<(String, Bytes)> {
         hostcalls::get_map_bytes(MapType::HttpCallResponseTrailers).unwrap()
     }
 
+    /// Get a HTTP call response trailer by name.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - the name of the trailer
+    ///
+    /// # Returns
+    ///
+    /// * `Option<String>` - the HTTP call response trailer or `None` if the trailer is not found
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use std::time::Duration;
+    /// use log::{debug, warn};
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     match self.dispatch_http_call(
+    ///       "google",
+    ///       vec![
+    ///         (":method", "GET"),
+    ///         (":path", "/"),
+    ///         (":authority", "google.com")],
+    ///       None,
+    ///       vec![],
+    ///       Duration::from_secs(5),
+    ///     ) {
+    ///        Ok(_) => Action::Pause,
+    ///        Err(e) => {
+    ///          warn!("Failed to dispatch_http_call: {:?}", e);
+    ///          Action::Pause
+    ///       }
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// impl Context for MyPlugin {
+    ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
+    ///      let content_type = self.get_http_call_response_trailer("content-type").unwrap();
+    ///      debug!("Content-Type: {:?}", content_type);
+    ///
+    ///      // Resume the HTTP call after processing the response
+    ///      self.resume_http_request();
+    ///    }
+    /// }
+    /// ```
     fn get_http_call_response_trailer(&self, name: &str) -> Option<String> {
         hostcalls::get_map_value(MapType::HttpCallResponseTrailers, name).unwrap()
     }
 
+    /// Get a HTTP call response trailer by name as bytes.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - the name of the trailer
+    ///
+    /// # Returns
+    ///
+    /// * `Option<Bytes>` - the HTTP call response trailer or `None` if the trailer is not found
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use std::time::Duration;
+    /// use log::{debug, warn};
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     match self.dispatch_http_call(
+    ///       "google",
+    ///       vec![
+    ///         (":method", "GET"),
+    ///         (":path", "/"),
+    ///         (":authority", "google.com")],
+    ///       None,
+    ///       vec![],
+    ///       Duration::from_secs(5),
+    ///     ) {
+    ///        Ok(_) => Action::Pause,
+    ///        Err(e) => {
+    ///          warn!("Failed to dispatch_http_call: {:?}", e);
+    ///          Action::Pause
+    ///       }
+    ///     }
+    ///   }
+    /// }
+    ///
+    /// impl Context for MyPlugin {
+    ///    fn on_http_call_response(&mut self, _token_id: u32, _: usize, body_size: usize, _: usize) {
+    ///      let content_type = self.get_http_call_response_trailer_bytes("content-type").unwrap();
+    ///      let content_type_str = String::from_utf8(content_type).unwrap();
+    ///      debug!("Content-Type: {:?}", content_type_str);
+    ///
+    ///      // Resume the HTTP call after processing the response
+    ///      self.resume_http_request();
+    ///    }
+    /// }
+    /// ```
     fn get_http_call_response_trailer_bytes(&self, name: &str) -> Option<Bytes> {
         hostcalls::get_map_value_bytes(MapType::HttpCallResponseTrailers, name).unwrap()
     }
@@ -221,26 +798,245 @@ pub trait Context {
 }
 
 pub trait RootContext: Context {
+    /// Called when the host starts the WebAssembly Virtual Machine.
+    ///
+    /// Its configuration (of `_vm_configuration_size`) can be retrieved using `self.get_vm_configuration()`.
+    ///
+    /// # Arguments
+    ///
+    /// * `vm_configuration_size` - the size of the VM configuration
+    ///
+    /// # Returns
+    ///
+    /// * `bool` - `true` if the configuration was processed successfully, `false` otherwise
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use log::debug;
+    ///
+    /// struct MyRootContext;
+    ///
+    /// #[derive(serde::Deserialize, Debug)]
+    /// struct MyVmConfiguration {
+    ///     /// Some key
+    ///     pub key: String,
+    /// }
+    ///
+    /// impl RootContext for MyRootContext {
+    ///   fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
+    ///     let vm_configuration = self.get_vm_configuration().unwrap();
+    ///
+    ///     let parsed_vm_configuration: MyVmConfiguration =
+    ///         serde_json::from_slice::<MyVmConfiguration>(&vm_configuration).unwrap();
+    ///
+    ///     // Do something with the parsed vm configuration
+    ///     debug!("vm_configuration: {:?}", parsed_vm_configuration);
+    ///
+    ///     true
+    ///   }
+    /// }
+    ///
+    /// # impl Context for MyRootContext {}
+    /// ```
     fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
         true
     }
 
+    /// Get the VM configuration.
+    ///
+    /// # Returns
+    ///
+    /// * `Option<Bytes>` - the VM configuration
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use log::debug;
+    ///
+    /// struct MyRootContext;
+    ///
+    /// #[derive(serde::Deserialize, Debug)]
+    /// struct MyVmConfiguration {
+    ///     /// Some key
+    ///     pub key: String,
+    /// }
+    ///
+    /// impl RootContext for MyRootContext {
+    ///   fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
+    ///     let vm_configuration = self.get_vm_configuration().unwrap();
+    ///
+    ///     let parsed_vm_configuration: MyVmConfiguration =
+    ///         serde_json::from_slice::<MyVmConfiguration>(&vm_configuration).unwrap();
+    ///
+    ///     // Do something with the parsed vm configuration
+    ///     debug!("vm_configuration: {:?}", parsed_vm_configuration);
+    ///
+    ///     true
+    ///   }
+    /// }
+    ///
+    /// # impl Context for MyRootContext {}
+    /// ```
     fn get_vm_configuration(&self) -> Option<Bytes> {
         hostcalls::get_buffer(BufferType::VmConfiguration, 0, usize::MAX).unwrap()
     }
 
+    /// Called when the host starts the Proxy-Wasm plugin.
+    ///
+    /// Its configuration (of `_plugin_configuration_size`) can be retrieved using `self.get_plugin_configuration()`.
+    ///
+    /// # Returns
+    ///
+    /// Plugin must return one of the following values:
+    ///
+    /// * `true` - to indicate that the configuration was processed successfully.
+    /// * `false` - to indicate that the configuration processing failed.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use log::debug;
+    ///
+    /// struct MyRootContext;
+    ///
+    /// #[derive(serde::Deserialize, Debug)]
+    /// struct MyPluginConfiguration {
+    ///   /// Some key
+    ///   pub key: String,
+    /// }
+    ///
+    /// impl RootContext for MyRootContext {
+    ///   fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
+    ///     let plugin_configuration = self.get_plugin_configuration().unwrap();
+    ///
+    ///     let parsed_plugin_configuration: MyPluginConfiguration =
+    ///         serde_json::from_slice::<MyPluginConfiguration>(&plugin_configuration).unwrap();
+    ///
+    ///     // Do something with the parsed plugin configuration
+    ///     debug!("plugin_configuration: {:?}", parsed_plugin_configuration);
+    ///
+    ///     true
+    ///   }
+    /// }
+    ///
+    /// # impl Context for MyRootContext {}
+    /// ```
     fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
         true
     }
 
+    /// Get the plugin configuration.
+    ///
+    /// # Returns
+    ///
+    /// * `Option<Bytes>` - the plugin configuration
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use log::debug;
+    ///
+    /// struct MyRootContext;
+    ///
+    /// #[derive(serde::Deserialize, Debug)]
+    /// struct MyPluginConfiguration {
+    ///   /// Some key
+    ///   pub key: String,
+    /// }
+    ///
+    /// impl RootContext for MyRootContext {
+    ///   fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
+    ///     let plugin_configuration = self.get_plugin_configuration().unwrap();
+    ///
+    ///     let parsed_plugin_configuration: MyPluginConfiguration =
+    ///         serde_json::from_slice::<MyPluginConfiguration>(&plugin_configuration).unwrap();
+    ///
+    ///     // Do something with the parsed plugin configuration
+    ///     debug!("plugin_configuration: {:?}", parsed_plugin_configuration);
+    ///
+    ///     true
+    ///   }
+    /// }
+    ///
+    /// # impl Context for MyRootContext {}
+    /// ```
     fn get_plugin_configuration(&self) -> Option<Bytes> {
         hostcalls::get_buffer(BufferType::PluginConfiguration, 0, usize::MAX).unwrap()
     }
 
+    /// Sets timer period. When set, `on_tick` will be called every `tick_period`. This is useful for making periodic updates to cached data, etc.
+    ///
+    /// # Arguments
+    ///
+    /// * `period` - the period of the timer
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use std::time::Duration;
+    /// use log::info;
+    ///
+    /// struct MyRootContext;
+    ///
+    /// impl RootContext for MyRootContext {
+    ///   fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
+    ///     self.set_tick_period(Duration::from_millis(5000));
+    ///
+    ///     true
+    ///   }
+    ///
+    ///   fn on_tick(&mut self) {
+    ///     // Do something every 5 seconds
+    ///     info!("tick!")
+    ///   }
+    /// }
+    ///
+    /// # impl Context for MyRootContext {}
+    /// ```
     fn set_tick_period(&self, period: Duration) {
         hostcalls::set_tick_period(period).unwrap()
     }
 
+    /// Called on a timer every tick period.
+    ///
+    /// The tick period can be configured using `self.set_tick_period()`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use std::time::Duration;
+    /// use log::info;
+    ///
+    /// struct MyRootContext;
+    ///
+    /// impl RootContext for MyRootContext {
+    ///   fn on_vm_start(&mut self, _vm_configuration_size: usize) -> bool {
+    ///     self.set_tick_period(Duration::from_millis(5000));
+    ///
+    ///     true
+    ///   }
+    ///
+    ///   fn on_tick(&mut self) {
+    ///     // Do something every 5 seconds
+    ///     info!("tick!")
+    ///   }
+    /// }
+    ///
+    /// # impl Context for MyRootContext {}
+    /// ```
     fn on_tick(&mut self) {}
 
     fn on_queue_ready(&mut self, _queue_id: u32) {}
@@ -313,14 +1109,120 @@ pub trait StreamContext: Context {
 }
 
 pub trait HttpContext: Context {
+    /// Called when HTTP request headers are received from downstream.
+    ///
+    /// All `num_headers` headers can be retrieved and/or modified using `self.get_http_request_headers()`.
+    ///
+    /// Individual HTTP request headers can be retrieved and/or modified using `self.get_http_request_header()`, `self.add_http_request_header()`.
+    ///
+    /// Paused request can be resumed using `self.resume_http_request()` or closed using `self.reset_http_request()`.
+    ///
+    /// Additionally, instead of forwarding requests upstream, a HTTP response can be sent using `self.send_http_response()`.
+    ///
+    /// # Arguments
+    ///
+    /// * `num_headers` - the number of HTTP request headers
+    /// * `end_of_stream` - indicates if this is the last call for the request headers
+    ///
+    /// # Returns
+    ///
+    /// Plugin must return one of the following values:
+    ///
+    /// * `CONTINUE` to forward `HTTP_REQUEST_HEADERS` fields downstream.
+    /// * `PAUSE` to pause processing.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use log::debug;
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, num_headers: usize, end_of_stream: bool) -> Action {
+    ///     let headers = self.get_http_request_headers();
+    ///
+    ///     debug!("Received request headers: {:?}", headers);
+    ///
+    ///     // Process the request
+    ///
+    ///     Action::Continue
+    ///    }
+    /// }
+    ///
+    /// # impl Context for MyPlugin {}
+    /// ```
     fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
         Action::Continue
     }
 
+    /// Get all HTTP request headers.
+    ///
+    /// # Returns
+    ///
+    /// * `Vec<(String, String)>` - a list of HTTP request headers
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use log::debug;
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, num_headers: usize, end_of_stream: bool) -> Action {
+    ///     let headers = self.get_http_request_headers();
+    ///
+    ///     debug!("Received request headers: {:?}", headers);
+    ///
+    ///     // Process the request
+    ///
+    ///     Action::Continue
+    ///    }
+    /// }
+    ///
+    /// # impl Context for MyPlugin {}
+    /// ```
     fn get_http_request_headers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpRequestHeaders).unwrap()
     }
 
+    /// Get all HTTP request headers as bytes.
+    ///
+    /// # Returns
+    ///
+    /// * `Vec<(String, Bytes)>` - a list of HTTP request headers
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use log::debug;
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, num_headers: usize, end_of_stream: bool) -> Action {
+    ///     let headers = self.get_http_request_headers_bytes();
+    ///
+    ///     for (name, value) in headers {
+    ///       let value_str = String::from_utf8(value).unwrap();
+    ///       debug!("Received request header: {:?} = {:?}", name, value_str);
+    ///     }
+    ///
+    ///     // Process the request
+    ///
+    ///     Action::Continue
+    ///    }
+    /// }
+    ///
+    /// # impl Context for MyPlugin {}
+    /// ```
     fn get_http_request_headers_bytes(&self) -> Vec<(String, Bytes)> {
         hostcalls::get_map_bytes(MapType::HttpRequestHeaders).unwrap()
     }
@@ -333,10 +1235,74 @@ pub trait HttpContext: Context {
         hostcalls::set_map_bytes(MapType::HttpRequestHeaders, headers).unwrap()
     }
 
+    /// Get a specific HTTP request header by name.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - the name of the header
+    ///
+    /// # Returns
+    ///
+    /// * `Option<String>` - the value of the header (wrapped in an Option) or `None` if the header does not exist
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use log::debug;
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     let header = self.get_http_request_header(":path");
+    ///
+    ///     match header {
+    ///       Some(value) => debug!("The path is: {}", value),
+    ///       None => debug!("The path is missing")
+    ///     }
+    ///     Action::Continue
+    ///   }
+    /// }
+    ///
+    /// # impl Context for MyPlugin {}
+    /// ```
     fn get_http_request_header(&self, name: &str) -> Option<String> {
         hostcalls::get_map_value(MapType::HttpRequestHeaders, name).unwrap()
     }
 
+    /// Get a specific HTTP request header by name as bytes.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - the name of the header
+    ///
+    /// # Returns
+    ///
+    /// * `Option<Bytes>` - the value of the header (wrapped in an Option) or `None` if the header does not exist
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    /// use log::debug;
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     let header = self.get_http_request_header_bytes(":path").unwrap();
+    ///     let header_str = String::from_utf8(header).unwrap();
+    ///     debug!("The path is: {:?}", header_str);
+    ///
+    ///     Action::Continue
+    ///   }
+    /// }
+    ///
+    /// # impl Context for MyPlugin {}
+    /// ```
     fn get_http_request_header_bytes(&self, name: &str) -> Option<Bytes> {
         hostcalls::get_map_value_bytes(MapType::HttpRequestHeaders, name).unwrap()
     }
@@ -349,6 +1315,31 @@ pub trait HttpContext: Context {
         hostcalls::set_map_value_bytes(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
+    /// Add a new HTTP request header to be sent upstream.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - the name of the header
+    /// * `value` - the value of the header
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     self.add_http_request_header("x-my-header", "my-value");
+    ///
+    ///     Action::Continue
+    ///   }
+    /// }
+    ///
+    /// # impl Context for MyPlugin {}
+    /// ```
     fn add_http_request_header(&self, name: &str, value: &str) {
         hostcalls::add_map_value(MapType::HttpRequestHeaders, name, value).unwrap()
     }
@@ -421,6 +1412,7 @@ pub trait HttpContext: Context {
         hostcalls::remove_map_value(MapType::HttpRequestTrailers, name).unwrap()
     }
 
+    /// Resumes processing of paused request.
     fn resume_http_request(&self) {
         hostcalls::resume_http_request().unwrap()
     }
@@ -545,6 +1537,43 @@ pub trait HttpContext: Context {
         hostcalls::reset_http_response().unwrap()
     }
 
+    /// Sends an HTTP response with the specified status code, headers, and body.
+    ///
+    /// This can be used as long as HTTP response headers were not sent downstream yet.
+    ///
+    /// # Arguments
+    ///
+    /// * `status_code` - the HTTP status code
+    /// * `headers` - the HTTP headers as a `Vec` of `(&str, &str)`
+    /// * `body` - the HTTP body as a slice of bytes
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use log::info;
+    /// use proxy_wasm::traits::*;
+    /// use proxy_wasm::types::*;
+    ///
+    /// struct MyPlugin;
+    ///
+    /// impl HttpContext for MyPlugin {
+    ///   fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+    ///     let auth = self.get_http_request_header("Authorization").unwrap_or_default();
+    ///
+    ///     if auth == "I am authorized!" {
+    ///       // Send an HTTP response with a status code of 200 and a body of "Hello, World!"
+    ///       self.send_http_response(200, vec![("A header", "Some Value")], Some(b"Hello, World!"));
+    ///     } else {
+    ///       // Send an HTTP response with a status code of 307, redirecting to authenticate-here.com, and a body of "Forbidden"
+    ///       self.send_http_response(307, vec![("location", "https://authenticate-here.com")], Some(b"Forbidden"));
+    ///     }
+    ///
+    ///     Action::Pause
+    ///   }
+    /// }
+    ///
+    /// # impl Context for MyPlugin {}
+    /// ```
     fn send_http_response(
         &self,
         status_code: u32,
