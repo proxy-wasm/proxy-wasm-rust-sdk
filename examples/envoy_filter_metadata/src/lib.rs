@@ -38,9 +38,7 @@ impl HttpContext for MetadataHttp {
                     self.send_http_response(
                         200,
                         vec![("Powered-By", "proxy-wasm"), ("uppercased-metadata", &data)],
-                        Some(
-                            format!("Custom response with Envoy metadata: {:?}\n", data).as_bytes(),
-                        ),
+                        Some(format!("Custom response with Envoy metadata: {data:?}\n").as_bytes()),
                     );
                     Action::Pause
                 }
