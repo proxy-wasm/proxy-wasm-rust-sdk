@@ -9,9 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - An empty value (`Some("")` or `Some([])`) is now returned when retrieving
-  a value of HTTP header or trailer with an empty value. This is consistent
-  with the representation when retrieving complete HTTP header or trailer map.
-  Previously, a missing value (`None`) was being returned, which made an empty
+  value of a HTTP header or trailer with an empty value. This is consistent
+  with the representation when retrieving a full HTTP header or trailer map.
+  Previously, a "no value" (`None`) was being returned, which made an empty
   value indistinguishable from a non-existent HTTP header or trailer.
   Thanks [@prembhaskal](https://github.com/prembhaskal)!
 
