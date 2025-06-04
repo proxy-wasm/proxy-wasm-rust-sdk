@@ -173,8 +173,8 @@ pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
         match proxy_get_header_map_pairs(map_type, &mut return_data, &mut return_size) {
             Status::Ok => {
                 if !return_data.is_null() {
-                    let serialized_map = Vec::from_raw_parts(return_data, return_size, return_size);
-                    Ok(utils::deserialize_map(&serialized_map))
+                    let serialized_map = std::slice::from_raw_parts(return_data, return_size);
+                    Ok(utils::deserialize_map(serialized_map))
                 } else {
                     Ok(Vec::new())
                 }
@@ -191,8 +191,8 @@ pub fn get_map_bytes(map_type: MapType) -> Result<Vec<(String, Bytes)>, Status> 
         match proxy_get_header_map_pairs(map_type, &mut return_data, &mut return_size) {
             Status::Ok => {
                 if !return_data.is_null() {
-                    let serialized_map = Vec::from_raw_parts(return_data, return_size, return_size);
-                    Ok(utils::deserialize_map_bytes(&serialized_map))
+                    let serialized_map = std::slice::from_raw_parts(return_data, return_size);
+                    Ok(utils::deserialize_map_bytes(serialized_map))
                 } else {
                     Ok(Vec::new())
                 }
@@ -214,7 +214,7 @@ pub fn set_map<V>(map_type: MapType, map: Vec<(&str, V)>) -> Result<(), Status>
 where
     V: AsRef<[u8]>,
 {
-    let serialized_map = utils::serialize_map(map);
+    let serialized_map = utils::serialize_map(&map);
     unsafe {
         match proxy_set_header_map_pairs(map_type, serialized_map.as_ptr(), serialized_map.len()) {
             Status::Ok => Ok(()),
@@ -259,7 +259,7 @@ pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<HeaderValue>
                         Err(_) => panic!("illegal field value in: {}", key),
                     }
                 } else {
-                    Ok(None)
+                    Ok(Some(HeaderValue::from_static("")))
                 }
             }
             Status::NotFound => Ok(None),
@@ -291,7 +291,7 @@ pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<String>, Sta
                         .unwrap(),
                     ))
                 } else {
-                    Ok(None)
+                    Ok(Some(String::new()))
                 }
             }
             Status::NotFound => Ok(None),
@@ -319,10 +319,27 @@ pub fn get_map_value_bytes(map_type: MapType, key: &str) -> Result<Option<Bytes>
                         return_size,
                     )))
                 } else {
-                    Ok(None)
+                    Ok(Some(Vec::new()))
                 }
             }
             Status::NotFound => Ok(None),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+extern "C" {
+    fn proxy_remove_header_map_value(
+        map_type: MapType,
+        key_data: *const u8,
+        key_size: usize,
+    ) -> Status;
+}
+
+pub fn remove_map_value(map_type: MapType, key: &str) -> Result<(), Status> {
+    unsafe {
+        match proxy_remove_header_map_value(map_type, key.as_ptr(), key.len()) {
+            Status::Ok => Ok(()),
             status => panic!("unexpected status: {}", status as u32),
         }
     }
@@ -335,14 +352,6 @@ extern "C" {
         key_size: usize,
         value_data: *const u8,
         value_size: usize,
-    ) -> Status;
-}
-
-extern "C" {
-    fn proxy_remove_header_map_value(
-        map_type: MapType,
-        key_data: *const u8,
-        key_size: usize,
     ) -> Status;
 }
 
@@ -740,7 +749,7 @@ pub fn send_http_response<V>(
 where
     V: AsRef<[u8]>,
 {
-    let serialized_headers = utils::serialize_map(headers);
+    let serialized_headers = utils::serialize_map(&headers);
     unsafe {
         match proxy_send_local_response(
             status_code,
@@ -763,7 +772,7 @@ pub fn send_grpc_response(
     grpc_status_message: Option<&str>,
     custom_metadata: Vec<(&str, &[u8])>,
 ) -> Result<(), Status> {
-    let serialized_custom_metadata = utils::serialize_map_bytes(custom_metadata);
+    let serialized_custom_metadata = utils::serialize_map_bytes(&custom_metadata);
     unsafe {
         match proxy_send_local_response(
             200,
@@ -806,8 +815,8 @@ pub fn dispatch_http_call<V>(
 where
     V: AsRef<[u8]>,
 {
-    let serialized_headers = utils::serialize_map(headers);
-    let serialized_trailers = utils::serialize_map(trailers);
+    let serialized_headers = utils::serialize_map(&headers);
+    let serialized_trailers = utils::serialize_map(&trailers);
     let mut return_token: u32 = 0;
     unsafe {
         match proxy_http_call(
@@ -859,7 +868,7 @@ pub fn dispatch_grpc_call(
     timeout: Duration,
 ) -> Result<u32, Status> {
     let mut return_callout_id = 0;
-    let serialized_initial_metadata = utils::serialize_map_bytes(initial_metadata);
+    let serialized_initial_metadata = utils::serialize_map_bytes(&initial_metadata);
     unsafe {
         match proxy_grpc_call(
             upstream_name.as_ptr(),
@@ -907,7 +916,7 @@ pub fn open_grpc_stream(
     initial_metadata: Vec<(&str, &[u8])>,
 ) -> Result<u32, Status> {
     let mut return_stream_id = 0;
-    let serialized_initial_metadata = utils::serialize_map_bytes(initial_metadata);
+    let serialized_initial_metadata = utils::serialize_map_bytes(&initial_metadata);
     unsafe {
         match proxy_grpc_stream(
             upstream_name.as_ptr(),
@@ -1196,21 +1205,21 @@ mod utils {
         bytes
     }
 
-    pub(super) fn serialize_map<V>(map: Vec<(&str, V)>) -> Bytes
+    pub(super) fn serialize_map<V>(map: &[(&str, V)]) -> Bytes
     where
         V: AsRef<[u8]>,
     {
         let mut size: usize = 4;
-        for (name, value) in &map {
+        for (name, value) in map {
             size += name.len() + value.as_ref().len() + 10;
         }
         let mut bytes: Bytes = Vec::with_capacity(size);
-        bytes.extend_from_slice(&map.len().to_le_bytes());
-        for (name, value) in &map {
-            bytes.extend_from_slice(&name.len().to_le_bytes());
-            bytes.extend_from_slice(&value.as_ref().len().to_le_bytes());
+        bytes.extend_from_slice(&(map.len() as u32).to_le_bytes());
+        for (name, value) in map {
+            bytes.extend_from_slice(&(name.len() as u32).to_le_bytes());
+            bytes.extend_from_slice(&(value.as_ref().len() as u32).to_le_bytes());
         }
-        for (name, value) in &map {
+        for (name, value) in map {
             bytes.extend_from_slice(name.as_bytes());
             bytes.push(0);
             bytes.extend_from_slice(value.as_ref());
@@ -1219,7 +1228,7 @@ mod utils {
         bytes
     }
 
-    pub(super) fn serialize_map_bytes(map: Vec<(&str, &[u8])>) -> Bytes {
+    pub(super) fn serialize_map_bytes(map: &[(&str, &[u8])]) -> Bytes {
         serialize_map(map)
     }
 
@@ -1251,11 +1260,11 @@ mod utils {
 
     #[cfg(not(feature = "header-value"))]
     pub(super) fn deserialize_map(bytes: &[u8]) -> Vec<(String, String)> {
-        let mut map = Vec::new();
         if bytes.is_empty() {
-            return map;
+            return Vec::new();
         }
         let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[0..4]).unwrap()) as usize;
+        let mut map = Vec::with_capacity(size);
         let mut p = 4 + size * 8;
         for n in 0..size {
             let s = 4 + n * 8;
@@ -1275,11 +1284,11 @@ mod utils {
     }
 
     pub(super) fn deserialize_map_bytes(bytes: &[u8]) -> Vec<(String, Bytes)> {
-        let mut map = Vec::new();
         if bytes.is_empty() {
-            return map;
+            return Vec::new();
         }
         let size = u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[0..4]).unwrap()) as usize;
+        let mut map = Vec::with_capacity(size);
         let mut p = 4 + size * 8;
         for n in 0..size {
             let s = 4 + n * 8;
@@ -1293,5 +1302,243 @@ mod utils {
             map.push((String::from_utf8(key).unwrap(), value));
         }
         map
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[cfg(nightly)]
+        use test::Bencher;
+
+        static MAP: &[(&str, &str)] = &[
+            (":method", "GET"),
+            (":path", "/bytes/1"),
+            (":authority", "httpbin.org"),
+            ("Powered-By", "proxy-wasm"),
+        ];
+
+        #[rustfmt::skip]
+        static SERIALIZED_MAP: &[u8] = &[
+            // num entries
+            4, 0, 0, 0,
+            // len (":method", "GET")
+            7, 0, 0, 0, 3, 0, 0, 0,
+            // len (":path", "/bytes/1")
+            5, 0, 0, 0, 8, 0, 0, 0,
+            // len (":authority", "httpbin.org")
+            10, 0, 0, 0, 11, 0, 0, 0,
+            // len ("Powered-By", "proxy-wasm")
+            10, 0, 0, 0, 10, 0, 0, 0,
+            // ":method"
+            58, 109, 101, 116, 104, 111, 100, 0,
+            // "GET"
+            71, 69, 84, 0,
+            // ":path"
+            58, 112, 97, 116, 104, 0,
+            // "/bytes/1"
+            47, 98, 121, 116, 101, 115, 47, 49, 0,
+            // ":authority"
+            58, 97, 117, 116, 104, 111, 114, 105, 116, 121, 0,
+            // "httpbin.org"
+            104, 116, 116, 112, 98, 105, 110, 46, 111, 114, 103, 0,
+            // "Powered-By"
+            80, 111, 119, 101, 114, 101, 100, 45, 66, 121, 0,
+            // "proxy-wasm"
+            112, 114, 111, 120, 121, 45, 119, 97, 115, 109, 0,
+        ];
+
+        #[rustfmt::skip]
+        static SERIALIZED_EMPTY_MAP: &[u8] = &[
+            // num entries
+            0, 0, 0, 0,
+        ];
+
+        #[test]
+        fn test_serialize_map_empty() {
+            let serialized_map = serialize_map::<&str>(&[]);
+            assert_eq!(serialized_map, SERIALIZED_EMPTY_MAP);
+        }
+
+        #[test]
+        fn test_serialize_map_empty_bytes() {
+            let serialized_map = serialize_map_bytes(&[]);
+            assert_eq!(serialized_map, SERIALIZED_EMPTY_MAP);
+        }
+
+        #[test]
+        fn test_deserialize_map_empty() {
+            let empty_map: &[u8] = &[];
+            #[allow(clippy::useless_conversion)]
+            let map = deserialize_map(empty_map.into());
+            assert_eq!(map, []);
+            #[allow(clippy::useless_conversion)]
+            let map = deserialize_map(SERIALIZED_EMPTY_MAP.into());
+            assert_eq!(map, []);
+        }
+
+        #[test]
+        fn test_deserialize_map_empty_bytes() {
+            let map = deserialize_map_bytes(&[]);
+            assert_eq!(map, []);
+            let map = deserialize_map_bytes(SERIALIZED_EMPTY_MAP);
+            assert_eq!(map, []);
+        }
+
+        #[test]
+        fn test_serialize_map() {
+            let serialized_map = serialize_map(MAP);
+            assert_eq!(serialized_map, SERIALIZED_MAP);
+        }
+
+        #[test]
+        fn test_serialize_map_bytes() {
+            let map: Vec<(&str, &[u8])> = MAP.iter().map(|x| (x.0, x.1.as_bytes())).collect();
+            let serialized_map = serialize_map_bytes(&map);
+            assert_eq!(serialized_map, SERIALIZED_MAP);
+        }
+
+        #[test]
+        fn test_deserialize_map() {
+            #[allow(clippy::useless_conversion)]
+            let map = deserialize_map(SERIALIZED_MAP.into());
+            assert_eq!(map.len(), MAP.len());
+            for (got, expected) in map.into_iter().zip(MAP) {
+                assert_eq!(got.0, expected.0);
+                assert_eq!(got.1, expected.1);
+            }
+        }
+
+        #[test]
+        fn test_deserialize_map_bytes() {
+            let map = deserialize_map_bytes(SERIALIZED_MAP);
+            assert_eq!(map.len(), MAP.len());
+            for (got, expected) in map.into_iter().zip(MAP) {
+                assert_eq!(got.0, expected.0);
+                assert_eq!(got.1, expected.1.as_bytes());
+            }
+        }
+
+        #[test]
+        fn test_deserialize_map_roundtrip() {
+            #[allow(clippy::useless_conversion)]
+            let map = deserialize_map(SERIALIZED_MAP.into());
+            // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
+            let map_refs: Vec<(&str, &[u8])> =
+                map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
+            let serialized_map = serialize_map(&map_refs);
+            assert_eq!(serialized_map, SERIALIZED_MAP);
+        }
+
+        #[test]
+        fn test_deserialize_map_roundtrip_bytes() {
+            let map = deserialize_map_bytes(SERIALIZED_MAP);
+            // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
+            let map_refs: Vec<(&str, &[u8])> =
+                map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
+            let serialized_map = serialize_map_bytes(&map_refs);
+            assert_eq!(serialized_map, SERIALIZED_MAP);
+        }
+
+        #[cfg(feature = "header-value")]
+        #[test]
+        fn test_deserialize_map_all_chars() {
+            // We're intentionally accepting all values to support hosts and proxies that
+            // don't enforce strict RFC compliance on HTTP field values.
+            for i in 0..0xff {
+                let serialized_src: &[u8] = &[1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
+                let map = deserialize_map(serialized_src.to_vec().into());
+                // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
+                let map_refs: Vec<(&str, &[u8])> =
+                    map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
+                let serialized_map = serialize_map(&map_refs);
+                assert_eq!(serialized_map, serialized_src);
+            }
+        }
+
+        #[cfg(not(feature = "header-value"))]
+        #[test]
+        fn test_deserialize_map_all_chars() {
+            // 0x00-0x7f are valid single-byte UTF-8 characters.
+            for i in 0..0x7f {
+                let serialized_src: &[u8] = &[1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
+                let map = deserialize_map(serialized_src);
+                // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
+                let map_refs: Vec<(&str, &str)> =
+                    map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
+                let serialized_map = serialize_map(&map_refs);
+                assert_eq!(serialized_map, serialized_src);
+            }
+            // 0x80-0xff are invalid single-byte UTF-8 characters.
+            for i in 0x80..0xff {
+                let serialized_src: &[u8] = &[1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
+                std::panic::set_hook(Box::new(|_| {}));
+                let result = std::panic::catch_unwind(|| {
+                    deserialize_map(serialized_src);
+                });
+                assert!(result.is_err());
+            }
+        }
+
+        #[test]
+        fn test_deserialize_map_all_chars_bytes() {
+            // All 256 single-byte characters are allowed when emitting bytes.
+            for i in 0..0xff {
+                let serialized_src: &[u8] = &[1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
+                let map = deserialize_map_bytes(serialized_src);
+                // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
+                let map_refs: Vec<(&str, &[u8])> =
+                    map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
+                let serialized_map = serialize_map_bytes(&map_refs);
+                assert_eq!(serialized_map, serialized_src);
+            }
+        }
+
+        #[cfg(nightly)]
+        #[bench]
+        fn bench_serialize_map(b: &mut Bencher) {
+            let map = MAP.to_vec();
+            b.iter(|| {
+                serialize_map(test::black_box(&map));
+            });
+        }
+
+        #[cfg(nightly)]
+        #[bench]
+        fn bench_serialize_map_bytes(b: &mut Bencher) {
+            let map: Vec<(&str, &[u8])> = MAP.iter().map(|x| (x.0, x.1.as_bytes())).collect();
+            b.iter(|| {
+                serialize_map_bytes(test::black_box(&map));
+            });
+        }
+
+        #[cfg(feature = "header-value")]
+        #[cfg(nightly)]
+        #[bench]
+        fn bench_deserialize_map(b: &mut Bencher) {
+            let serialized_map: bytes::Bytes = SERIALIZED_MAP.into();
+            b.iter(|| {
+                deserialize_map(test::black_box(serialized_map.clone()));
+            });
+        }
+
+        #[cfg(not(feature = "header-value"))]
+        #[cfg(nightly)]
+        #[bench]
+        fn bench_deserialize_map(b: &mut Bencher) {
+            let serialized_map = SERIALIZED_MAP.to_vec();
+            b.iter(|| {
+                deserialize_map(test::black_box(&serialized_map));
+            });
+        }
+
+        #[cfg(nightly)]
+        #[bench]
+        fn bench_deserialize_map_bytes(b: &mut Bencher) {
+            let serialized_map = SERIALIZED_MAP.to_vec();
+            b.iter(|| {
+                deserialize_map_bytes(test::black_box(&serialized_map));
+            });
+        }
     }
 }

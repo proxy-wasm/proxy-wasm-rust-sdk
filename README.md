@@ -29,6 +29,7 @@ This crate supports the following optional features:
 - [HTTP Response body](./examples/http_body/)
 - [HTTP Configuration](./examples/http_config/)
 - [gRPC Auth (random)](./examples/grpc_auth_random/)
+- [Envoy filter metadata](./examples/envoy_filter_metadata/)
 
 ## Articles & blog posts from the community
 

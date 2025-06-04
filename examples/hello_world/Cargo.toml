@@ -17,7 +17,7 @@ log = "0.4"
 proxy-wasm = { path = "../../" }
 
 [target.'cfg(not(all(target_arch = "wasm32", target_os = "unknown")))'.dependencies]
-getrandom = "0.2"
+getrandom = "0.3"
 
 [profile.release]
 lto = true

@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "http",
+    name = "bytes",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -39,7 +39,7 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=http",
+        "crate-name=bytes",
         "manual",
         "noclippy",
         "norustfmt",
@@ -81,10 +81,5 @@ rust_library(
         "@rules_rust//rust/platform:x86_64-unknown-none": [],
         "//conditions:default": ["@platforms//:incompatible"],
     }),
-    version = "1.1.0",
-    deps = [
-        "@crates_vendor__bytes-1.8.0//:bytes",
-        "@crates_vendor__fnv-1.0.7//:fnv",
-        "@crates_vendor__itoa-1.0.11//:itoa",
-    ],
+    version = "1.10.1",
 )
