@@ -8,9 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-- When retrieving a value of an empty HTTP header or trailer by name, an empty value
-  (`Some(String)` or `Some(Vec<u8>)`) is now returned. Previously, no value (`None`)
-  was returned, which made it indistinguishable from missing HTTP header or trailer.
+- An empty value (`Some("")` or `Some([])`) is now returned when retrieving
+  a value of HTTP header or trailer with an empty value. This is consistent
+  with the representation when retrieving complete HTTP header or trailer map.
+  Previously, a missing value (`None`) was being returned, which made an empty
+  value indistinguishable from a non-existent HTTP header or trailer.
   Thanks [@prembhaskal](https://github.com/prembhaskal)!
 
 ### Added
