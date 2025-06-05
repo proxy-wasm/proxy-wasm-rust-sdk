@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.2.3] - 2025-06-04
+
+### Changed
+
+- An empty value (`Some("")` or `Some([])`) is now returned when retrieving
+  value of a HTTP header or trailer with an empty value. This is consistent
+  with the representation when retrieving a full HTTP header or trailer map.
+  Previously, a "no value" (`None`) was being returned, which made an empty
+  value indistinguishable from a non-existent HTTP header or trailer.
+  Thanks [@prembhaskal](https://github.com/prembhaskal)!
+
+### Added
+
+- Added support for foreign function callbacks.
+  Thanks [@casimiro](https://github.com/casimiro)!
+
+- Added convenience functions to remove headers and trailers.
+  Thanks [@itsLucario](https://github.com/itsLucario)!
+
+- Added convenience function to remove shared data.
+
 ## [0.2.2] - 2024-07-21
 
 ### Fixed
@@ -108,6 +129,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release.
 
 
+[0.2.3]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.1.4...v0.2.0
