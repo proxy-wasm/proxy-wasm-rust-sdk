@@ -1,8 +1,8 @@
 [package]
 name = "proxy-wasm"
-version = "0.2.3-dev"
+version = "0.2.3"
 authors = ["Piotr Sikora <piotrsikora@google.com>"]
-rust-version = "1.64"
+rust-version = "1.65"
 description = "WebAssembly for Proxies"
 readme = "README.md"
 license = "Apache-2.0"
@@ -20,3 +20,11 @@ opt-level = 3
 codegen-units = 1
 panic = "abort"
 strip = "debuginfo"
+
+[profile.test]
+inherits = "release"
+debug = true
+
+[profile.bench]
+inherits = "release"
+debug = true
