@@ -42,6 +42,10 @@ pub trait Context {
         hostcalls::set_shared_data(key, value, cas)
     }
 
+    fn remove_shared_data(&self, key: &str, cas: Option<u32>) -> Result<(), Status> {
+        hostcalls::set_shared_data(key, None, cas)
+    }
+
     fn register_shared_queue(&self, name: &str) -> u32 {
         hostcalls::register_shared_queue(name).unwrap()
     }

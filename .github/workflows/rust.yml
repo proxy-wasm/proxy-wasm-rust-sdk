@@ -150,6 +150,9 @@ jobs:
     - name: Clippy (wasm32-wasi)
       run: cargo clippy --release --all-targets --target=wasm32-wasi
 
+    - name: Test
+      run: cargo test
+
     - name: Format (rustfmt)
       run: cargo fmt -- --check
 
@@ -211,6 +214,9 @@ jobs:
 
     - name: Clippy (wasm32-wasip1)
       run: cargo clippy --release --all-targets --target=wasm32-wasip1
+
+    - name: Test
+      run: cargo test
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
@@ -274,6 +280,12 @@ jobs:
 
     - name: Clippy (wasm32-wasip1)
       run: cargo clippy --release --all-targets --target=wasm32-wasip1
+
+    - name: Test
+      run: cargo test
+
+    - name: Bench
+      run: cargo bench
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
@@ -441,7 +453,7 @@ jobs:
         docker run --rm \
           -v $(pwd)/envoy.yaml:/envoy.yaml \
           -v $(pwd)/target/wasm32-wasip1/release:/etc/envoy/proxy-wasm-plugins \
-          envoyproxy/envoy:v1.31-latest \
+          envoyproxy/envoy:v1.34-latest \
           --mode validate \
           -c envoy.yaml
 
@@ -528,6 +540,6 @@ jobs:
         docker run --rm \
           -v $(pwd)/envoy.yaml:/envoy.yaml \
           -v $(pwd)/target/wasm32-wasip1/release:/etc/envoy/proxy-wasm-plugins \
-          envoyproxy/envoy:v1.31-latest \
+          envoyproxy/envoy:v1.34-latest \
           --mode validate \
           -c envoy.yaml
