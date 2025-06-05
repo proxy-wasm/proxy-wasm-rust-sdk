@@ -17,6 +17,23 @@ use crate::types::LogLevel;
 use std::panic;
 use std::sync::atomic::{AtomicBool, Ordering};
 
+#[cfg(not(feature = "no-panic"))]
+#[macro_export]
+macro_rules! maybe_panic {
+    ($($arg:tt)*) => { panic!($($arg)*) };
+}
+
+#[cfg(feature = "no-panic")]
+#[macro_export]
+macro_rules! maybe_panic {
+    ($($arg:tt)*) => { $crate::hostcalls::log(LogLevel::Critical, format!($($arg)*).as_str()).unwrap_or(()) };
+}
+
+#[macro_export]
+macro_rules! dont_panic {
+    ($($arg:tt)*) => { $crate::hostcalls::log(LogLevel::Critical, format!($($arg)*).as_str()).unwrap_or(()) };
+}
+
 struct Logger;
 
 static LOGGER: Logger = Logger;
