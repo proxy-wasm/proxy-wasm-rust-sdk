@@ -295,7 +295,9 @@ def aliases(
 _NORMAL_DEPENDENCIES = {
     "": {
         _COMMON_CONDITION: {
+            "bytes": Label("@crates_vendor//:bytes-1.10.1"),
             "hashbrown": Label("@crates_vendor//:hashbrown-0.15.3"),
+            "http": Label("@crates_vendor//:http-1.3.1"),
             "log": Label("@crates_vendor//:log-0.4.27"),
         },
     },
@@ -417,12 +419,32 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crates_vendor__bytes-1.10.1",
+        sha256 = "d71b6127be86fdcfddb610f7182ac57211d4b18a3e9c82eb2d17662f2227ad6a",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/bytes/1.10.1/download"],
+        strip_prefix = "bytes-1.10.1",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.bytes-1.10.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crates_vendor__equivalent-1.0.2",
         sha256 = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f",
         type = "tar.gz",
         urls = ["https://static.crates.io/crates/equivalent/1.0.2/download"],
         strip_prefix = "equivalent-1.0.2",
         build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.equivalent-1.0.2.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__fnv-1.0.7",
+        sha256 = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/fnv/1.0.7/download"],
+        strip_prefix = "fnv-1.0.7",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.fnv-1.0.7.bazel"),
     )
 
     maybe(
@@ -447,6 +469,26 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crates_vendor__http-1.3.1",
+        sha256 = "f4a85d31aea989eead29a3aaf9e1115a180df8282431156e533de47660892565",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/http/1.3.1/download"],
+        strip_prefix = "http-1.3.1",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.http-1.3.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__itoa-1.0.15",
+        sha256 = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/itoa/1.0.15/download"],
+        strip_prefix = "itoa-1.0.15",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.itoa-1.0.15.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crates_vendor__log-0.4.27",
         sha256 = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94",
         type = "tar.gz",
@@ -456,6 +498,8 @@ def crate_repositories():
     )
 
     return [
+        struct(repo = "crates_vendor__bytes-1.10.1", is_dev_dep = False),
         struct(repo = "crates_vendor__hashbrown-0.15.3", is_dev_dep = False),
+        struct(repo = "crates_vendor__http-1.3.1", is_dev_dep = False),
         struct(repo = "crates_vendor__log-0.4.27", is_dev_dep = False),
     ]

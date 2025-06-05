@@ -140,3 +140,6 @@ pub enum GrpcStatusCode {
 }
 
 pub type Bytes = Vec<u8>;
+
+#[cfg(feature = "header-value")]
+pub use http::HeaderValue;
