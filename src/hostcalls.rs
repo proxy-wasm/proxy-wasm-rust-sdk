@@ -1472,6 +1472,7 @@ mod utils {
             // 0x80-0xff are invalid single-byte UTF-8 characters.
             for i in 0x80..0xff {
                 let serialized_src: &[u8] = &[1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
+                // Override panic to silence panic logs in the test output.
                 std::panic::set_hook(Box::new(|_| {}));
                 let result = std::panic::catch_unwind(|| {
                     deserialize_map(serialized_src);
