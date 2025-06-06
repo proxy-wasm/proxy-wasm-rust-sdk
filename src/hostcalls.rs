@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::dispatcher;
+use crate::maybe_panic;
 use crate::types::*;
 use std::ptr::{null, null_mut};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -25,7 +26,11 @@ pub fn log(level: LogLevel, message: &str) -> Result<(), Status> {
     unsafe {
         match proxy_log(level, message.as_ptr(), message.len()) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_log unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -39,7 +44,11 @@ pub fn get_log_level() -> Result<LogLevel, Status> {
     unsafe {
         match proxy_get_log_level(&mut return_level) {
             Status::Ok => Ok(return_level),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_get_log_level unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -53,7 +62,14 @@ pub fn get_current_time() -> Result<SystemTime, Status> {
     unsafe {
         match proxy_get_current_time_nanoseconds(&mut return_time) {
             Status::Ok => Ok(UNIX_EPOCH + Duration::from_nanos(return_time)),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_get_current_time_nanoseconds unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -66,7 +82,14 @@ pub fn set_tick_period(period: Duration) -> Result<(), Status> {
     unsafe {
         match proxy_set_tick_period_milliseconds(period.as_millis() as u32) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_set_tick_period_milliseconds unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -108,7 +131,14 @@ pub fn get_buffer(
                 }
             }
             Status::NotFound => Ok(None),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_get_buffer_bytes unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -132,7 +162,14 @@ pub fn set_buffer(
     unsafe {
         match proxy_set_buffer_bytes(buffer_type, start, size, value.as_ptr(), value.len()) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_set_buffer_bytes unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -158,7 +195,14 @@ pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
                     Ok(Vec::new())
                 }
             }
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_get_header_map_pairs unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -176,7 +220,14 @@ pub fn get_map_bytes(map_type: MapType) -> Result<Vec<(String, Bytes)>, Status> 
                     Ok(Vec::new())
                 }
             }
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_get_header_map_pairs unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -194,7 +245,14 @@ pub fn set_map(map_type: MapType, map: Vec<(&str, &str)>) -> Result<(), Status> 
     unsafe {
         match proxy_set_header_map_pairs(map_type, serialized_map.as_ptr(), serialized_map.len()) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_set_header_map_pairs unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -204,7 +262,14 @@ pub fn set_map_bytes(map_type: MapType, map: Vec<(&str, &[u8])>) -> Result<(), S
     unsafe {
         match proxy_set_header_map_pairs(map_type, serialized_map.as_ptr(), serialized_map.len()) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_set_header_map_pairs unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -245,7 +310,14 @@ pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<String>, Sta
                 }
             }
             Status::NotFound => Ok(None),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_get_header_map_value unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -273,7 +345,14 @@ pub fn get_map_value_bytes(map_type: MapType, key: &str) -> Result<Option<Bytes>
                 }
             }
             Status::NotFound => Ok(None),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_get_header_map_value unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -290,7 +369,14 @@ pub fn remove_map_value(map_type: MapType, key: &str) -> Result<(), Status> {
     unsafe {
         match proxy_remove_header_map_value(map_type, key.as_ptr(), key.len()) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_remove_header_map_value unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -316,12 +402,26 @@ pub fn set_map_value(map_type: MapType, key: &str, value: Option<&str>) -> Resul
                 value.len(),
             ) {
                 Status::Ok => Ok(()),
-                status => panic!("unexpected status: {}", status as u32),
+                status => {
+                    maybe_panic!(
+                        "proxy_replace_header_map_value unexpected status: {}",
+                        status as u32
+                    );
+                    #[allow(unreachable_code)]
+                    Err(status)
+                }
             }
         } else {
             match proxy_remove_header_map_value(map_type, key.as_ptr(), key.len()) {
                 Status::Ok => Ok(()),
-                status => panic!("unexpected status: {}", status as u32),
+                status => {
+                    maybe_panic!(
+                        "proxy_remove_header_map_value unexpected status: {}",
+                        status as u32
+                    );
+                    #[allow(unreachable_code)]
+                    Err(status)
+                }
             }
         }
     }
@@ -342,12 +442,26 @@ pub fn set_map_value_bytes(
                 value.len(),
             ) {
                 Status::Ok => Ok(()),
-                status => panic!("unexpected status: {}", status as u32),
+                status => {
+                    maybe_panic!(
+                        "proxy_replace_header_map_value unexpected status: {}",
+                        status as u32
+                    );
+                    #[allow(unreachable_code)]
+                    Err(status)
+                }
             }
         } else {
             match proxy_remove_header_map_value(map_type, key.as_ptr(), key.len()) {
                 Status::Ok => Ok(()),
-                status => panic!("unexpected status: {}", status as u32),
+                status => {
+                    maybe_panic!(
+                        "proxy_remove_header_map_value unexpected status: {}",
+                        status as u32
+                    );
+                    #[allow(unreachable_code)]
+                    Err(status)
+                }
             }
         }
     }
@@ -373,7 +487,14 @@ pub fn add_map_value(map_type: MapType, key: &str, value: &str) -> Result<(), St
             value.len(),
         ) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_add_header_map_value unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -388,7 +509,14 @@ pub fn add_map_value_bytes(map_type: MapType, key: &str, value: &[u8]) -> Result
             value.len(),
         ) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_add_header_map_value unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -427,7 +555,11 @@ pub fn get_property(path: Vec<&str>) -> Result<Option<Bytes>, Status> {
             Status::NotFound => Ok(None),
             Status::SerializationFailure => Err(Status::SerializationFailure),
             Status::InternalFailure => Err(Status::InternalFailure),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_get_property unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -451,7 +583,11 @@ pub fn set_property(path: Vec<&str>, value: Option<&[u8]>) -> Result<(), Status>
             value.map_or(0, |value| value.len()),
         ) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_set_property unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -493,7 +629,11 @@ pub fn get_shared_data(key: &str) -> Result<(Option<Bytes>, Option<u32>), Status
                 }
             }
             Status::NotFound => Ok((None, None)),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_get_shared_data unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -519,7 +659,11 @@ pub fn set_shared_data(key: &str, value: Option<&[u8]>, cas: Option<u32>) -> Res
         ) {
             Status::Ok => Ok(()),
             Status::CasMismatch => Err(Status::CasMismatch),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_set_shared_data unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -537,7 +681,14 @@ pub fn register_shared_queue(name: &str) -> Result<u32, Status> {
         let mut return_id: u32 = 0;
         match proxy_register_shared_queue(name.as_ptr(), name.len(), &mut return_id) {
             Status::Ok => Ok(return_id),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_register_shared_queue unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -564,7 +715,14 @@ pub fn resolve_shared_queue(vm_id: &str, name: &str) -> Result<Option<u32>, Stat
         ) {
             Status::Ok => Ok(Some(return_id)),
             Status::NotFound => Ok(None),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_resolve_shared_queue unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -595,7 +753,14 @@ pub fn dequeue_shared_queue(queue_id: u32) -> Result<Option<Bytes>, Status> {
             }
             Status::Empty => Ok(None),
             Status::NotFound => Err(Status::NotFound),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_dequeue_shared_queue unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -617,7 +782,14 @@ pub fn enqueue_shared_queue(queue_id: u32, value: Option<&[u8]>) -> Result<(), S
         ) {
             Status::Ok => Ok(()),
             Status::NotFound => Err(Status::NotFound),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_enqueue_shared_queue unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -630,7 +802,11 @@ pub fn resume_downstream() -> Result<(), Status> {
     unsafe {
         match proxy_continue_stream(StreamType::Downstream) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_continue_stream unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -639,7 +815,11 @@ pub fn resume_upstream() -> Result<(), Status> {
     unsafe {
         match proxy_continue_stream(StreamType::Upstream) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_continue_stream unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -648,7 +828,11 @@ pub fn resume_http_request() -> Result<(), Status> {
     unsafe {
         match proxy_continue_stream(StreamType::HttpRequest) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_continue_stream unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -657,7 +841,11 @@ pub fn resume_http_response() -> Result<(), Status> {
     unsafe {
         match proxy_continue_stream(StreamType::HttpResponse) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_continue_stream unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -670,7 +858,11 @@ pub fn close_downstream() -> Result<(), Status> {
     unsafe {
         match proxy_close_stream(StreamType::Downstream) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_close_stream unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -678,7 +870,11 @@ pub fn close_upstream() -> Result<(), Status> {
     unsafe {
         match proxy_close_stream(StreamType::Upstream) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_close_stream unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -687,7 +883,11 @@ pub fn reset_http_request() -> Result<(), Status> {
     unsafe {
         match proxy_close_stream(StreamType::HttpRequest) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_close_stream unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -696,7 +896,11 @@ pub fn reset_http_response() -> Result<(), Status> {
     unsafe {
         match proxy_close_stream(StreamType::HttpResponse) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_close_stream unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -732,7 +936,14 @@ pub fn send_http_response(
             -1,
         ) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_send_local_response unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -755,7 +966,14 @@ pub fn send_grpc_response(
             grpc_status as i32,
         ) {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_send_local_response unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -804,7 +1022,11 @@ pub fn dispatch_http_call(
             }
             Status::BadArgument => Err(Status::BadArgument),
             Status::InternalFailure => Err(Status::InternalFailure),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_http_call unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -857,7 +1079,11 @@ pub fn dispatch_grpc_call(
             }
             Status::ParseFailure => Err(Status::ParseFailure),
             Status::InternalFailure => Err(Status::InternalFailure),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_grpc_call unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -902,7 +1128,11 @@ pub fn open_grpc_stream(
             }
             Status::ParseFailure => Err(Status::ParseFailure),
             Status::InternalFailure => Err(Status::InternalFailure),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_grpc_stream unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -931,7 +1161,11 @@ pub fn send_grpc_stream_message(
             Status::Ok => Ok(()),
             Status::BadArgument => Err(Status::BadArgument),
             Status::NotFound => Err(Status::NotFound),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_grpc_send unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -945,7 +1179,11 @@ pub fn cancel_grpc_call(token_id: u32) -> Result<(), Status> {
         match proxy_grpc_cancel(token_id) {
             Status::Ok => Ok(()),
             Status::NotFound => Err(Status::NotFound),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_grpc_cancel unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -955,7 +1193,11 @@ pub fn cancel_grpc_stream(token_id: u32) -> Result<(), Status> {
         match proxy_grpc_cancel(token_id) {
             Status::Ok => Ok(()),
             Status::NotFound => Err(Status::NotFound),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_grpc_cancel unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -969,7 +1211,11 @@ pub fn close_grpc_stream(token_id: u32) -> Result<(), Status> {
         match proxy_grpc_close(token_id) {
             Status::Ok => Ok(()),
             Status::NotFound => Err(Status::NotFound),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_grpc_close unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -1005,7 +1251,11 @@ pub fn get_grpc_status() -> Result<(u32, Option<String>), Status> {
                     Ok((return_code, None))
                 }
             }
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_get_status unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -1019,7 +1269,14 @@ pub fn set_effective_context(context_id: u32) -> Result<(), Status> {
         match proxy_set_effective_context(context_id) {
             Status::Ok => Ok(()),
             Status::BadArgument => Err(Status::BadArgument),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_set_effective_context unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -1065,7 +1322,14 @@ pub fn call_foreign_function(
             Status::BadArgument => Err(Status::BadArgument),
             Status::SerializationFailure => Err(Status::SerializationFailure),
             Status::InternalFailure => Err(Status::InternalFailure),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_call_foreign_function unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -1078,7 +1342,11 @@ pub fn done() -> Result<(), Status> {
     unsafe {
         match proxy_done() {
             Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_done unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -1097,7 +1365,11 @@ pub fn define_metric(metric_type: MetricType, name: &str) -> Result<u32, Status>
     unsafe {
         match proxy_define_metric(metric_type, name.as_ptr(), name.len(), &mut return_id) {
             Status::Ok => Ok(return_id),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_define_metric unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -1113,7 +1385,11 @@ pub fn get_metric(metric_id: u32) -> Result<u64, Status> {
             Status::Ok => Ok(return_value),
             Status::NotFound => Err(Status::NotFound),
             Status::BadArgument => Err(Status::BadArgument),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_get_metric unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -1127,7 +1403,11 @@ pub fn record_metric(metric_id: u32, value: u64) -> Result<(), Status> {
         match proxy_record_metric(metric_id, value) {
             Status::Ok => Ok(()),
             Status::NotFound => Err(Status::NotFound),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!("proxy_record_metric unexpected status: {}", status as u32);
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
@@ -1142,7 +1422,14 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
             Status::Ok => Ok(()),
             Status::NotFound => Err(Status::NotFound),
             Status::BadArgument => Err(Status::BadArgument),
-            status => panic!("unexpected status: {}", status as u32),
+            status => {
+                maybe_panic!(
+                    "proxy_increment_metric unexpected status: {}",
+                    status as u32
+                );
+                #[allow(unreachable_code)]
+                Err(status)
+            }
         }
     }
 }
