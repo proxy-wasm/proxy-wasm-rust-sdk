@@ -256,7 +256,7 @@ pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<HeaderValue>
                         return_size,
                     )) {
                         Ok(value) => Ok(Some(value)),
-                        Err(_) => panic!("illegal field value in: {}", key),
+                        Err(_) => panic!("invalid field value in: {}", key),
                     }
                 } else {
                     Ok(Some(HeaderValue::from_static("")))
