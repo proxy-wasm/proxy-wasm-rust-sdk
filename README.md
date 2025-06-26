@@ -18,7 +18,7 @@
 
 This crate supports the following optional features:
 
-- `header-value` - uses RFC-compliant `HeaderValue` instead of UTF-8 `String` for HTTP header and trailer values.
+- `strict-header-value` - uses RFC-compliant `HeaderValue` instead of UTF-8 `String` for HTTP header and trailer values.
   This will become the default in future releases.
 
 ## Examples

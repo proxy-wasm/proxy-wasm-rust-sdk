@@ -40,9 +40,9 @@ rust_library(
 )
 
 rust_library(
-    name = "proxy_wasm_header_value",
+    name = "proxy_wasm_strict_header_value",
     srcs = glob(["src/*.rs"]),
-    crate_features = ["header-value"],
+    crate_features = ["strict-header-value"],
     crate_name = "proxy_wasm",
     edition = "2018",
     visibility = ["//visibility:public"],
@@ -78,7 +78,7 @@ rust_binary(
     rustc_flags = ["-Cstrip=debuginfo"],
     visibility = ["//visibility:private"],
     deps = [
-        ":proxy_wasm_header_value",
+        ":proxy_wasm_strict_header_value",
         "//bazel/cargo/remote:log",
     ],
 )

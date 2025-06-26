@@ -96,7 +96,7 @@ jobs:
 
     - name: Format (rules_rust)
       run: |
-        sed -i'' -E 's/^default = \[\]/default = \[\"header-value\"\]/' Cargo.toml
+        sed -i'' -E 's/^default = \[\]/default = \[\"strict-header-value\"\]/' Cargo.toml
         bazelisk --noworkspace_rc run --noenable_bzlmod //bazel/cargo:crates_vendor
         git checkout Cargo.toml
         git diff --exit-code
@@ -152,17 +152,17 @@ jobs:
     - name: Clippy (wasm32-wasi)
       run: cargo clippy --release --all-targets --target=wasm32-wasi
 
-    - name: Build (header-value)
-      run: cargo build --release --all-targets --target=wasm32-wasi --features header-value
+    - name: Build (strict-header-value)
+      run: cargo build --release --all-targets --target=wasm32-wasi --features strict-header-value
 
-    - name: Clippy (header-value)
-      run: cargo clippy --release --all-targets --target=wasm32-wasi --features header-value
+    - name: Clippy (strict-header-value)
+      run: cargo clippy --release --all-targets --target=wasm32-wasi --features strict-header-value
 
     - name: Test
       run: cargo test
 
-    - name: Test (header-value)
-      run: cargo test --features header-value
+    - name: Test (strict-header-value)
+      run: cargo test --features strict-header-value
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
@@ -226,17 +226,17 @@ jobs:
     - name: Clippy (wasm32-wasip1)
       run: cargo clippy --release --all-targets --target=wasm32-wasip1
 
-    - name: Build (header-value)
-      run: cargo build --release --all-targets --target=wasm32-wasip1 --features header-value
+    - name: Build (strict-header-value)
+      run: cargo build --release --all-targets --target=wasm32-wasip1 --features strict-header-value
 
-    - name: Clippy (header-value)
-      run: cargo clippy --release --all-targets --target=wasm32-wasip1 --features header-value
+    - name: Clippy (strict-header-value)
+      run: cargo clippy --release --all-targets --target=wasm32-wasip1 --features strict-header-value
 
     - name: Test
       run: cargo test
 
-    - name: Test (header-value)
-      run: cargo test --features header-value
+    - name: Test (strict-header-value)
+      run: cargo test --features strict-header-value
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
@@ -301,23 +301,23 @@ jobs:
     - name: Clippy (wasm32-wasip1)
       run: cargo clippy --release --all-targets --target=wasm32-wasip1
 
-    - name: Build (header-value)
-      run: cargo build --release --all-targets --target=wasm32-wasip1 --features header-value
+    - name: Build (strict-header-value)
+      run: cargo build --release --all-targets --target=wasm32-wasip1 --features strict-header-value
 
-    - name: Clippy (header-value)
-      run: cargo clippy --release --all-targets --target=wasm32-wasip1 --features header-value
+    - name: Clippy (strict-header-value)
+      run: cargo clippy --release --all-targets --target=wasm32-wasip1 --features strict-header-value
 
     - name: Test
       run: cargo test
 
-    - name: Test (header-value)
-      run: cargo test --features header-value
+    - name: Test (strict-header-value)
+      run: cargo test --features strict-header-value
 
     - name: Bench
       run: cargo bench
 
-    - name: Bench (header-value)
-      run: cargo bench --features header-value
+    - name: Bench (strict-header-value)
+      run: cargo bench --features strict-header-value
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check

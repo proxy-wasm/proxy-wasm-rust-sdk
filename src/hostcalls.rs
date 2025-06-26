@@ -145,7 +145,7 @@ extern "C" {
     ) -> Status;
 }
 
-#[cfg(feature = "header-value")]
+#[cfg(feature = "strict-header-value")]
 pub fn get_map(map_type: MapType) -> Result<Vec<(String, HeaderValue)>, Status> {
     unsafe {
         let mut return_data: *mut u8 = null_mut();
@@ -165,7 +165,7 @@ pub fn get_map(map_type: MapType) -> Result<Vec<(String, HeaderValue)>, Status> 
     }
 }
 
-#[cfg(not(feature = "header-value"))]
+#[cfg(not(feature = "strict-header-value"))]
 pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
     unsafe {
         let mut return_data: *mut u8 = null_mut();
@@ -237,7 +237,7 @@ extern "C" {
     ) -> Status;
 }
 
-#[cfg(feature = "header-value")]
+#[cfg(feature = "strict-header-value")]
 pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<HeaderValue>, Status> {
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
@@ -268,7 +268,7 @@ pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<HeaderValue>
     }
 }
 
-#[cfg(not(feature = "header-value"))]
+#[cfg(not(feature = "strict-header-value"))]
 pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<String>, Status> {
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
@@ -1182,9 +1182,9 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
 
 mod utils {
     use crate::types::Bytes;
-    #[cfg(feature = "header-value")]
+    #[cfg(feature = "strict-header-value")]
     use crate::types::HeaderValue;
-    #[cfg(feature = "header-value")]
+    #[cfg(feature = "strict-header-value")]
     use bytes::Buf;
     use std::convert::TryFrom;
 
@@ -1232,7 +1232,7 @@ mod utils {
         serialize_map(map)
     }
 
-    #[cfg(feature = "header-value")]
+    #[cfg(feature = "strict-header-value")]
     pub(super) fn deserialize_map(mut bytes: bytes::Bytes) -> Vec<(String, HeaderValue)> {
         if bytes.is_empty() {
             return Vec::new();
@@ -1258,7 +1258,7 @@ mod utils {
         map
     }
 
-    #[cfg(not(feature = "header-value"))]
+    #[cfg(not(feature = "strict-header-value"))]
     pub(super) fn deserialize_map(bytes: &[u8]) -> Vec<(String, String)> {
         if bytes.is_empty() {
             return Vec::new();
@@ -1440,7 +1440,7 @@ mod utils {
             assert_eq!(serialized_map, SERIALIZED_MAP);
         }
 
-        #[cfg(feature = "header-value")]
+        #[cfg(feature = "strict-header-value")]
         #[test]
         fn test_deserialize_map_all_chars() {
             // We're intentionally accepting all values to support hosts and proxies that
@@ -1456,7 +1456,7 @@ mod utils {
             }
         }
 
-        #[cfg(not(feature = "header-value"))]
+        #[cfg(not(feature = "strict-header-value"))]
         #[test]
         fn test_deserialize_map_all_chars() {
             // 0x00-0x7f are valid single-byte UTF-8 characters.
@@ -1513,7 +1513,7 @@ mod utils {
             });
         }
 
-        #[cfg(feature = "header-value")]
+        #[cfg(feature = "strict-header-value")]
         #[cfg(nightly)]
         #[bench]
         fn bench_deserialize_map(b: &mut Bencher) {
@@ -1523,7 +1523,7 @@ mod utils {
             });
         }
 
-        #[cfg(not(feature = "header-value"))]
+        #[cfg(not(feature = "strict-header-value"))]
         #[cfg(nightly)]
         #[bench]
         fn bench_deserialize_map(b: &mut Bencher) {
