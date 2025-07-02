@@ -39,6 +39,20 @@ rust_library(
     ],
 )
 
+rust_library(
+    name = "proxy_wasm_no_panic",
+    srcs = glob(["src/*.rs"]),
+    crate_features = ["no-panic"],
+    crate_name = "proxy_wasm",
+    edition = "2018",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":proxy_wasm_build_script",
+        "//bazel/cargo/remote:hashbrown",
+        "//bazel/cargo/remote:log",
+    ],
+)
+
 rust_binary(
     name = "http_auth_random",
     srcs = ["examples/http_auth_random/src/lib.rs"],
