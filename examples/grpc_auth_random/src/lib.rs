@@ -68,6 +68,7 @@ impl HttpContext for GrpcAuthRandom {
 
 impl Context for GrpcAuthRandom {
     fn on_grpc_call_response(&mut self, _: u32, status_code: u32, _: usize) {
+        #[allow(unknown_lints)]
         #[allow(clippy::manual_is_multiple_of)]
         if status_code % 2 == 0 {
             info!("Access granted.");

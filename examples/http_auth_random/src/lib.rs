@@ -50,6 +50,7 @@ impl HttpContext for HttpAuthRandom {
 impl Context for HttpAuthRandom {
     fn on_http_call_response(&mut self, _: u32, _: usize, body_size: usize, _: usize) {
         if let Some(body) = self.get_http_call_response_body(0, body_size) {
+            #[allow(unknown_lints)]
             #[allow(clippy::manual_is_multiple_of)]
             if !body.is_empty() && body[0] % 2 == 0 {
                 info!("Access granted.");
