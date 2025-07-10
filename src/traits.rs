@@ -581,7 +581,7 @@ pub trait Metric {
 pub trait IncrementingMetric: Metric {
     fn increment(&self, offset: i64) {
         match hostcalls::increment_metric(self.id(), offset) {
-            OK(_) => (),
+            Ok(_) => (),
             Err(Status::NotFound) => panic!("metric not found: {}", self.id()),
             Err(err) => panic!("unexpected status: {:?}", err),
         }
