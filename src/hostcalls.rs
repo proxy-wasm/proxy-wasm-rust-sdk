@@ -137,12 +137,22 @@ pub fn set_buffer(
     }
 }
 
+#[cfg(not(test))]
 extern "C" {
     fn proxy_get_header_map_pairs(
         map_type: MapType,
         return_map_data: *mut *mut u8,
         return_map_size: *mut usize,
     ) -> Status;
+}
+
+#[cfg(test)]
+fn proxy_get_header_map_pairs(
+    map_type: MapType,
+    return_map_data: *mut *mut u8,
+    return_map_size: *mut usize,
+) -> Status {
+    alloc_tests::proxy_get_header_map_pairs(map_type, return_map_data, return_map_size)
 }
 
 pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
@@ -1144,6 +1154,78 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
             Status::BadArgument => Err(Status::BadArgument),
             status => panic!("unexpected status: {}", status as u32),
         }
+    }
+}
+
+#[cfg(test)]
+mod alloc_tests {
+    use crate::types::*;
+
+    use mockalloc::Mockalloc;
+    use std::alloc::{alloc, Layout, System};
+
+    #[global_allocator]
+    static ALLOCATOR: Mockalloc<System> = Mockalloc(System);
+
+    // mock extern call
+    pub fn proxy_get_header_map_pairs(
+        _map_type: MapType,
+        return_map_data: *mut *mut u8,
+        return_map_size: *mut usize,
+    ) -> Status {
+        let layout = Layout::array::<u8>(SERIALIZED_MAP.len()).unwrap();
+        unsafe {
+            *return_map_data = alloc(layout);
+            *return_map_size = SERIALIZED_MAP.len();
+            std::ptr::copy(
+                SERIALIZED_MAP.as_ptr(),
+                *return_map_data,
+                SERIALIZED_MAP.len(),
+            );
+        }
+        Status::Ok
+    }
+
+    #[rustfmt::skip]
+    static SERIALIZED_MAP: &[u8] = &[
+        // num entries
+        4, 0, 0, 0,
+        // len (":method", "GET")
+        7, 0, 0, 0, 3, 0, 0, 0,
+        // len (":path", "/bytes/1")
+        5, 0, 0, 0, 8, 0, 0, 0,
+        // len (":authority", "httpbin.org")
+        10, 0, 0, 0, 11, 0, 0, 0,
+        // len ("Powered-By", "proxy-wasm")
+        10, 0, 0, 0, 10, 0, 0, 0,
+        // ":method"
+        58, 109, 101, 116, 104, 111, 100, 0,
+        // "GET"
+        71, 69, 84, 0,
+        // ":path"
+        58, 112, 97, 116, 104, 0,
+        // "/bytes/1"
+        47, 98, 121, 116, 101, 115, 47, 49, 0,
+        // ":authority"
+        58, 97, 117, 116, 104, 111, 114, 105, 116, 121, 0,
+        // "httpbin.org"
+        104, 116, 116, 112, 98, 105, 110, 46, 111, 114, 103, 0,
+        // "Powered-By"
+        80, 111, 119, 101, 114, 101, 100, 45, 66, 121, 0,
+        // "proxy-wasm"
+        112, 114, 111, 120, 121, 45, 119, 97, 115, 109, 0,
+    ];
+
+    #[mockalloc::test]
+    fn get_map_no_leaks() {
+        let result = super::get_map(MapType::HttpRequestHeaders);
+        assert!(result.is_ok());
+    }
+
+    #[mockalloc::test]
+    fn get_map_bytes_no_leaks() {
+        let result = super::get_map_bytes(MapType::HttpRequestHeaders);
+        assert!(result.is_ok());
     }
 }
 
