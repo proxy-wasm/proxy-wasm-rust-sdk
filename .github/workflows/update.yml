@@ -25,3 +25,5 @@ jobs:
     steps:
       - name: Sync fork
         uses: tgymnich/fork-sync@e905b254d56ebb367514cd05fa96bf7516bd2a5a
+        with:
+          owner: proxy-wasm
