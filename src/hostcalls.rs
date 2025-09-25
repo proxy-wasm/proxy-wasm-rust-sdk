@@ -412,7 +412,10 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn get_property(path: Vec<&str>) -> Result<Option<Bytes>, Status> {
+pub fn get_property<'a, P>(path: P) -> Result<Option<Bytes>, Status>
+where
+    P: AsRef<[&'a str]>,
+{
     let serialized_path = utils::serialize_property_path(path);
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
@@ -451,7 +454,10 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn set_property(path: Vec<&str>, value: Option<&[u8]>) -> Result<(), Status> {
+pub fn set_property<'a, P>(path: P, value: Option<&[u8]>) -> Result<(), Status>
+where
+    P: AsRef<[&'a str]>,
+{
     let serialized_path = utils::serialize_property_path(path);
     unsafe {
         match proxy_set_property(
@@ -1208,16 +1214,21 @@ mod utils {
     use crate::types::Bytes;
     use std::convert::TryFrom;
 
-    pub(super) fn serialize_property_path(path: Vec<&str>) -> Bytes {
+    pub(super) fn serialize_property_path<'a, P>(path: P) -> Bytes
+    where
+        P: AsRef<[&'a str]>,
+    {
+        let path = path.as_ref();
+
         if path.is_empty() {
             return Vec::new();
         }
         let mut size: usize = 0;
-        for part in &path {
+        for &part in path {
             size += part.len() + 1;
         }
         let mut bytes: Bytes = Vec::with_capacity(size);
-        for part in &path {
+        for &part in path {
             bytes.extend_from_slice(part.as_bytes());
             bytes.push(0);
         }
