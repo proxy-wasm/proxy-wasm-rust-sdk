@@ -1225,8 +1225,8 @@ mod utils {
             let value = bytes[p..p + size].to_vec();
             p += size + 1;
             map.push((
-                String::from_utf8(key).unwrap(),
-                String::from_utf8(value).unwrap(),
+                String::from_utf8_lossy(&key).into_owned(),
+                String::from_utf8_lossy(&value).into_owned(),
             ));
         }
         map
@@ -1248,7 +1248,7 @@ mod utils {
                 u32::from_le_bytes(<[u8; 4]>::try_from(&bytes[s + 4..s + 8]).unwrap()) as usize;
             let value = bytes[p..p + size].to_vec();
             p += size + 1;
-            map.push((String::from_utf8(key).unwrap(), value));
+            map.push((String::from_utf8_lossy(&key).into_owned(), value));
         }
         map
     }
@@ -1388,16 +1388,15 @@ mod utils {
                 let map_refs: Vec<(&str, &str)> =
                     map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
                 let serialized_map = serialize_map(&map_refs);
-                assert_eq!(serialized_map, serialized_src);
+                assert_eq!(serialized_map, serialized_src, "Failed at i={}", i);
             }
             // 0x80-0xff are invalid single-byte UTF-8 characters.
             for i in 0x80..0xff {
                 let serialized_src = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
-                std::panic::set_hook(Box::new(|_| {}));
-                let result = std::panic::catch_unwind(|| {
-                    deserialize_map(&serialized_src);
-                });
-                assert!(result.is_err());
+                let map = deserialize_map(&serialized_src);
+
+                // Invalid UTF-8 bytes should be replaced with the replacement character U+FFFD.
+                assert!(map[0].1.contains('�'), "Expected replacement character for byte 0x{:02x}", i);
             }
         }
 
