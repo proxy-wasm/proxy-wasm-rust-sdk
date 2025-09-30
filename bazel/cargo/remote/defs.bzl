@@ -310,11 +310,16 @@ _NORMAL_ALIASES = {
 
 _NORMAL_DEV_DEPENDENCIES = {
     "": {
+        _COMMON_CONDITION: {
+            "mockalloc": Label("@crates_vendor//:mockalloc-0.1.2"),
+        },
     },
 }
 
 _NORMAL_DEV_ALIASES = {
     "": {
+        _COMMON_CONDITION: {
+        },
     },
 }
 
@@ -335,6 +340,8 @@ _PROC_MACRO_DEV_DEPENDENCIES = {
 
 _PROC_MACRO_DEV_ALIASES = {
     "": {
+        _COMMON_CONDITION: {
+        },
     },
 }
 
@@ -455,7 +462,68 @@ def crate_repositories():
         build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.log-0.4.27.bazel"),
     )
 
+    maybe(
+        http_archive,
+        name = "crates_vendor__mockalloc-0.1.2",
+        sha256 = "5a6c93486116b2ab028d2a2c5f5ff42020407d1c7048b77ca0b196a511a12a94",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/mockalloc/0.1.2/download"],
+        strip_prefix = "mockalloc-0.1.2",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.mockalloc-0.1.2.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__mockalloc-macros-0.1.0",
+        sha256 = "23565dcdaedab64115f722c31d84e5bdb7125724097dcafce160a64806d6fb65",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/mockalloc-macros/0.1.0/download"],
+        strip_prefix = "mockalloc-macros-0.1.0",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.mockalloc-macros-0.1.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__proc-macro2-1.0.101",
+        sha256 = "89ae43fd86e4158d6db51ad8e2b80f313af9cc74f5c0e03ccb87de09998732de",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/proc-macro2/1.0.101/download"],
+        strip_prefix = "proc-macro2-1.0.101",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.proc-macro2-1.0.101.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__quote-1.0.41",
+        sha256 = "ce25767e7b499d1b604768e7cde645d14cc8584231ea6b295e9c9eb22c02e1d1",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/quote/1.0.41/download"],
+        strip_prefix = "quote-1.0.41",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.quote-1.0.41.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__syn-1.0.109",
+        sha256 = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/syn/1.0.109/download"],
+        strip_prefix = "syn-1.0.109",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.syn-1.0.109.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__unicode-ident-1.0.19",
+        sha256 = "f63a545481291138910575129486daeaf8ac54aee4387fe7906919f7830c7d9d",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/unicode-ident/1.0.19/download"],
+        strip_prefix = "unicode-ident-1.0.19",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.unicode-ident-1.0.19.bazel"),
+    )
+
     return [
         struct(repo = "crates_vendor__hashbrown-0.16.0", is_dev_dep = False),
         struct(repo = "crates_vendor__log-0.4.27", is_dev_dep = False),
+        struct(repo = "crates_vendor__mockalloc-0.1.2", is_dev_dep = True),
     ]

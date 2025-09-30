@@ -56,6 +56,18 @@ alias(
 )
 
 alias(
+    name = "mockalloc-0.1.2",
+    actual = "@crates_vendor__mockalloc-0.1.2//:mockalloc",
+    tags = ["manual"],
+)
+
+alias(
+    name = "mockalloc",
+    actual = "@crates_vendor__mockalloc-0.1.2//:mockalloc",
+    tags = ["manual"],
+)
+
+alias(
     name = "proxy-wasm-0.2.4-dev",
     actual = "@crates_vendor__proxy-wasm-0.2.4-dev//:proxy_wasm",
     tags = ["manual"],
