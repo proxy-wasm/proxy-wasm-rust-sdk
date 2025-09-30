@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "hashbrown",
+    name = "foldhash",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -34,14 +34,6 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "allocator-api2",
-        "default",
-        "default-hasher",
-        "equivalent",
-        "inline-more",
-        "raw-entry",
-    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_env_files = [
@@ -52,7 +44,7 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=hashbrown",
+        "crate-name=foldhash",
         "manual",
         "noclippy",
         "norustfmt",
@@ -96,10 +88,5 @@ rust_library(
         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
         "//conditions:default": ["@platforms//:incompatible"],
     }),
-    version = "0.15.3",
-    deps = [
-        "@crates_vendor__allocator-api2-0.2.21//:allocator_api2",
-        "@crates_vendor__equivalent-1.0.2//:equivalent",
-        "@crates_vendor__foldhash-0.1.5//:foldhash",
-    ],
+    version = "0.2.0",
 )
