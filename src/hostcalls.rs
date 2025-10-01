@@ -137,12 +137,22 @@ pub fn set_buffer(
     }
 }
 
+#[cfg(not(test))]
 extern "C" {
     fn proxy_get_header_map_pairs(
         map_type: MapType,
         return_map_data: *mut *mut u8,
         return_map_size: *mut usize,
     ) -> Status;
+}
+
+#[cfg(test)]
+fn proxy_get_header_map_pairs(
+    map_type: MapType,
+    return_map_data: *mut *mut u8,
+    return_map_size: *mut usize,
+) -> Status {
+    mocks::proxy_get_header_map_pairs(map_type, return_map_data, return_map_size)
 }
 
 pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
@@ -152,8 +162,8 @@ pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
         match proxy_get_header_map_pairs(map_type, &mut return_data, &mut return_size) {
             Status::Ok => {
                 if !return_data.is_null() {
-                    let serialized_map = std::slice::from_raw_parts(return_data, return_size);
-                    Ok(utils::deserialize_map(serialized_map))
+                    let serialized_map = Vec::from_raw_parts(return_data, return_size, return_size);
+                    Ok(utils::deserialize_map(&serialized_map))
                 } else {
                     Ok(Vec::new())
                 }
@@ -170,8 +180,8 @@ pub fn get_map_bytes(map_type: MapType) -> Result<Vec<(String, Bytes)>, Status> 
         match proxy_get_header_map_pairs(map_type, &mut return_data, &mut return_size) {
             Status::Ok => {
                 if !return_data.is_null() {
-                    let serialized_map = std::slice::from_raw_parts(return_data, return_size);
-                    Ok(utils::deserialize_map_bytes(serialized_map))
+                    let serialized_map = Vec::from_raw_parts(return_data, return_size, return_size);
+                    Ok(utils::deserialize_map_bytes(&serialized_map))
                 } else {
                     Ok(Vec::new())
                 }
@@ -1147,6 +1157,53 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
     }
 }
 
+#[cfg(test)]
+mod mocks {
+    use crate::hostcalls::utils::tests::SERIALIZED_MAP;
+    use crate::types::*;
+    use std::alloc::{alloc, Layout};
+
+    pub fn proxy_get_header_map_pairs(
+        _map_type: MapType,
+        return_map_data: *mut *mut u8,
+        return_map_size: *mut usize,
+    ) -> Status {
+        let layout = Layout::array::<u8>(SERIALIZED_MAP.len()).unwrap();
+        unsafe {
+            *return_map_data = alloc(layout);
+            *return_map_size = SERIALIZED_MAP.len();
+            std::ptr::copy(
+                SERIALIZED_MAP.as_ptr(),
+                *return_map_data,
+                SERIALIZED_MAP.len(),
+            );
+        }
+        Status::Ok
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::types::*;
+    use mockalloc::Mockalloc;
+    use std::alloc::System;
+
+    #[global_allocator]
+    static ALLOCATOR: Mockalloc<System> = Mockalloc(System);
+
+    #[mockalloc::test]
+    fn test_get_map_no_leaks() {
+        let result = super::get_map(MapType::HttpRequestHeaders);
+        assert!(result.is_ok());
+    }
+
+    #[mockalloc::test]
+    fn test_get_map_bytes_no_leaks() {
+        let result = super::get_map_bytes(MapType::HttpRequestHeaders);
+        assert!(result.is_ok());
+    }
+}
+
 mod utils {
     use crate::types::Bytes;
     use std::convert::TryFrom;
@@ -1254,7 +1311,7 @@ mod utils {
     }
 
     #[cfg(test)]
-    mod tests {
+    pub(super) mod tests {
         use super::*;
 
         #[cfg(nightly)]
@@ -1268,7 +1325,7 @@ mod utils {
         ];
 
         #[rustfmt::skip]
-        static SERIALIZED_MAP: &[u8] = &[
+        pub(in crate::hostcalls) static SERIALIZED_MAP: &[u8] = &[
             // num entries
             4, 0, 0, 0,
             // len (":method", "GET")
