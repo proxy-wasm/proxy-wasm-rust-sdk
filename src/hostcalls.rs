@@ -152,7 +152,7 @@ fn proxy_get_header_map_pairs(
     return_map_data: *mut *mut u8,
     return_map_size: *mut usize,
 ) -> Status {
-    alloc_tests::proxy_get_header_map_pairs(map_type, return_map_data, return_map_size)
+    mocks::proxy_get_header_map_pairs(map_type, return_map_data, return_map_size)
 }
 
 pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
@@ -1158,16 +1158,11 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
 }
 
 #[cfg(test)]
-mod alloc_tests {
+mod mocks {
+    use crate::hostcalls::utils::tests::SERIALIZED_MAP;
     use crate::types::*;
+    use std::alloc::{alloc, Layout};
 
-    use mockalloc::Mockalloc;
-    use std::alloc::{alloc, Layout, System};
-
-    #[global_allocator]
-    static ALLOCATOR: Mockalloc<System> = Mockalloc(System);
-
-    // mock extern call
     pub fn proxy_get_header_map_pairs(
         _map_type: MapType,
         return_map_data: *mut *mut u8,
@@ -1185,45 +1180,25 @@ mod alloc_tests {
         }
         Status::Ok
     }
+}
 
-    #[rustfmt::skip]
-    static SERIALIZED_MAP: &[u8] = &[
-        // num entries
-        4, 0, 0, 0,
-        // len (":method", "GET")
-        7, 0, 0, 0, 3, 0, 0, 0,
-        // len (":path", "/bytes/1")
-        5, 0, 0, 0, 8, 0, 0, 0,
-        // len (":authority", "httpbin.org")
-        10, 0, 0, 0, 11, 0, 0, 0,
-        // len ("Powered-By", "proxy-wasm")
-        10, 0, 0, 0, 10, 0, 0, 0,
-        // ":method"
-        58, 109, 101, 116, 104, 111, 100, 0,
-        // "GET"
-        71, 69, 84, 0,
-        // ":path"
-        58, 112, 97, 116, 104, 0,
-        // "/bytes/1"
-        47, 98, 121, 116, 101, 115, 47, 49, 0,
-        // ":authority"
-        58, 97, 117, 116, 104, 111, 114, 105, 116, 121, 0,
-        // "httpbin.org"
-        104, 116, 116, 112, 98, 105, 110, 46, 111, 114, 103, 0,
-        // "Powered-By"
-        80, 111, 119, 101, 114, 101, 100, 45, 66, 121, 0,
-        // "proxy-wasm"
-        112, 114, 111, 120, 121, 45, 119, 97, 115, 109, 0,
-    ];
+#[cfg(test)]
+mod tests {
+    use crate::types::*;
+    use mockalloc::Mockalloc;
+    use std::alloc::System;
+
+    #[global_allocator]
+    static ALLOCATOR: Mockalloc<System> = Mockalloc(System);
 
     #[mockalloc::test]
-    fn get_map_no_leaks() {
+    fn test_get_map_no_leaks() {
         let result = super::get_map(MapType::HttpRequestHeaders);
         assert!(result.is_ok());
     }
 
     #[mockalloc::test]
-    fn get_map_bytes_no_leaks() {
+    fn test_get_map_bytes_no_leaks() {
         let result = super::get_map_bytes(MapType::HttpRequestHeaders);
         assert!(result.is_ok());
     }
@@ -1336,7 +1311,7 @@ mod utils {
     }
 
     #[cfg(test)]
-    mod tests {
+    pub(super) mod tests {
         use super::*;
 
         #[cfg(nightly)]
@@ -1350,7 +1325,7 @@ mod utils {
         ];
 
         #[rustfmt::skip]
-        static SERIALIZED_MAP: &[u8] = &[
+        pub(in crate::hostcalls) static SERIALIZED_MAP: &[u8] = &[
             // num entries
             4, 0, 0, 0,
             // len (":method", "GET")
