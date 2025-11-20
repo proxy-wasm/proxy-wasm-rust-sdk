@@ -23,6 +23,7 @@
 - [HTTP Configuration](./examples/http_config/)
 - [gRPC Auth (random)](./examples/grpc_auth_random/)
 - [Envoy filter metadata](./examples/envoy_filter_metadata/)
+- [TCP Rerouting](./examples/tcp_rerouting/)
 
 ## Articles & blog posts from the community
 
