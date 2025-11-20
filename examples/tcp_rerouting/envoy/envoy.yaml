@@ -1,0 +1,76 @@
+# Envoy configuration for TCP rerouting example
+static_resources:
+  listeners:
+    - name: main
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 10000
+      filter_chains:
+        - filters:
+            # WASM filter for TCP rerouting
+            - name: envoy.filters.network.wasm
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.wasm.v3.Wasm
+                config:
+                  name: tcp_rerouting_filter
+                  root_id: tcp_rerouting_filter
+                  configuration:
+                    "@type": type.googleapis.com/google.protobuf.StringValue
+                    value: "standalone"
+                  vm_config:
+                    vm_id: vm.tcp_rerouting
+                    runtime: envoy.wasm.runtime.v8
+                    code:
+                      local:
+                        filename: /etc/tcp_rerouting.wasm
+                    allow_precompiled: true
+            # TCP proxy filter
+            - name: envoy.filters.network.tcp_proxy
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+                stat_prefix: destination
+                cluster: egress-router1 # Default cluster, overridden by WASM filter
+                access_log:
+                  - name: envoy.access_loggers.file
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
+                      path: /dev/stdout
+                      log_format:
+                        text_format: "[%START_TIME%] cluster=%UPSTREAM_CLUSTER% src=%DOWNSTREAM_REMOTE_ADDRESS% dst=%DOWNSTREAM_LOCAL_ADDRESS% -> %UPSTREAM_HOST%\n"
+
+  clusters:
+    - name: egress-router1
+      connect_timeout: 30s
+      type: LOGICAL_DNS
+      dns_lookup_family: V4_ONLY
+      load_assignment:
+        cluster_name: egress-router1
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: httpbin.org
+                      port_value: 80
+
+    - name: egress-router2
+      connect_timeout: 30s
+      type: LOGICAL_DNS
+      dns_lookup_family: V4_ONLY
+      load_assignment:
+        cluster_name: egress-router2
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: httpbin.org
+                      port_value: 80
+
+admin:
+  access_log_path: "/dev/null"
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 8001

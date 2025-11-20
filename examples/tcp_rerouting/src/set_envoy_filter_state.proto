@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package envoy.source.extensions.common.wasm;
+
+enum LifeSpan {
+  FilterChain = 0;
+  DownstreamRequest = 1;
+  DownstreamConnection = 2;
+}
+
+// Argument expected by set_envoy_filter_state in envoy
+// https://github.com/envoyproxy/envoy/blob/d741713c376d1e024236519fb59406c05702ad77/source/extensions/common/wasm/foreign.cc#L116
+message SetEnvoyFilterStateArguments {
+  string path = 1;
+  string value = 2;
+  LifeSpan span = 3;
+}

@@ -1,0 +1,18 @@
+services:
+  proxy:
+    image: envoyproxy/envoy:v1.34.1
+    entrypoint: /usr/local/bin/envoy -c /etc/envoy.yaml -l info --service-cluster proxy
+    volumes:
+      - ./envoy/envoy.yaml:/etc/envoy.yaml
+      - ./target/wasm32-wasip1/release/proxy_wasm_example_tcp_rerouting.wasm:/etc/tcp_rerouting.wasm
+    networks:
+      - envoymesh
+    ports:
+      - "10000:10000"
+      - "8001:8001"
+
+networks:
+  envoymesh:
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
