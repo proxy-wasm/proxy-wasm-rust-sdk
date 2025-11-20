@@ -106,7 +106,7 @@ impl StreamContext for TcpReroutingStream {
                     // Use the Envoy-specific filter state mechanism
                     // https://github.com/envoyproxy/envoy/issues/28128
                     let status = self.call_foreign_function("set_envoy_filter_state", Some(&buf));
-                    
+
                     info!(
                         "[TCP WASM] set_envoy_filter_state status (envoy.tcp_proxy.cluster): {:?}",
                         status
@@ -129,10 +129,10 @@ impl StreamContext for TcpReroutingStream {
 fn extract_last_octet(addr: &str) -> Option<u8> {
     // Remove port if present (format: "ip:port")
     let ip_part = addr.split(':').next()?;
-    
+
     // Split by '.' and get the last segment
-    let last_segment = ip_part.split('.').last()?;
-    
+    let last_segment = ip_part.split('.').next_back()?;
+
     // Parse as u8
     last_segment.parse::<u8>().ok()
 }
