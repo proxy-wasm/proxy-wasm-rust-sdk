@@ -6,7 +6,6 @@ authors = ["Proxy-Wasm contributors"]
 description = "Proxy-Wasm plugin example: TCP Rerouting based on source IP"
 license = "Apache-2.0"
 edition = "2021"
-rust-version = "1.65"
 
 [lib]
 crate-type = ["cdylib"]
@@ -18,3 +17,6 @@ prost = "0.12"
 
 [build-dependencies]
 prost-build = "0.12"
+# Pin proc-macro2 and quote to versions compatible with Rust 1.65 (MSRV)
+proc-macro2 = "=1.0.92"
+quote = "=1.0.37"
