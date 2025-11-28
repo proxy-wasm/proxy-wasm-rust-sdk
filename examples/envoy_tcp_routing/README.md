@@ -2,8 +2,6 @@
 
 Proxy-Wasm TCP filter that dynamically routes connections to different upstream clusters based on the source IP address.
 
-Most WASM filter examples focus on HTTP, but this example shows how to work at the TCP/IP level.
-
 This example is inspired by the [wasmerang](https://github.com/SiiiTschiii/wasmerang) project, which demonstrates advanced TCP routing patterns in Envoy/Istio/K8s using WASM filters.
 
 ### Overview
