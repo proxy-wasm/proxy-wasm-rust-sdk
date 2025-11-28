@@ -1,4 +1,4 @@
-## Proxy-Wasm plugin example: TCP Rerouting
+## Proxy-Wasm plugin example: Envoy TCP Routing
 
 Proxy-Wasm TCP filter that dynamically routes connections to different upstream clusters based on the source IP address.
 
@@ -42,10 +42,10 @@ In separate terminals, test the routing behavior with different source IP addres
 
 ```bash
 # Even IP (last octet 10) → routes to egress-router1
-docker run --rm -it --network tcp_rerouting_envoymesh --ip 172.22.0.10 curlimages/curl curl http://proxy:10000/ip -H "Host: httpbin.org"
+docker run --rm -it --network envoy_tcp_routing_envoymesh --ip 172.22.0.10 curlimages/curl curl http://proxy:10000/ip -H "Host: httpbin.org"
 
 # Odd IP (last octet 11) → routes to egress-router2
-docker run --rm -it --network tcp_rerouting_envoymesh --ip 172.22.0.11 curlimages/curl curl http://proxy:10000/ip -H "Host: httpbin.org"
+docker run --rm -it --network envoy_tcp_routing_envoymesh --ip 172.22.0.11 curlimages/curl curl http://proxy:10000/ip -H "Host: httpbin.org"
 ```
 
 ### Expected Output

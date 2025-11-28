@@ -1,9 +1,9 @@
 [package]
 publish = false
-name = "proxy-wasm-example-tcp-rerouting"
+name = "proxy-wasm-example-envoy-tcp-routing"
 version = "0.0.1"
 authors = ["Proxy-Wasm contributors"]
-description = "Proxy-Wasm plugin example: TCP Rerouting based on source IP"
+description = "Proxy-Wasm plugin example: Envoy TCP Routing based on source IP"
 license = "Apache-2.0"
 edition = "2021"
 

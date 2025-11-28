@@ -27,17 +27,17 @@ static_resources:
               typed_config:
                 "@type": type.googleapis.com/envoy.extensions.filters.network.wasm.v3.Wasm
                 config:
-                  name: tcp_rerouting_filter
-                  root_id: tcp_rerouting_filter
+                  name: envoy_tcp_routing_filter
+                  root_id: envoy_tcp_routing_filter
                   configuration:
                     "@type": type.googleapis.com/google.protobuf.StringValue
                     value: "standalone"
                   vm_config:
-                    vm_id: vm.tcp_rerouting
+                    vm_id: vm.envoy_tcp_routing
                     runtime: envoy.wasm.runtime.v8
                     code:
                       local:
-                        filename: /etc/tcp_rerouting.wasm
+                        filename: /etc/envoy_tcp_routing.wasm
                     allow_precompiled: true
             # TCP proxy filter
             - name: envoy.filters.network.tcp_proxy

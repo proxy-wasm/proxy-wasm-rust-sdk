@@ -2,4 +2,4 @@
 target
 Cargo.lock
 # Generated protobuf code
-examples/tcp_rerouting/src/generated/
+examples/envoy_tcp_routing/src/generated/
