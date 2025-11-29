@@ -44,14 +44,14 @@ alias(
 )
 
 alias(
-    name = "log-0.4.28",
-    actual = "@crates_vendor__log-0.4.28//:log",
+    name = "log-0.4.27",
+    actual = "@crates_vendor__log-0.4.27//:log",
     tags = ["manual"],
 )
 
 alias(
     name = "log",
-    actual = "@crates_vendor__log-0.4.28//:log",
+    actual = "@crates_vendor__log-0.4.27//:log",
     tags = ["manual"],
 )
 
