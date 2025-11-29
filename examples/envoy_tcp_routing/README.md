@@ -2,7 +2,7 @@
 
 Proxy-Wasm TCP filter that dynamically routes connections to different upstream clusters based on the source IP address.
 
-This example operates at the TCP stream context (L4) rather than the HTTP application layer, making it useful for use cases where application-layer processing should be avoided while still enabling intelligent routing decisions.
+This example operates at the [TCP stream context](https://github.com/proxy-wasm/spec/tree/main/abi-versions/v0.2.1#tcp-streams) (L4) rather than the [HTTP application layer](https://github.com/proxy-wasm/spec/tree/main/abi-versions/v0.2.1#http-streams), making it useful for use cases where application-layer processing should be avoided for performance or protocol-agnostic routing decisions.
 
 This example is inspired by the [wasmerang](https://github.com/SiiiTschiii/wasmerang) project, which demonstrates advanced TCP routing patterns in Envoy/Istio/K8s using WASM filters.
 
