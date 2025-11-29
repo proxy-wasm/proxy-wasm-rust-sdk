@@ -13,10 +13,15 @@ crate-type = ["cdylib"]
 [dependencies]
 log = "0.4"
 proxy-wasm = { path = "../../" }
-prost = "0.12"
+# Pin to MSRV-compatible prost release
+prost = "=0.11.9"
 
 [build-dependencies]
-prost-build = "0.12"
-# Pin proc-macro2 and quote to versions compatible with Rust 1.65 (MSRV)
-proc-macro2 = "=1.0.92"
-quote = "=1.0.37"
+# Pin to MSRV (v1.65) compatible releases
+prost-build = "=0.11.9"
+quote = "=1.0.41"
+proc-macro2 = "1.0"
+# Pin transitive dependencies to MSRV (v1.65) versions
+indexmap = "=2.11.4"
+home = "=0.5.5"
+

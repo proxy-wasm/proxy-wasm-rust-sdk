@@ -23,7 +23,7 @@ The filter uses Envoy's `set_envoy_filter_state` foreign function to dynamically
 Build the WASM plugin from the example directory:
 
 ```sh
-$ cargo build --target wasm32-wasip1 --release
+$ cargo build --target wasm32-wasi --release
 ```
 
 ### Running with Docker Compose
