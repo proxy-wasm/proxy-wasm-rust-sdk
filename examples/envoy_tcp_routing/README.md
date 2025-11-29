@@ -38,7 +38,7 @@ $ docker compose up
 
 ### Test the Routing
 
-In separate terminals, test the routing behavior with different source IP addresses:
+In a separate terminal test the routing behavior with different source IP addresses:
 
 ```bash
 # Even IP (last octet 10) → routes to egress-router1
@@ -56,7 +56,7 @@ Check the Docker Compose logs to see the WASM filter in action:
 $ docker compose logs -f
 ```
 
-**For even IP (last octet 10) → routes to egress-router1:**
+**For even IP (last octet 10) → routes via egress-router1:**
 
 ```
 proxy-1  | [TCP WASM] Source address: 172.22.0.10:39484
@@ -67,7 +67,7 @@ proxy-1  | [TCP WASM] Rerouting to egress-router1 via filter state
 proxy-1  | [2025-11-20T03:08:18.423Z] cluster=egress-router1 src=172.22.0.10:39484 dst=172.22.0.2:10000 -> 35.170.145.70:80
 ```
 
-**For odd IP (last octet 11) → routes to egress-router2:**
+**For odd IP (last octet 11) → routes via egress-router2:**
 
 ```
 proxy-1  | [TCP WASM] Source address: 172.22.0.11:55320
@@ -79,3 +79,11 @@ proxy-1  | [2025-11-20T03:08:39.974Z] cluster=egress-router2 src=172.22.0.11:553
 ```
 
 The `Ok(None)` status confirms that the filter state was successfully set, and you can see in the access logs that traffic is being routed to the correct clusters (`egress-router1` for even IPs, `egress-router2` for odd IPs).
+
+### Note on Destination Information
+
+In this example, both Envoy clusters (`egress-router1` and `egress-router2`) have `httpbin.org` hardcoded as their load balancer endpoints.
+
+In real world scenarios where destination information needs to be preserved across TCP hops, the [PROXY protocol](https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt) could be used to forward metadata like the original source and destination addresses between proxies. This could be implemented using advanced WASM stream context capabilities combined with Envoy's PROXY protocol configuration.
+
+**Future Enhancement:** With Istio (Envoy-based) in a Kubernetes setup and PROXY protocol support, this example could be extended to serve as a source-based egress router. One practical use case would be routing user's web traffic via different external IP addresses based on source-based routing decisions (e.g., even vs. odd source IP like in the example). In conventional networks, this would be achieved with routing tables and IP rules to select egress interfaces based on source addresses. However, this approach is close to impossible with managed Kubernetes services (without additional network plugins like [Multus CNI](https://github.com/k8snetworkplumbingwg/multus-cni), as Kubernetes largely abstracts away the network layer where such layer 3 routing (different outgoing IPs) would normally be configured.
