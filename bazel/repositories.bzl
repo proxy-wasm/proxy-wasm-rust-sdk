@@ -18,10 +18,18 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 def proxy_wasm_rust_sdk_repositories():
     maybe(
         http_archive,
+        name = "bazel_features",
+        sha256 = "07271d0f6b12633777b69020c4cb1eb67b1939c0cf84bb3944dc85cc250c0c01",
+        url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.38.0/bazel_features-v1.38.0.tar.gz",
+        strip_prefix = "bazel_features-1.38.0",
+    )
+
+    maybe(
+        http_archive,
         name = "rules_cc",
-        sha256 = "4b12149a041ddfb8306a8fd0e904e39d673552ce82e4296e96fac9cbf0780e59",
-        url = "https://github.com/bazelbuild/rules_cc/releases/download/0.1.0/rules_cc-0.1.0.tar.gz",
-        strip_prefix = "rules_cc-0.1.0",
+        sha256 = "a2fdfde2ab9b2176bd6a33afca14458039023edb1dd2e73e6823810809df4027",
+        url = "https://github.com/bazelbuild/rules_cc/releases/download/0.2.14/rules_cc-0.2.14.tar.gz",
+        strip_prefix = "rules_cc-0.2.14",
     )
 
     maybe(
