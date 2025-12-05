@@ -337,7 +337,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cargo install cargo-outdated --version 0.16.0
+        cargo install cargo-outdated --version 0.17.0
 
     - name: Run cargo outdated (main)
       run: |
