@@ -21,12 +21,20 @@ extern "C" {
     fn proxy_log(level: LogLevel, message_data: *const u8, message_size: usize) -> Status;
 }
 
+// Useful for the panic hook to avoid a double-panic.
+#[inline]
+pub(crate) fn log_nopanic(level: LogLevel, message: &str) -> Result<Status, Status> {
+    let status = unsafe { proxy_log(level, message.as_ptr(), message.len()) };
+    match status {
+        ok @ Status::Ok => Ok(ok),
+        unknown => Err(unknown),
+    }
+}
+
 pub fn log(level: LogLevel, message: &str) -> Result<(), Status> {
-    unsafe {
-        match proxy_log(level, message.as_ptr(), message.len()) {
-            Status::Ok => Ok(()),
-            status => panic!("unexpected status: {}", status as u32),
-        }
+    match log_nopanic(level, message) {
+        Ok(_) => Ok(()),
+        Err(status) => panic!("unexpected status: {}", status as u32),
     }
 }
 
