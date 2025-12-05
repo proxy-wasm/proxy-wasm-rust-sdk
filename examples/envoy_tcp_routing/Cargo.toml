@@ -1,0 +1,21 @@
+[package]
+publish = false
+name = "proxy-wasm-example-envoy-tcp-routing"
+version = "0.0.1"
+authors = ["Proxy-Wasm contributors"]
+description = "Proxy-Wasm plugin example: Envoy TCP Routing based on source IP"
+license = "Apache-2.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+log = "0.4"
+proxy-wasm = { path = "../../" }
+prost = "0.14"
+
+[build-dependencies]
+prost-build = "0.14"
+proc-macro2 = "1.0"
+
