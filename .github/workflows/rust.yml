@@ -379,7 +379,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cargo install cargo-audit --version 0.21.0
+        cargo install cargo-audit --version 0.22.0
 
     - name: Run cargo audit (main)
       run: |
