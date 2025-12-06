@@ -35,8 +35,8 @@ def proxy_wasm_rust_sdk_repositories():
     maybe(
         http_archive,
         name = "rules_rust",
-        sha256 = "dc287e3eca80b29d5cc95e261cae273eedf1af4a00a96ae937e234534dadb24c",
-        url = "https://github.com/bazelbuild/rules_rust/releases/download/0.67.0/rules_rust-0.67.0.tar.gz",
+        sha256 = "fc203574861b94a690b52c015e8239fe4b0de39a0b8cb7e4e087dc812ca5c728",
+        url = "https://github.com/bazelbuild/rules_rust/releases/download/0.68.0/rules_rust-0.68.0.tar.gz",
         patches = ["//bazel:rules_rust.patch"],
         patch_args = ["-p1"],
     )
