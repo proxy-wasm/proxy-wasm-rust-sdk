@@ -21,21 +21,21 @@ module(
 bazel_dep(name = "bazel_features", version = "1.38.0")
 bazel_dep(name = "bazel_skylib", version = "1.8.2")
 bazel_dep(name = "rules_cc", version = "0.2.14")
-bazel_dep(name = "rules_rust", version = "0.67.0")
+bazel_dep(name = "rules_rust", version = "0.68.1")
 single_version_override(
     module_name = "rules_rust",
     patch_strip = 1,
     patches = [
         "//bazel:rules_rust.patch",
     ],
-    version = "0.67.0",
+    version = "0.68.1",
 )
 
 # Configure Rust toolchain.
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(
     edition = "2018",
-    versions = ["1.90.0"],
+    versions = ["1.91.1"],
 )
 use_repo(rust, "rust_toolchains")
 
