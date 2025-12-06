@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_features//:features.bzl", "bazel_features")
 load("@proxy_wasm_rust_sdk//bazel/cargo/remote:crates.bzl", "crate_repositories")
 
 def _crates_deps_impl(module_ctx):
@@ -21,6 +22,7 @@ def _crates_deps_impl(module_ctx):
             deps.append(repo.repo)
 
     return module_ctx.extension_metadata(
+        reproducible = bazel_features.external_deps.extension_metadata_has_reproducible,
         root_module_direct_deps = deps,
         root_module_direct_dev_deps = [],
     )
