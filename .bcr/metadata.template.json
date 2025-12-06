@@ -1,0 +1,15 @@
+{
+  "homepage": "https://github.com/proxy-wasm/proxy-wasm-rust-sdk",
+  "maintainers": [
+    {
+      "name": "Piotr Sikora",
+      "github": "PiotrSikora",
+      "github_user_id": 190297
+    }
+  ],
+  "repository": [
+    "github:proxy-wasm/proxy-wasm-rust-sdk"
+  ],
+  "versions": [],
+  "yanked_versions": {}
+}
