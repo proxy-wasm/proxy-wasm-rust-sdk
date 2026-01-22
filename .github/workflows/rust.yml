@@ -81,7 +81,7 @@ jobs:
     - name: Install dependencies
       run: |
         go install github.com/bazelbuild/bazelisk@v1.25.0
-        go install github.com/bazelbuild/buildtools/buildifier@v0.0.0-20241212155839-a9c248f4b684
+        go install github.com/bazelbuild/buildtools/buildifier@v0.0.0-20260121081817-bbf01ec6cb49
         export PATH=$PATH:$(go env GOPATH)/bin
 
     - name: Build (wasm32-unknown-unknown)
