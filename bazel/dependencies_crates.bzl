@@ -17,6 +17,6 @@ load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencie
 load("@rules_rust//rust:repositories.bzl", "rust_repositories")
 
 def proxy_wasm_rust_sdk_dependencies_crates():
-    rust_repositories(versions = ["1.90.0"])
+    rust_repositories(versions = ["1.91.1"])
     crate_universe_dependencies()
     crate_repositories()
