@@ -837,7 +837,7 @@ extern "C" {
 }
 
 pub fn dispatch_grpc_call(
-    upstream_name: &str,
+    upstream: &[u8],
     service_name: &str,
     method_name: &str,
     initial_metadata: Vec<(&str, &[u8])>,
@@ -848,8 +848,8 @@ pub fn dispatch_grpc_call(
     let serialized_initial_metadata = utils::serialize_map_bytes(&initial_metadata);
     unsafe {
         match proxy_grpc_call(
-            upstream_name.as_ptr(),
-            upstream_name.len(),
+            upstream.as_ptr(),
+            upstream.len(),
             service_name.as_ptr(),
             service_name.len(),
             method_name.as_ptr(),
