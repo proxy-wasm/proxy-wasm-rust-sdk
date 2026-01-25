@@ -62,6 +62,7 @@ pub trait Context {
         hostcalls::enqueue_shared_queue(queue_id, value)
     }
 
+    #[deprecated(since = "0.2.5", note = "use `dispatch_http_call_typed` instead")]
     fn dispatch_http_call(
         &self,
         upstream: &str,
@@ -70,6 +71,7 @@ pub trait Context {
         trailers: Vec<(&str, &str)>,
         timeout: Duration,
     ) -> Result<u32, Status> {
+        #[allow(deprecated)]
         hostcalls::dispatch_http_call(upstream, headers, body, trailers, timeout)
     }
 
@@ -104,7 +106,12 @@ pub trait Context {
     ) {
     }
 
+    #[deprecated(
+        since = "0.2.5",
+        note = "use `get_http_call_response_headers_typed` instead"
+    )]
     fn get_http_call_response_headers(&self) -> Vec<(String, String)> {
+        #[allow(deprecated)]
         hostcalls::get_map(MapType::HttpCallResponseHeaders).unwrap()
     }
 
@@ -116,7 +123,12 @@ pub trait Context {
         hostcalls::get_map_typed(MapType::HttpCallResponseHeaders).unwrap()
     }
 
+    #[deprecated(
+        since = "0.2.5",
+        note = "use `get_http_call_response_header_typed` instead"
+    )]
     fn get_http_call_response_header(&self, name: &str) -> Option<String> {
+        #[allow(deprecated)]
         hostcalls::get_map_value(MapType::HttpCallResponseHeaders, name).unwrap()
     }
 
@@ -132,7 +144,12 @@ pub trait Context {
         hostcalls::get_buffer(BufferType::HttpCallResponseBody, start, max_size).unwrap()
     }
 
+    #[deprecated(
+        since = "0.2.5",
+        note = "use `get_http_call_response_trailers_typed` instead"
+    )]
     fn get_http_call_response_trailers(&self) -> Vec<(String, String)> {
+        #[allow(deprecated)]
         hostcalls::get_map(MapType::HttpCallResponseTrailers).unwrap()
     }
 
@@ -144,7 +161,12 @@ pub trait Context {
         hostcalls::get_map_typed(MapType::HttpCallResponseTrailers).unwrap()
     }
 
+    #[deprecated(
+        since = "0.2.5",
+        note = "use `get_http_call_response_trailer_typed` instead"
+    )]
     fn get_http_call_response_trailer(&self, name: &str) -> Option<String> {
+        #[allow(deprecated)]
         hostcalls::get_map_value(MapType::HttpCallResponseTrailers, name).unwrap()
     }
 
@@ -355,7 +377,9 @@ pub trait HttpContext: Context {
         Action::Continue
     }
 
+    #[deprecated(since = "0.2.5", note = "use `get_http_request_headers_typed` instead")]
     fn get_http_request_headers(&self) -> Vec<(String, String)> {
+        #[allow(deprecated)]
         hostcalls::get_map(MapType::HttpRequestHeaders).unwrap()
     }
 
@@ -367,7 +391,9 @@ pub trait HttpContext: Context {
         hostcalls::get_map_typed(MapType::HttpRequestHeaders).unwrap()
     }
 
+    #[deprecated(since = "0.2.5", note = "use `set_http_request_headers_typed` instead")]
     fn set_http_request_headers(&self, headers: Vec<(&str, &str)>) {
+        #[allow(deprecated)]
         hostcalls::set_map(MapType::HttpRequestHeaders, headers).unwrap()
     }
 
@@ -379,7 +405,9 @@ pub trait HttpContext: Context {
         hostcalls::set_map_typed(MapType::HttpRequestHeaders, headers).unwrap()
     }
 
+    #[deprecated(since = "0.2.5", note = "use `get_http_request_header_typed` instead")]
     fn get_http_request_header(&self, name: &str) -> Option<String> {
+        #[allow(deprecated)]
         hostcalls::get_map_value(MapType::HttpRequestHeaders, name).unwrap()
     }
 
@@ -391,7 +419,9 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value_typed(MapType::HttpRequestHeaders, name).unwrap()
     }
 
+    #[deprecated(since = "0.2.5", note = "use `set_http_request_header_typed` instead")]
     fn set_http_request_header(&self, name: &str, value: Option<&str>) {
+        #[allow(deprecated)]
         hostcalls::set_map_value(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
@@ -403,7 +433,9 @@ pub trait HttpContext: Context {
         hostcalls::set_map_value_typed(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
+    #[deprecated(since = "0.2.5", note = "use `add_http_request_header_typed` instead")]
     fn add_http_request_header(&self, name: &str, value: &str) {
+        #[allow(deprecated)]
         hostcalls::add_map_value(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
@@ -435,7 +467,12 @@ pub trait HttpContext: Context {
         Action::Continue
     }
 
+    #[deprecated(
+        since = "0.2.5",
+        note = "use `get_http_request_trailers_typed` instead"
+    )]
     fn get_http_request_trailers(&self) -> Vec<(String, String)> {
+        #[allow(deprecated)]
         hostcalls::get_map(MapType::HttpRequestTrailers).unwrap()
     }
 
@@ -447,7 +484,12 @@ pub trait HttpContext: Context {
         hostcalls::get_map_typed(MapType::HttpRequestTrailers).unwrap()
     }
 
+    #[deprecated(
+        since = "0.2.5",
+        note = "use `set_http_request_trailers_typed` instead"
+    )]
     fn set_http_request_trailers(&self, trailers: Vec<(&str, &str)>) {
+        #[allow(deprecated)]
         hostcalls::set_map(MapType::HttpRequestTrailers, trailers).unwrap()
     }
 
@@ -459,7 +501,9 @@ pub trait HttpContext: Context {
         hostcalls::set_map_typed(MapType::HttpRequestTrailers, trailers).unwrap()
     }
 
+    #[deprecated(since = "0.2.5", note = "use `get_http_request_trailer_typed` instead")]
     fn get_http_request_trailer(&self, name: &str) -> Option<String> {
+        #[allow(deprecated)]
         hostcalls::get_map_value(MapType::HttpRequestTrailers, name).unwrap()
     }
 
@@ -471,7 +515,9 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value_typed(MapType::HttpRequestTrailers, name).unwrap()
     }
 
+    #[deprecated(since = "0.2.5", note = "use `set_http_request_trailer_typed` instead")]
     fn set_http_request_trailer(&self, name: &str, value: Option<&str>) {
+        #[allow(deprecated)]
         hostcalls::set_map_value(MapType::HttpRequestTrailers, name, value).unwrap()
     }
 
@@ -483,7 +529,9 @@ pub trait HttpContext: Context {
         hostcalls::set_map_value_typed(MapType::HttpRequestTrailers, name, value).unwrap()
     }
 
+    #[deprecated(since = "0.2.5", note = "use `add_http_request_trailer_typed` instead")]
     fn add_http_request_trailer(&self, name: &str, value: &str) {
+        #[allow(deprecated)]
         hostcalls::add_map_value(MapType::HttpRequestTrailers, name, value).unwrap()
     }
 
@@ -511,7 +559,12 @@ pub trait HttpContext: Context {
         Action::Continue
     }
 
+    #[deprecated(
+        since = "0.2.5",
+        note = "use `get_http_response_headers_typed` instead"
+    )]
     fn get_http_response_headers(&self) -> Vec<(String, String)> {
+        #[allow(deprecated)]
         hostcalls::get_map(MapType::HttpResponseHeaders).unwrap()
     }
 
@@ -523,7 +576,12 @@ pub trait HttpContext: Context {
         hostcalls::get_map_typed(MapType::HttpResponseHeaders).unwrap()
     }
 
+    #[deprecated(
+        since = "0.2.5",
+        note = "use `set_http_response_headers_typed` instead"
+    )]
     fn set_http_response_headers(&self, headers: Vec<(&str, &str)>) {
+        #[allow(deprecated)]
         hostcalls::set_map(MapType::HttpResponseHeaders, headers).unwrap()
     }
 
@@ -535,7 +593,9 @@ pub trait HttpContext: Context {
         hostcalls::set_map_typed(MapType::HttpResponseHeaders, headers).unwrap()
     }
 
+    #[deprecated(since = "0.2.5", note = "use `get_http_response_header_typed` instead")]
     fn get_http_response_header(&self, name: &str) -> Option<String> {
+        #[allow(deprecated)]
         hostcalls::get_map_value(MapType::HttpResponseHeaders, name).unwrap()
     }
 
@@ -547,7 +607,9 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value_typed(MapType::HttpResponseHeaders, name).unwrap()
     }
 
+    #[deprecated(since = "0.2.5", note = "use `set_http_response_header_typed` instead")]
     fn set_http_response_header(&self, name: &str, value: Option<&str>) {
+        #[allow(deprecated)]
         hostcalls::set_map_value(MapType::HttpResponseHeaders, name, value).unwrap()
     }
 
@@ -559,7 +621,9 @@ pub trait HttpContext: Context {
         hostcalls::set_map_value_typed(MapType::HttpResponseHeaders, name, value).unwrap()
     }
 
+    #[deprecated(since = "0.2.5", note = "use `add_http_response_header_typed` instead")]
     fn add_http_response_header(&self, name: &str, value: &str) {
+        #[allow(deprecated)]
         hostcalls::add_map_value(MapType::HttpResponseHeaders, name, value).unwrap()
     }
 
@@ -591,7 +655,12 @@ pub trait HttpContext: Context {
         Action::Continue
     }
 
+    #[deprecated(
+        since = "0.2.5",
+        note = "use `get_http_response_trailers_typed` instead"
+    )]
     fn get_http_response_trailers(&self) -> Vec<(String, String)> {
+        #[allow(deprecated)]
         hostcalls::get_map(MapType::HttpResponseTrailers).unwrap()
     }
 
@@ -603,7 +672,12 @@ pub trait HttpContext: Context {
         hostcalls::get_map_typed(MapType::HttpResponseTrailers).unwrap()
     }
 
+    #[deprecated(
+        since = "0.2.5",
+        note = "use `set_http_response_trailers_typed` instead"
+    )]
     fn set_http_response_trailers(&self, trailers: Vec<(&str, &str)>) {
+        #[allow(deprecated)]
         hostcalls::set_map(MapType::HttpResponseTrailers, trailers).unwrap()
     }
 
@@ -615,7 +689,12 @@ pub trait HttpContext: Context {
         hostcalls::set_map_typed(MapType::HttpResponseTrailers, trailers).unwrap()
     }
 
+    #[deprecated(
+        since = "0.2.5",
+        note = "use `get_http_response_trailer_typed` instead"
+    )]
     fn get_http_response_trailer(&self, name: &str) -> Option<String> {
+        #[allow(deprecated)]
         hostcalls::get_map_value(MapType::HttpResponseTrailers, name).unwrap()
     }
 
@@ -627,7 +706,12 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value_typed(MapType::HttpResponseTrailers, name).unwrap()
     }
 
+    #[deprecated(
+        since = "0.2.5",
+        note = "use `set_http_response_trailer_typed` instead"
+    )]
     fn set_http_response_trailer(&self, name: &str, value: Option<&str>) {
+        #[allow(deprecated)]
         hostcalls::set_map_value(MapType::HttpResponseTrailers, name, value).unwrap()
     }
 
@@ -639,7 +723,12 @@ pub trait HttpContext: Context {
         hostcalls::set_map_value_typed(MapType::HttpResponseTrailers, name, value).unwrap()
     }
 
+    #[deprecated(
+        since = "0.2.5",
+        note = "use `add_http_response_trailer_typed` instead"
+    )]
     fn add_http_response_trailer(&self, name: &str, value: &str) {
+        #[allow(deprecated)]
         hostcalls::add_map_value(MapType::HttpResponseTrailers, name, value).unwrap()
     }
 
@@ -663,12 +752,14 @@ pub trait HttpContext: Context {
         hostcalls::reset_http_response().unwrap()
     }
 
+    #[deprecated(since = "0.2.5", note = "use `send_http_response_typed` instead")]
     fn send_http_response(
         &self,
         status_code: u32,
         headers: Vec<(&str, &str)>,
         body: Option<&[u8]>,
     ) {
+        #[allow(deprecated)]
         hostcalls::send_http_response(status_code, headers, body).unwrap()
     }
 
