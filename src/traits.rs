@@ -62,8 +62,7 @@ pub trait Context {
         hostcalls::enqueue_shared_queue(queue_id, value)
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn dispatch_http_call(
+    fn dispatch_http_call_typed(
         &self,
         upstream: &str,
         headers: Vec<(&str, &HeaderValue)>,
@@ -74,7 +73,6 @@ pub trait Context {
         hostcalls::dispatch_http_call(upstream, headers, body, trailers, timeout)
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn dispatch_http_call(
         &self,
         upstream: &str,
@@ -95,12 +93,10 @@ pub trait Context {
     ) {
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn get_http_call_response_headers(&self) -> Vec<(String, HeaderValue)> {
-        hostcalls::get_map(MapType::HttpCallResponseHeaders).unwrap()
+    fn get_http_call_response_headers_typed(&self) -> Vec<(String, HeaderValue)> {
+        hostcalls::get_map_typed(MapType::HttpCallResponseHeaders).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn get_http_call_response_headers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpCallResponseHeaders).unwrap()
     }
@@ -109,12 +105,10 @@ pub trait Context {
         hostcalls::get_map_bytes(MapType::HttpCallResponseHeaders).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn get_http_call_response_header(&self, name: &str) -> Option<HeaderValue> {
-        hostcalls::get_map_value(MapType::HttpCallResponseTrailers, name).unwrap()
+    fn get_http_call_response_header_typed(&self, name: &str) -> Option<HeaderValue> {
+        hostcalls::get_map_value_typed(MapType::HttpCallResponseTrailers, name).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn get_http_call_response_header(&self, name: &str) -> Option<String> {
         hostcalls::get_map_value(MapType::HttpCallResponseHeaders, name).unwrap()
     }
@@ -127,12 +121,10 @@ pub trait Context {
         hostcalls::get_buffer(BufferType::HttpCallResponseBody, start, max_size).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn get_http_call_response_trailers(&self) -> Vec<(String, HeaderValue)> {
-        hostcalls::get_map(MapType::HttpCallResponseTrailers).unwrap()
+    fn get_http_call_response_trailers_typed(&self) -> Vec<(String, HeaderValue)> {
+        hostcalls::get_map_typed(MapType::HttpCallResponseTrailers).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn get_http_call_response_trailers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpCallResponseTrailers).unwrap()
     }
@@ -141,12 +133,10 @@ pub trait Context {
         hostcalls::get_map_bytes(MapType::HttpCallResponseTrailers).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn get_http_call_response_trailer(&self, name: &str) -> Option<HeaderValue> {
-        hostcalls::get_map_value(MapType::HttpCallResponseTrailers, name).unwrap()
+    fn get_http_call_response_trailer_typed(&self, name: &str) -> Option<HeaderValue> {
+        hostcalls::get_map_value_typed(MapType::HttpCallResponseTrailers, name).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn get_http_call_response_trailer(&self, name: &str) -> Option<String> {
         hostcalls::get_map_value(MapType::HttpCallResponseTrailers, name).unwrap()
     }
@@ -354,12 +344,10 @@ pub trait HttpContext: Context {
         Action::Continue
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn get_http_request_headers(&self) -> Vec<(String, HeaderValue)> {
-        hostcalls::get_map(MapType::HttpRequestHeaders).unwrap()
+    fn get_http_request_headers_typed(&self) -> Vec<(String, HeaderValue)> {
+        hostcalls::get_map_typed(MapType::HttpRequestHeaders).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn get_http_request_headers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpRequestHeaders).unwrap()
     }
@@ -368,12 +356,10 @@ pub trait HttpContext: Context {
         hostcalls::get_map_bytes(MapType::HttpRequestHeaders).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn set_http_request_headers(&self, headers: Vec<(&str, &HeaderValue)>) {
-        hostcalls::set_map(MapType::HttpRequestHeaders, headers).unwrap()
+    fn set_http_request_headers_typed(&self, headers: Vec<(&str, &HeaderValue)>) {
+        hostcalls::set_map_typed(MapType::HttpRequestHeaders, headers).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn set_http_request_headers(&self, headers: Vec<(&str, &str)>) {
         hostcalls::set_map(MapType::HttpRequestHeaders, headers).unwrap()
     }
@@ -382,12 +368,10 @@ pub trait HttpContext: Context {
         hostcalls::set_map_bytes(MapType::HttpRequestHeaders, headers).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn get_http_request_header(&self, name: &str) -> Option<HeaderValue> {
-        hostcalls::get_map_value(MapType::HttpRequestHeaders, name).unwrap()
+    fn get_http_request_header_typed(&self, name: &str) -> Option<HeaderValue> {
+        hostcalls::get_map_value_typed(MapType::HttpRequestHeaders, name).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn get_http_request_header(&self, name: &str) -> Option<String> {
         hostcalls::get_map_value(MapType::HttpRequestHeaders, name).unwrap()
     }
@@ -396,12 +380,10 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value_bytes(MapType::HttpRequestHeaders, name).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn set_http_request_header(&self, name: &str, value: Option<&HeaderValue>) {
-        hostcalls::set_map_value(MapType::HttpRequestHeaders, name, value).unwrap()
+    fn set_http_request_header_typed(&self, name: &str, value: Option<&HeaderValue>) {
+        hostcalls::set_map_value_typed(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn set_http_request_header(&self, name: &str, value: Option<&str>) {
         hostcalls::set_map_value(MapType::HttpRequestHeaders, name, value).unwrap()
     }
@@ -410,12 +392,10 @@ pub trait HttpContext: Context {
         hostcalls::set_map_value_bytes(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn add_http_request_header(&self, name: &str, value: &HeaderValue) {
-        hostcalls::add_map_value(MapType::HttpRequestHeaders, name, value).unwrap()
+    fn add_http_request_header_typed(&self, name: &str, value: &HeaderValue) {
+        hostcalls::add_map_value_typed(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn add_http_request_header(&self, name: &str, value: &str) {
         hostcalls::add_map_value(MapType::HttpRequestHeaders, name, value).unwrap()
     }
@@ -444,12 +424,10 @@ pub trait HttpContext: Context {
         Action::Continue
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn get_http_request_trailers(&self) -> Vec<(String, HeaderValue)> {
-        hostcalls::get_map(MapType::HttpRequestTrailers).unwrap()
+    fn get_http_request_trailers_typed(&self) -> Vec<(String, HeaderValue)> {
+        hostcalls::get_map_typed(MapType::HttpRequestTrailers).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn get_http_request_trailers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpRequestTrailers).unwrap()
     }
@@ -458,12 +436,10 @@ pub trait HttpContext: Context {
         hostcalls::get_map_bytes(MapType::HttpRequestTrailers).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn set_http_request_trailers(&self, trailers: Vec<(&str, &HeaderValue)>) {
-        hostcalls::set_map(MapType::HttpRequestTrailers, trailers).unwrap()
+    fn set_http_request_trailers_typed(&self, trailers: Vec<(&str, &HeaderValue)>) {
+        hostcalls::set_map_typed(MapType::HttpRequestTrailers, trailers).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn set_http_request_trailers(&self, trailers: Vec<(&str, &str)>) {
         hostcalls::set_map(MapType::HttpRequestTrailers, trailers).unwrap()
     }
@@ -472,12 +448,10 @@ pub trait HttpContext: Context {
         hostcalls::set_map_bytes(MapType::HttpRequestTrailers, trailers).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn get_http_request_trailer(&self, name: &str) -> Option<HeaderValue> {
-        hostcalls::get_map_value(MapType::HttpRequestTrailers, name).unwrap()
+    fn get_http_request_trailer_typed(&self, name: &str) -> Option<HeaderValue> {
+        hostcalls::get_map_value_typed(MapType::HttpRequestTrailers, name).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn get_http_request_trailer(&self, name: &str) -> Option<String> {
         hostcalls::get_map_value(MapType::HttpRequestTrailers, name).unwrap()
     }
@@ -486,12 +460,10 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value_bytes(MapType::HttpRequestTrailers, name).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn set_http_request_trailer(&self, name: &str, value: Option<&HeaderValue>) {
-        hostcalls::set_map_value(MapType::HttpRequestTrailers, name, value).unwrap()
+    fn set_http_request_trailer_typed(&self, name: &str, value: Option<&HeaderValue>) {
+        hostcalls::set_map_value_typed(MapType::HttpRequestTrailers, name, value).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn set_http_request_trailer(&self, name: &str, value: Option<&str>) {
         hostcalls::set_map_value(MapType::HttpRequestTrailers, name, value).unwrap()
     }
@@ -500,12 +472,10 @@ pub trait HttpContext: Context {
         hostcalls::set_map_value_bytes(MapType::HttpRequestTrailers, name, value).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn add_http_request_trailer(&self, name: &str, value: &HeaderValue) {
-        hostcalls::add_map_value(MapType::HttpRequestTrailers, name, value).unwrap()
+    fn add_http_request_trailer_typed(&self, name: &str, value: &HeaderValue) {
+        hostcalls::add_map_value_typed(MapType::HttpRequestTrailers, name, value).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn add_http_request_trailer(&self, name: &str, value: &str) {
         hostcalls::add_map_value(MapType::HttpRequestTrailers, name, value).unwrap()
     }
@@ -530,12 +500,10 @@ pub trait HttpContext: Context {
         Action::Continue
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn get_http_response_headers(&self) -> Vec<(String, HeaderValue)> {
-        hostcalls::get_map(MapType::HttpResponseHeaders).unwrap()
+    fn get_http_response_headers_typed(&self) -> Vec<(String, HeaderValue)> {
+        hostcalls::get_map_typed(MapType::HttpResponseHeaders).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn get_http_response_headers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpResponseHeaders).unwrap()
     }
@@ -544,12 +512,10 @@ pub trait HttpContext: Context {
         hostcalls::get_map_bytes(MapType::HttpResponseHeaders).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn set_http_response_headers(&self, headers: Vec<(&str, &HeaderValue)>) {
-        hostcalls::set_map(MapType::HttpResponseHeaders, headers).unwrap()
+    fn set_http_response_headers_typed(&self, headers: Vec<(&str, &HeaderValue)>) {
+        hostcalls::set_map_typed(MapType::HttpResponseHeaders, headers).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn set_http_response_headers(&self, headers: Vec<(&str, &str)>) {
         hostcalls::set_map(MapType::HttpResponseHeaders, headers).unwrap()
     }
@@ -558,12 +524,10 @@ pub trait HttpContext: Context {
         hostcalls::set_map_bytes(MapType::HttpResponseHeaders, headers).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn get_http_response_header(&self, name: &str) -> Option<HeaderValue> {
-        hostcalls::get_map_value(MapType::HttpResponseHeaders, name).unwrap()
+    fn get_http_response_header_typed(&self, name: &str) -> Option<HeaderValue> {
+        hostcalls::get_map_value_typed(MapType::HttpResponseHeaders, name).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn get_http_response_header(&self, name: &str) -> Option<String> {
         hostcalls::get_map_value(MapType::HttpResponseHeaders, name).unwrap()
     }
@@ -572,12 +536,10 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value_bytes(MapType::HttpResponseHeaders, name).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn set_http_response_header(&self, name: &str, value: Option<&HeaderValue>) {
-        hostcalls::set_map_value(MapType::HttpResponseHeaders, name, value).unwrap()
+    fn set_http_response_header_typed(&self, name: &str, value: Option<&HeaderValue>) {
+        hostcalls::set_map_value_typed(MapType::HttpResponseHeaders, name, value).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn set_http_response_header(&self, name: &str, value: Option<&str>) {
         hostcalls::set_map_value(MapType::HttpResponseHeaders, name, value).unwrap()
     }
@@ -586,12 +548,10 @@ pub trait HttpContext: Context {
         hostcalls::set_map_value_bytes(MapType::HttpResponseHeaders, name, value).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn add_http_response_header(&self, name: &str, value: &HeaderValue) {
-        hostcalls::add_map_value(MapType::HttpResponseHeaders, name, value).unwrap()
+    fn add_http_response_header_typed(&self, name: &str, value: &HeaderValue) {
+        hostcalls::add_map_value_typed(MapType::HttpResponseHeaders, name, value).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn add_http_response_header(&self, name: &str, value: &str) {
         hostcalls::add_map_value(MapType::HttpResponseHeaders, name, value).unwrap()
     }
@@ -620,12 +580,10 @@ pub trait HttpContext: Context {
         Action::Continue
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn get_http_response_trailers(&self) -> Vec<(String, HeaderValue)> {
-        hostcalls::get_map(MapType::HttpResponseTrailers).unwrap()
+    fn get_http_response_trailers_typed(&self) -> Vec<(String, HeaderValue)> {
+        hostcalls::get_map_typed(MapType::HttpResponseTrailers).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn get_http_response_trailers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpResponseTrailers).unwrap()
     }
@@ -634,12 +592,10 @@ pub trait HttpContext: Context {
         hostcalls::get_map_bytes(MapType::HttpResponseTrailers).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn set_http_response_trailers(&self, trailers: Vec<(&str, &HeaderValue)>) {
-        hostcalls::set_map(MapType::HttpResponseTrailers, trailers).unwrap()
+    fn set_http_response_trailers_typed(&self, trailers: Vec<(&str, &HeaderValue)>) {
+        hostcalls::set_map_typed(MapType::HttpResponseTrailers, trailers).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn set_http_response_trailers(&self, trailers: Vec<(&str, &str)>) {
         hostcalls::set_map(MapType::HttpResponseTrailers, trailers).unwrap()
     }
@@ -648,12 +604,10 @@ pub trait HttpContext: Context {
         hostcalls::set_map_bytes(MapType::HttpResponseTrailers, trailers).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn get_http_response_trailer(&self, name: &str) -> Option<HeaderValue> {
-        hostcalls::get_map_value(MapType::HttpResponseTrailers, name).unwrap()
+    fn get_http_response_trailer_typed(&self, name: &str) -> Option<HeaderValue> {
+        hostcalls::get_map_value_typed(MapType::HttpResponseTrailers, name).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn get_http_response_trailer(&self, name: &str) -> Option<String> {
         hostcalls::get_map_value(MapType::HttpResponseTrailers, name).unwrap()
     }
@@ -662,12 +616,10 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value_bytes(MapType::HttpResponseTrailers, name).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn set_http_response_trailer(&self, name: &str, value: Option<&HeaderValue>) {
-        hostcalls::set_map_value(MapType::HttpResponseTrailers, name, value).unwrap()
+    fn set_http_response_trailer_typed(&self, name: &str, value: Option<&HeaderValue>) {
+        hostcalls::set_map_value_typed(MapType::HttpResponseTrailers, name, value).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn set_http_response_trailer(&self, name: &str, value: Option<&str>) {
         hostcalls::set_map_value(MapType::HttpResponseTrailers, name, value).unwrap()
     }
@@ -676,12 +628,10 @@ pub trait HttpContext: Context {
         hostcalls::set_map_value_bytes(MapType::HttpResponseTrailers, name, value).unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn add_http_response_trailer(&self, name: &str, value: &HeaderValue) {
-        hostcalls::add_map_value(MapType::HttpResponseTrailers, name, value).unwrap()
+    fn add_http_response_trailer_typed(&self, name: &str, value: &HeaderValue) {
+        hostcalls::add_map_value_typed(MapType::HttpResponseTrailers, name, value).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn add_http_response_trailer(&self, name: &str, value: &str) {
         hostcalls::add_map_value(MapType::HttpResponseTrailers, name, value).unwrap()
     }
@@ -702,8 +652,7 @@ pub trait HttpContext: Context {
         hostcalls::reset_http_response().unwrap()
     }
 
-    #[cfg(feature = "strict-header-value")]
-    fn send_http_response(
+    fn send_http_response_typed(
         &self,
         status_code: u32,
         headers: Vec<(&str, &HeaderValue)>,
@@ -712,7 +661,6 @@ pub trait HttpContext: Context {
         hostcalls::send_http_response(status_code, headers, body).unwrap()
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     fn send_http_response(
         &self,
         status_code: u32,

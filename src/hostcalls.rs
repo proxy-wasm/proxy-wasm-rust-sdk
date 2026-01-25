@@ -155,8 +155,7 @@ fn proxy_get_header_map_pairs(
     mocks::proxy_get_header_map_pairs(map_type, return_map_data, return_map_size)
 }
 
-#[cfg(feature = "strict-header-value")]
-pub fn get_map(map_type: MapType) -> Result<Vec<(String, HeaderValue)>, Status> {
+pub fn get_map_typed(map_type: MapType) -> Result<Vec<(String, HeaderValue)>, Status> {
     unsafe {
         let mut return_data: *mut u8 = null_mut();
         let mut return_size: usize = 0;
@@ -168,7 +167,7 @@ pub fn get_map(map_type: MapType) -> Result<Vec<(String, HeaderValue)>, Status> 
                         return_size,
                         return_size,
                     ));
-                    Ok(utils::deserialize_map(serialized_map))
+                    Ok(utils::deserialize_map_typed(serialized_map))
                 } else {
                     Ok(Vec::new())
                 }
@@ -178,7 +177,6 @@ pub fn get_map(map_type: MapType) -> Result<Vec<(String, HeaderValue)>, Status> 
     }
 }
 
-#[cfg(not(feature = "strict-header-value"))]
 pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
     unsafe {
         let mut return_data: *mut u8 = null_mut();
@@ -240,6 +238,10 @@ pub fn set_map_bytes(map_type: MapType, map: Vec<(&str, &[u8])>) -> Result<(), S
     set_map(map_type, map)
 }
 
+pub fn set_map_typed(map_type: MapType, map: Vec<(&str, &HeaderValue)>) -> Result<(), Status> {
+    set_map(map_type, map)
+}
+
 #[cfg(not(test))]
 extern "C" {
     fn proxy_get_header_map_value(
@@ -268,8 +270,7 @@ fn proxy_get_header_map_value(
     )
 }
 
-#[cfg(feature = "strict-header-value")]
-pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<HeaderValue>, Status> {
+pub fn get_map_value_typed(map_type: MapType, key: &str) -> Result<Option<HeaderValue>, Status> {
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
     unsafe {
@@ -300,7 +301,6 @@ pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<HeaderValue>
     }
 }
 
-#[cfg(not(feature = "strict-header-value"))]
 pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<String>, Status> {
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
@@ -420,6 +420,14 @@ pub fn set_map_value_bytes(
     set_map_value(map_type, key, value)
 }
 
+pub fn set_map_value_typed(
+    map_type: MapType,
+    key: &str,
+    value: Option<&HeaderValue>,
+) -> Result<(), Status> {
+    set_map_value(map_type, key, value)
+}
+
 extern "C" {
     fn proxy_add_header_map_value(
         map_type: MapType,
@@ -449,6 +457,14 @@ where
 }
 
 pub fn add_map_value_bytes(map_type: MapType, key: &str, value: &[u8]) -> Result<(), Status> {
+    add_map_value(map_type, key, value)
+}
+
+pub fn add_map_value_typed(
+    map_type: MapType,
+    key: &str,
+    value: &HeaderValue,
+) -> Result<(), Status> {
     add_map_value(map_type, key, value)
 }
 
@@ -1277,6 +1293,12 @@ mod tests {
     }
 
     #[mockalloc::test]
+    fn test_get_map_typed_no_leaks() {
+        let result = super::get_map_typed(MapType::HttpRequestHeaders);
+        assert!(result.is_ok());
+    }
+
+    #[mockalloc::test]
     fn test_get_map_value_no_leaks() {
         let result = super::get_map_value(MapType::HttpRequestHeaders, "foo");
         assert!(result.is_ok());
@@ -1287,13 +1309,17 @@ mod tests {
         let result = super::get_map_value_bytes(MapType::HttpRequestHeaders, "foo");
         assert!(result.is_ok());
     }
+
+    #[mockalloc::test]
+    fn test_get_map_value_typed_no_leaks() {
+        let result = super::get_map_value_typed(MapType::HttpRequestHeaders, "foo");
+        assert!(result.is_ok());
+    }
 }
 
 mod utils {
     use crate::types::Bytes;
-    #[cfg(feature = "strict-header-value")]
     use crate::types::HeaderValue;
-    #[cfg(feature = "strict-header-value")]
     use bytes::Buf;
     use std::convert::TryFrom;
 
@@ -1341,8 +1367,12 @@ mod utils {
         serialize_map(map)
     }
 
-    #[cfg(feature = "strict-header-value")]
-    pub(super) fn deserialize_map(mut bytes: bytes::Bytes) -> Vec<(String, HeaderValue)> {
+    #[cfg(test)]
+    pub(super) fn serialize_map_typed(map: &[(&str, &HeaderValue)]) -> Bytes {
+        serialize_map(map)
+    }
+
+    pub(super) fn deserialize_map_typed(mut bytes: bytes::Bytes) -> Vec<(String, HeaderValue)> {
         if bytes.is_empty() {
             return Vec::new();
         }
@@ -1367,7 +1397,6 @@ mod utils {
         map
     }
 
-    #[cfg(not(feature = "strict-header-value"))]
     pub(super) fn deserialize_map(bytes: &[u8]) -> Vec<(String, String)> {
         if bytes.is_empty() {
             return Vec::new();
@@ -1476,13 +1505,16 @@ mod utils {
         }
 
         #[test]
+        fn test_serialize_map_empty_typed() {
+            let serialized_map = serialize_map_typed(&[]);
+            assert_eq!(serialized_map, SERIALIZED_EMPTY_MAP);
+        }
+
+        #[test]
         fn test_deserialize_map_empty() {
-            let empty_map: &[u8] = &[];
-            #[allow(clippy::useless_conversion)]
-            let map = deserialize_map(empty_map.into());
+            let map = deserialize_map(&[]);
             assert_eq!(map, []);
-            #[allow(clippy::useless_conversion)]
-            let map = deserialize_map(SERIALIZED_EMPTY_MAP.into());
+            let map = deserialize_map(SERIALIZED_EMPTY_MAP);
             assert_eq!(map, []);
         }
 
@@ -1491,6 +1523,14 @@ mod utils {
             let map = deserialize_map_bytes(&[]);
             assert_eq!(map, []);
             let map = deserialize_map_bytes(SERIALIZED_EMPTY_MAP);
+            assert_eq!(map, []);
+        }
+
+        #[test]
+        fn test_deserialize_map_empty_typed() {
+            let map = deserialize_map_typed(bytes::Bytes::new());
+            assert_eq!(map, []);
+            let map = deserialize_map_typed(SERIALIZED_EMPTY_MAP.into());
             assert_eq!(map, []);
         }
 
@@ -1508,9 +1548,19 @@ mod utils {
         }
 
         #[test]
+        fn test_serialize_map_typed() {
+            let map: Vec<(&str, HeaderValue)> = MAP
+                .iter()
+                .map(|x| (x.0, HeaderValue::from_static(x.1)))
+                .collect();
+            let map_refs: Vec<(&str, &HeaderValue)> = map.iter().map(|x| (x.0, &x.1)).collect();
+            let serialized_map = serialize_map_typed(&map_refs);
+            assert_eq!(serialized_map, SERIALIZED_MAP);
+        }
+
+        #[test]
         fn test_deserialize_map() {
-            #[allow(clippy::useless_conversion)]
-            let map = deserialize_map(SERIALIZED_MAP.into());
+            let map = deserialize_map(SERIALIZED_MAP);
             assert_eq!(map.len(), MAP.len());
             for (got, expected) in map.into_iter().zip(MAP) {
                 assert_eq!(got.0, expected.0);
@@ -1529,11 +1579,20 @@ mod utils {
         }
 
         #[test]
+        fn test_deserialize_map_typed() {
+            let map = deserialize_map_typed(SERIALIZED_MAP.into());
+            assert_eq!(map.len(), MAP.len());
+            for (got, expected) in map.into_iter().zip(MAP) {
+                assert_eq!(got.0, expected.0);
+                assert_eq!(got.1, expected.1);
+            }
+        }
+
+        #[test]
         fn test_deserialize_map_roundtrip() {
-            #[allow(clippy::useless_conversion)]
-            let map = deserialize_map(SERIALIZED_MAP.into());
+            let map = deserialize_map(SERIALIZED_MAP);
             // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
-            let map_refs: Vec<(&str, &[u8])> =
+            let map_refs: Vec<(&str, &str)> =
                 map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
             let serialized_map = serialize_map(&map_refs);
             assert_eq!(serialized_map, SERIALIZED_MAP);
@@ -1549,29 +1608,37 @@ mod utils {
             assert_eq!(serialized_map, SERIALIZED_MAP);
         }
 
-        #[cfg(feature = "strict-header-value")]
         #[test]
-        fn test_deserialize_map_all_chars() {
+        fn test_deserialize_map_roundtrip_typed() {
+            let map = deserialize_map_typed(SERIALIZED_MAP.into());
+            // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
+            let map_refs: Vec<(&str, &HeaderValue)> =
+                map.iter().map(|x| (x.0.as_ref(), &x.1)).collect();
+            let serialized_map = serialize_map_typed(&map_refs);
+            assert_eq!(serialized_map, SERIALIZED_MAP);
+        }
+
+        #[test]
+        fn test_deserialize_map_all_chars_typed() {
             // We're intentionally accepting all values to support hosts and proxies that
             // don't enforce strict RFC compliance on HTTP field values.
             for i in 0..0xff {
-                let serialized_src: &[u8] = &[1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
-                let map = deserialize_map(serialized_src.to_vec().into());
+                let serialized_src = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
+                let map = deserialize_map_typed(serialized_src.to_vec().into());
                 // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
-                let map_refs: Vec<(&str, &[u8])> =
-                    map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
-                let serialized_map = serialize_map(&map_refs);
+                let map_refs: Vec<(&str, &HeaderValue)> =
+                    map.iter().map(|x| (x.0.as_ref(), &x.1)).collect();
+                let serialized_map = serialize_map_typed(&map_refs);
                 assert_eq!(serialized_map, serialized_src);
             }
         }
 
-        #[cfg(not(feature = "strict-header-value"))]
         #[test]
         fn test_deserialize_map_all_chars() {
             // 0x00-0x7f are valid single-byte UTF-8 characters.
             for i in 0..0x7f {
-                let serialized_src: &[u8] = &[1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
-                let map = deserialize_map(serialized_src);
+                let serialized_src = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
+                let map = deserialize_map(&serialized_src);
                 // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
                 let map_refs: Vec<(&str, &str)> =
                     map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
@@ -1580,11 +1647,11 @@ mod utils {
             }
             // 0x80-0xff are invalid single-byte UTF-8 characters.
             for i in 0x80..0xff {
-                let serialized_src: &[u8] = &[1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
+                let serialized_src = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
                 // Override panic to silence panic logs in the test output.
                 std::panic::set_hook(Box::new(|_| {}));
                 let result = std::panic::catch_unwind(|| {
-                    deserialize_map(serialized_src);
+                    deserialize_map(&serialized_src);
                 });
                 assert!(result.is_err());
             }
@@ -1594,8 +1661,8 @@ mod utils {
         fn test_deserialize_map_all_chars_bytes() {
             // All 256 single-byte characters are allowed when emitting bytes.
             for i in 0..0xff {
-                let serialized_src: &[u8] = &[1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
-                let map = deserialize_map_bytes(serialized_src);
+                let serialized_src = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
+                let map = deserialize_map_bytes(&serialized_src);
                 // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
                 let map_refs: Vec<(&str, &[u8])> =
                     map.iter().map(|x| (x.0.as_ref(), x.1.as_ref())).collect();
@@ -1622,17 +1689,28 @@ mod utils {
             });
         }
 
-        #[cfg(feature = "strict-header-value")]
         #[cfg(nightly)]
         #[bench]
-        fn bench_deserialize_map(b: &mut Bencher) {
-            let serialized_map: bytes::Bytes = SERIALIZED_MAP.into();
+        fn bench_serialize_map_typed(b: &mut Bencher) {
+            let map: Vec<(&str, HeaderValue)> = MAP
+                .iter()
+                .map(|x| (x.0, HeaderValue::from_static(x.1)))
+                .collect();
+            let map_refs: Vec<(&str, &HeaderValue)> = map.iter().map(|x| (x.0, &x.1)).collect();
             b.iter(|| {
-                deserialize_map(test::black_box(serialized_map.clone()));
+                serialize_map_typed(test::black_box(&map_refs));
             });
         }
 
-        #[cfg(not(feature = "strict-header-value"))]
+        #[cfg(nightly)]
+        #[bench]
+        fn bench_deserialize_map_typed(b: &mut Bencher) {
+            let serialized_map: bytes::Bytes = SERIALIZED_MAP.into();
+            b.iter(|| {
+                deserialize_map_typed(test::black_box(serialized_map.clone()));
+            });
+        }
+
         #[cfg(nightly)]
         #[bench]
         fn bench_deserialize_map(b: &mut Bencher) {

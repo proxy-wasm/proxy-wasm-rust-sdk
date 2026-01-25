@@ -43,7 +43,7 @@ impl Context for HttpHeaders {}
 
 impl HttpContext for HttpHeaders {
     fn on_http_request_headers(&mut self, _: usize, _: bool) -> Action {
-        for (name, value) in &self.get_http_request_headers() {
+        for (name, value) in &self.get_http_request_headers_typed() {
             info!(
                 "#{} -> {}: {}",
                 self.context_id,
@@ -54,7 +54,7 @@ impl HttpContext for HttpHeaders {
 
         match self.get_http_request_header(":path") {
             Some(path) if path == "/hello" => {
-                self.send_http_response(
+                self.send_http_response_typed(
                     200,
                     vec![
                         ("Hello", &HeaderValue::from_static("World")),
@@ -69,7 +69,7 @@ impl HttpContext for HttpHeaders {
     }
 
     fn on_http_response_headers(&mut self, _: usize, _: bool) -> Action {
-        for (name, value) in &self.get_http_response_headers() {
+        for (name, value) in &self.get_http_response_headers_typed() {
             info!(
                 "#{} <- {}: {}",
                 self.context_id,

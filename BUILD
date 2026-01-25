@@ -34,20 +34,6 @@ rust_library(
     visibility = ["//visibility:public"],
     deps = [
         ":proxy_wasm_build_script",
-        "//bazel/cargo/remote:hashbrown",
-        "//bazel/cargo/remote:log",
-    ],
-)
-
-rust_library(
-    name = "proxy_wasm_strict_header_value",
-    srcs = glob(["src/*.rs"]),
-    crate_features = ["strict-header-value"],
-    crate_name = "proxy_wasm",
-    edition = "2018",
-    visibility = ["//visibility:public"],
-    deps = [
-        ":proxy_wasm_build_script",
         "//bazel/cargo/remote:bytes",
         "//bazel/cargo/remote:hashbrown",
         "//bazel/cargo/remote:http",
@@ -65,20 +51,6 @@ rust_binary(
     visibility = ["//visibility:private"],
     deps = [
         ":proxy_wasm",
-        "//bazel/cargo/remote:log",
-    ],
-)
-
-rust_binary(
-    name = "grpc_auth_random",
-    srcs = ["examples/grpc_auth_random/src/lib.rs"],
-    crate_type = "cdylib",
-    edition = "2018",
-    out_binary = True,
-    rustc_flags = ["-Cstrip=debuginfo"],
-    visibility = ["//visibility:private"],
-    deps = [
-        ":proxy_wasm_strict_header_value",
         "//bazel/cargo/remote:log",
     ],
 )

@@ -11,17 +11,13 @@ edition = "2018"
 build = "build.rs"
 
 [dependencies]
-bytes = { version = "1", optional = true }
+bytes = "1"
 hashbrown = "0.16"
-http = { version = "1", optional = true }
+http = "1"
 log = "0.4"
 
 [dev-dependencies]
 mockalloc = "0.1.2"
-
-[features]
-default = []
-strict-header-value = ["dep:bytes", "dep:http"]
 
 [profile.release]
 lto = true
