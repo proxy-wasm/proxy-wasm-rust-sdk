@@ -70,7 +70,7 @@ pub trait Context {
         trailers: Vec<(&str, &HeaderValue)>,
         timeout: Duration,
     ) -> Result<u32, Status> {
-        hostcalls::dispatch_http_call(upstream, headers, body, trailers, timeout)
+        hostcalls::dispatch_http_call_typed(upstream, headers, body, trailers, timeout)
     }
 
     fn dispatch_http_call(
@@ -82,6 +82,17 @@ pub trait Context {
         timeout: Duration,
     ) -> Result<u32, Status> {
         hostcalls::dispatch_http_call(upstream, headers, body, trailers, timeout)
+    }
+
+    fn dispatch_http_call_bytes(
+        &self,
+        upstream: &str,
+        headers: Vec<(&str, &[u8])>,
+        body: Option<&[u8]>,
+        trailers: Vec<(&str, &[u8])>,
+        timeout: Duration,
+    ) -> Result<u32, Status> {
+        hostcalls::dispatch_http_call_bytes(upstream, headers, body, trailers, timeout)
     }
 
     fn on_http_call_response(
@@ -658,7 +669,7 @@ pub trait HttpContext: Context {
         headers: Vec<(&str, &HeaderValue)>,
         body: Option<&[u8]>,
     ) {
-        hostcalls::send_http_response(status_code, headers, body).unwrap()
+        hostcalls::send_http_response_typed(status_code, headers, body).unwrap()
     }
 
     fn send_http_response(
@@ -668,6 +679,15 @@ pub trait HttpContext: Context {
         body: Option<&[u8]>,
     ) {
         hostcalls::send_http_response(status_code, headers, body).unwrap()
+    }
+
+    fn send_http_response_bytes(
+        &self,
+        status_code: u32,
+        headers: Vec<(&str, &[u8])>,
+        body: Option<&[u8]>,
+    ) {
+        hostcalls::send_http_response_bytes(status_code, headers, body).unwrap()
     }
 
     fn send_grpc_response(

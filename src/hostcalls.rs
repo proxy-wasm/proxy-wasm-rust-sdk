@@ -221,11 +221,15 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn set_map<V>(map_type: MapType, map: Vec<(&str, V)>) -> Result<(), Status>
+pub fn set_map(map_type: MapType, map: Vec<(&str, &str)>) -> Result<(), Status> {
+    set_map_bytes(map_type, map)
+}
+
+pub fn set_map_bytes<V>(map_type: MapType, map: Vec<(&str, V)>) -> Result<(), Status>
 where
     V: AsRef<[u8]>,
 {
-    let serialized_map = utils::serialize_map(&map);
+    let serialized_map = utils::serialize_map_bytes(&map);
     unsafe {
         match proxy_set_header_map_pairs(map_type, serialized_map.as_ptr(), serialized_map.len()) {
             Status::Ok => Ok(()),
@@ -234,12 +238,8 @@ where
     }
 }
 
-pub fn set_map_bytes(map_type: MapType, map: Vec<(&str, &[u8])>) -> Result<(), Status> {
-    set_map(map_type, map)
-}
-
 pub fn set_map_typed(map_type: MapType, map: Vec<(&str, &HeaderValue)>) -> Result<(), Status> {
-    set_map(map_type, map)
+    set_map_bytes(map_type, map)
 }
 
 #[cfg(not(test))]
@@ -387,7 +387,11 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn set_map_value<V>(map_type: MapType, key: &str, value: Option<V>) -> Result<(), Status>
+pub fn set_map_value(map_type: MapType, key: &str, value: Option<&str>) -> Result<(), Status> {
+    set_map_value_bytes(map_type, key, value)
+}
+
+pub fn set_map_value_bytes<V>(map_type: MapType, key: &str, value: Option<V>) -> Result<(), Status>
 where
     V: AsRef<[u8]>,
 {
@@ -412,20 +416,12 @@ where
     }
 }
 
-pub fn set_map_value_bytes(
-    map_type: MapType,
-    key: &str,
-    value: Option<&[u8]>,
-) -> Result<(), Status> {
-    set_map_value(map_type, key, value)
-}
-
 pub fn set_map_value_typed(
     map_type: MapType,
     key: &str,
     value: Option<&HeaderValue>,
 ) -> Result<(), Status> {
-    set_map_value(map_type, key, value)
+    set_map_value_bytes(map_type, key, value)
 }
 
 extern "C" {
@@ -438,7 +434,11 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn add_map_value<V>(map_type: MapType, key: &str, value: V) -> Result<(), Status>
+pub fn add_map_value(map_type: MapType, key: &str, value: &str) -> Result<(), Status> {
+    add_map_value_bytes(map_type, key, value)
+}
+
+pub fn add_map_value_bytes<V>(map_type: MapType, key: &str, value: V) -> Result<(), Status>
 where
     V: AsRef<[u8]>,
 {
@@ -456,16 +456,12 @@ where
     }
 }
 
-pub fn add_map_value_bytes(map_type: MapType, key: &str, value: &[u8]) -> Result<(), Status> {
-    add_map_value(map_type, key, value)
-}
-
 pub fn add_map_value_typed(
     map_type: MapType,
     key: &str,
     value: &HeaderValue,
 ) -> Result<(), Status> {
-    add_map_value(map_type, key, value)
+    add_map_value_bytes(map_type, key, value)
 }
 
 extern "C" {
@@ -789,7 +785,15 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn send_http_response<V>(
+pub fn send_http_response(
+    status_code: u32,
+    headers: Vec<(&str, &str)>,
+    body: Option<&[u8]>,
+) -> Result<(), Status> {
+    send_http_response_bytes(status_code, headers, body)
+}
+
+pub fn send_http_response_bytes<V>(
     status_code: u32,
     headers: Vec<(&str, V)>,
     body: Option<&[u8]>,
@@ -797,7 +801,7 @@ pub fn send_http_response<V>(
 where
     V: AsRef<[u8]>,
 {
-    let serialized_headers = utils::serialize_map(&headers);
+    let serialized_headers = utils::serialize_map_bytes(&headers);
     unsafe {
         match proxy_send_local_response(
             status_code,
@@ -813,6 +817,14 @@ where
             status => panic!("unexpected status: {}", status as u32),
         }
     }
+}
+
+pub fn send_http_response_typed(
+    status_code: u32,
+    headers: Vec<(&str, &HeaderValue)>,
+    body: Option<&[u8]>,
+) -> Result<(), Status> {
+    send_http_response_bytes(status_code, headers, body)
 }
 
 pub fn send_grpc_response(
@@ -853,7 +865,17 @@ extern "C" {
     ) -> Status;
 }
 
-pub fn dispatch_http_call<V>(
+pub fn dispatch_http_call(
+    upstream: &str,
+    headers: Vec<(&str, &str)>,
+    body: Option<&[u8]>,
+    trailers: Vec<(&str, &str)>,
+    timeout: Duration,
+) -> Result<u32, Status> {
+    dispatch_http_call_bytes(upstream, headers, body, trailers, timeout)
+}
+
+pub fn dispatch_http_call_bytes<V>(
     upstream: &str,
     headers: Vec<(&str, V)>,
     body: Option<&[u8]>,
@@ -863,8 +885,8 @@ pub fn dispatch_http_call<V>(
 where
     V: AsRef<[u8]>,
 {
-    let serialized_headers = utils::serialize_map(&headers);
-    let serialized_trailers = utils::serialize_map(&trailers);
+    let serialized_headers = utils::serialize_map_bytes(&headers);
+    let serialized_trailers = utils::serialize_map_bytes(&trailers);
     let mut return_token: u32 = 0;
     unsafe {
         match proxy_http_call(
@@ -888,6 +910,16 @@ where
             status => panic!("unexpected status: {}", status as u32),
         }
     }
+}
+
+pub fn dispatch_http_call_typed(
+    upstream: &str,
+    headers: Vec<(&str, &HeaderValue)>,
+    body: Option<&[u8]>,
+    trailers: Vec<(&str, &HeaderValue)>,
+    timeout: Duration,
+) -> Result<u32, Status> {
+    dispatch_http_call_bytes(upstream, headers, body, trailers, timeout)
 }
 
 extern "C" {
@@ -1340,7 +1372,12 @@ mod utils {
         bytes
     }
 
-    pub(super) fn serialize_map<V>(map: &[(&str, V)]) -> Bytes
+    #[cfg(test)]
+    pub(super) fn serialize_map(map: &[(&str, &str)]) -> Bytes {
+        serialize_map_bytes(map)
+    }
+
+    pub(super) fn serialize_map_bytes<V>(map: &[(&str, V)]) -> Bytes
     where
         V: AsRef<[u8]>,
     {
@@ -1363,13 +1400,9 @@ mod utils {
         bytes
     }
 
-    pub(super) fn serialize_map_bytes(map: &[(&str, &[u8])]) -> Bytes {
-        serialize_map(map)
-    }
-
     #[cfg(test)]
     pub(super) fn serialize_map_typed(map: &[(&str, &HeaderValue)]) -> Bytes {
-        serialize_map(map)
+        serialize_map_bytes(map)
     }
 
     pub(super) fn deserialize_map_typed(mut bytes: bytes::Bytes) -> Vec<(String, HeaderValue)> {
@@ -1494,13 +1527,13 @@ mod utils {
 
         #[test]
         fn test_serialize_map_empty() {
-            let serialized_map = serialize_map::<&str>(&[]);
+            let serialized_map = serialize_map(&[]);
             assert_eq!(serialized_map, SERIALIZED_EMPTY_MAP);
         }
 
         #[test]
         fn test_serialize_map_empty_bytes() {
-            let serialized_map = serialize_map_bytes(&[]);
+            let serialized_map = serialize_map_bytes::<&[u8]>(&[]);
             assert_eq!(serialized_map, SERIALIZED_EMPTY_MAP);
         }
 
