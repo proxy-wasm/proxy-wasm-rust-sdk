@@ -1520,7 +1520,7 @@ mod utils {
         ];
 
         #[rustfmt::skip]
-        static SERIALIZED_EMPTY_MAP: &[u8] = &[
+        static SERIALIZED_MAP_EMPTY: &[u8] = &[
             // num entries
             0, 0, 0, 0,
         ];
@@ -1528,26 +1528,26 @@ mod utils {
         #[test]
         fn test_serialize_map_empty() {
             let serialized_map = serialize_map(&[]);
-            assert_eq!(serialized_map, SERIALIZED_EMPTY_MAP);
+            assert_eq!(serialized_map, SERIALIZED_MAP_EMPTY);
         }
 
         #[test]
         fn test_serialize_map_empty_bytes() {
             let serialized_map = serialize_map_bytes::<&[u8]>(&[]);
-            assert_eq!(serialized_map, SERIALIZED_EMPTY_MAP);
+            assert_eq!(serialized_map, SERIALIZED_MAP_EMPTY);
         }
 
         #[test]
         fn test_serialize_map_empty_typed() {
             let serialized_map = serialize_map_typed(&[]);
-            assert_eq!(serialized_map, SERIALIZED_EMPTY_MAP);
+            assert_eq!(serialized_map, SERIALIZED_MAP_EMPTY);
         }
 
         #[test]
         fn test_deserialize_map_empty() {
             let map = deserialize_map(&[]);
             assert_eq!(map, []);
-            let map = deserialize_map(SERIALIZED_EMPTY_MAP);
+            let map = deserialize_map(SERIALIZED_MAP_EMPTY);
             assert_eq!(map, []);
         }
 
@@ -1555,7 +1555,7 @@ mod utils {
         fn test_deserialize_map_empty_bytes() {
             let map = deserialize_map_bytes(&[]);
             assert_eq!(map, []);
-            let map = deserialize_map_bytes(SERIALIZED_EMPTY_MAP);
+            let map = deserialize_map_bytes(SERIALIZED_MAP_EMPTY);
             assert_eq!(map, []);
         }
 
@@ -1563,7 +1563,7 @@ mod utils {
         fn test_deserialize_map_empty_typed() {
             let map = deserialize_map_typed(bytes::Bytes::new());
             assert_eq!(map, []);
-            let map = deserialize_map_typed(SERIALIZED_EMPTY_MAP.into());
+            let map = deserialize_map_typed(SERIALIZED_MAP_EMPTY.into());
             assert_eq!(map, []);
         }
 
