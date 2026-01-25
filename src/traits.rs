@@ -62,17 +62,6 @@ pub trait Context {
         hostcalls::enqueue_shared_queue(queue_id, value)
     }
 
-    fn dispatch_http_call_typed(
-        &self,
-        upstream: &str,
-        headers: Vec<(&str, &HeaderValue)>,
-        body: Option<&[u8]>,
-        trailers: Vec<(&str, &HeaderValue)>,
-        timeout: Duration,
-    ) -> Result<u32, Status> {
-        hostcalls::dispatch_http_call_typed(upstream, headers, body, trailers, timeout)
-    }
-
     fn dispatch_http_call(
         &self,
         upstream: &str,
@@ -95,6 +84,17 @@ pub trait Context {
         hostcalls::dispatch_http_call_bytes(upstream, headers, body, trailers, timeout)
     }
 
+    fn dispatch_http_call_typed(
+        &self,
+        upstream: &str,
+        headers: Vec<(&str, &HeaderValue)>,
+        body: Option<&[u8]>,
+        trailers: Vec<(&str, &HeaderValue)>,
+        timeout: Duration,
+    ) -> Result<u32, Status> {
+        hostcalls::dispatch_http_call_typed(upstream, headers, body, trailers, timeout)
+    }
+
     fn on_http_call_response(
         &mut self,
         _token_id: u32,
@@ -102,10 +102,6 @@ pub trait Context {
         _body_size: usize,
         _num_trailers: usize,
     ) {
-    }
-
-    fn get_http_call_response_headers_typed(&self) -> Vec<(String, HeaderValue)> {
-        hostcalls::get_map_typed(MapType::HttpCallResponseHeaders).unwrap()
     }
 
     fn get_http_call_response_headers(&self) -> Vec<(String, String)> {
@@ -116,8 +112,8 @@ pub trait Context {
         hostcalls::get_map_bytes(MapType::HttpCallResponseHeaders).unwrap()
     }
 
-    fn get_http_call_response_header_typed(&self, name: &str) -> Option<HeaderValue> {
-        hostcalls::get_map_value_typed(MapType::HttpCallResponseTrailers, name).unwrap()
+    fn get_http_call_response_headers_typed(&self) -> Vec<(String, HeaderValue)> {
+        hostcalls::get_map_typed(MapType::HttpCallResponseHeaders).unwrap()
     }
 
     fn get_http_call_response_header(&self, name: &str) -> Option<String> {
@@ -128,12 +124,12 @@ pub trait Context {
         hostcalls::get_map_value_bytes(MapType::HttpCallResponseHeaders, name).unwrap()
     }
 
-    fn get_http_call_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
-        hostcalls::get_buffer(BufferType::HttpCallResponseBody, start, max_size).unwrap()
+    fn get_http_call_response_header_typed(&self, name: &str) -> Option<HeaderValue> {
+        hostcalls::get_map_value_typed(MapType::HttpCallResponseTrailers, name).unwrap()
     }
 
-    fn get_http_call_response_trailers_typed(&self) -> Vec<(String, HeaderValue)> {
-        hostcalls::get_map_typed(MapType::HttpCallResponseTrailers).unwrap()
+    fn get_http_call_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
+        hostcalls::get_buffer(BufferType::HttpCallResponseBody, start, max_size).unwrap()
     }
 
     fn get_http_call_response_trailers(&self) -> Vec<(String, String)> {
@@ -144,8 +140,8 @@ pub trait Context {
         hostcalls::get_map_bytes(MapType::HttpCallResponseTrailers).unwrap()
     }
 
-    fn get_http_call_response_trailer_typed(&self, name: &str) -> Option<HeaderValue> {
-        hostcalls::get_map_value_typed(MapType::HttpCallResponseTrailers, name).unwrap()
+    fn get_http_call_response_trailers_typed(&self) -> Vec<(String, HeaderValue)> {
+        hostcalls::get_map_typed(MapType::HttpCallResponseTrailers).unwrap()
     }
 
     fn get_http_call_response_trailer(&self, name: &str) -> Option<String> {
@@ -154,6 +150,10 @@ pub trait Context {
 
     fn get_http_call_response_trailer_bytes(&self, name: &str) -> Option<Bytes> {
         hostcalls::get_map_value_bytes(MapType::HttpCallResponseTrailers, name).unwrap()
+    }
+
+    fn get_http_call_response_trailer_typed(&self, name: &str) -> Option<HeaderValue> {
+        hostcalls::get_map_value_typed(MapType::HttpCallResponseTrailers, name).unwrap()
     }
 
     fn dispatch_grpc_call(
@@ -355,10 +355,6 @@ pub trait HttpContext: Context {
         Action::Continue
     }
 
-    fn get_http_request_headers_typed(&self) -> Vec<(String, HeaderValue)> {
-        hostcalls::get_map_typed(MapType::HttpRequestHeaders).unwrap()
-    }
-
     fn get_http_request_headers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpRequestHeaders).unwrap()
     }
@@ -367,8 +363,8 @@ pub trait HttpContext: Context {
         hostcalls::get_map_bytes(MapType::HttpRequestHeaders).unwrap()
     }
 
-    fn set_http_request_headers_typed(&self, headers: Vec<(&str, &HeaderValue)>) {
-        hostcalls::set_map_typed(MapType::HttpRequestHeaders, headers).unwrap()
+    fn get_http_request_headers_typed(&self) -> Vec<(String, HeaderValue)> {
+        hostcalls::get_map_typed(MapType::HttpRequestHeaders).unwrap()
     }
 
     fn set_http_request_headers(&self, headers: Vec<(&str, &str)>) {
@@ -379,8 +375,8 @@ pub trait HttpContext: Context {
         hostcalls::set_map_bytes(MapType::HttpRequestHeaders, headers).unwrap()
     }
 
-    fn get_http_request_header_typed(&self, name: &str) -> Option<HeaderValue> {
-        hostcalls::get_map_value_typed(MapType::HttpRequestHeaders, name).unwrap()
+    fn set_http_request_headers_typed(&self, headers: Vec<(&str, &HeaderValue)>) {
+        hostcalls::set_map_typed(MapType::HttpRequestHeaders, headers).unwrap()
     }
 
     fn get_http_request_header(&self, name: &str) -> Option<String> {
@@ -391,8 +387,8 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value_bytes(MapType::HttpRequestHeaders, name).unwrap()
     }
 
-    fn set_http_request_header_typed(&self, name: &str, value: Option<&HeaderValue>) {
-        hostcalls::set_map_value_typed(MapType::HttpRequestHeaders, name, value).unwrap()
+    fn get_http_request_header_typed(&self, name: &str) -> Option<HeaderValue> {
+        hostcalls::get_map_value_typed(MapType::HttpRequestHeaders, name).unwrap()
     }
 
     fn set_http_request_header(&self, name: &str, value: Option<&str>) {
@@ -403,8 +399,8 @@ pub trait HttpContext: Context {
         hostcalls::set_map_value_bytes(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
-    fn add_http_request_header_typed(&self, name: &str, value: &HeaderValue) {
-        hostcalls::add_map_value_typed(MapType::HttpRequestHeaders, name, value).unwrap()
+    fn set_http_request_header_typed(&self, name: &str, value: Option<&HeaderValue>) {
+        hostcalls::set_map_value_typed(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
     fn add_http_request_header(&self, name: &str, value: &str) {
@@ -413,6 +409,10 @@ pub trait HttpContext: Context {
 
     fn add_http_request_header_bytes(&self, name: &str, value: &[u8]) {
         hostcalls::add_map_value_bytes(MapType::HttpRequestHeaders, name, value).unwrap()
+    }
+
+    fn add_http_request_header_typed(&self, name: &str, value: &HeaderValue) {
+        hostcalls::add_map_value_typed(MapType::HttpRequestHeaders, name, value).unwrap()
     }
 
     fn remove_http_request_header(&self, name: &str) {
@@ -435,10 +435,6 @@ pub trait HttpContext: Context {
         Action::Continue
     }
 
-    fn get_http_request_trailers_typed(&self) -> Vec<(String, HeaderValue)> {
-        hostcalls::get_map_typed(MapType::HttpRequestTrailers).unwrap()
-    }
-
     fn get_http_request_trailers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpRequestTrailers).unwrap()
     }
@@ -447,8 +443,8 @@ pub trait HttpContext: Context {
         hostcalls::get_map_bytes(MapType::HttpRequestTrailers).unwrap()
     }
 
-    fn set_http_request_trailers_typed(&self, trailers: Vec<(&str, &HeaderValue)>) {
-        hostcalls::set_map_typed(MapType::HttpRequestTrailers, trailers).unwrap()
+    fn get_http_request_trailers_typed(&self) -> Vec<(String, HeaderValue)> {
+        hostcalls::get_map_typed(MapType::HttpRequestTrailers).unwrap()
     }
 
     fn set_http_request_trailers(&self, trailers: Vec<(&str, &str)>) {
@@ -459,8 +455,8 @@ pub trait HttpContext: Context {
         hostcalls::set_map_bytes(MapType::HttpRequestTrailers, trailers).unwrap()
     }
 
-    fn get_http_request_trailer_typed(&self, name: &str) -> Option<HeaderValue> {
-        hostcalls::get_map_value_typed(MapType::HttpRequestTrailers, name).unwrap()
+    fn set_http_request_trailers_typed(&self, trailers: Vec<(&str, &HeaderValue)>) {
+        hostcalls::set_map_typed(MapType::HttpRequestTrailers, trailers).unwrap()
     }
 
     fn get_http_request_trailer(&self, name: &str) -> Option<String> {
@@ -471,8 +467,8 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value_bytes(MapType::HttpRequestTrailers, name).unwrap()
     }
 
-    fn set_http_request_trailer_typed(&self, name: &str, value: Option<&HeaderValue>) {
-        hostcalls::set_map_value_typed(MapType::HttpRequestTrailers, name, value).unwrap()
+    fn get_http_request_trailer_typed(&self, name: &str) -> Option<HeaderValue> {
+        hostcalls::get_map_value_typed(MapType::HttpRequestTrailers, name).unwrap()
     }
 
     fn set_http_request_trailer(&self, name: &str, value: Option<&str>) {
@@ -483,8 +479,8 @@ pub trait HttpContext: Context {
         hostcalls::set_map_value_bytes(MapType::HttpRequestTrailers, name, value).unwrap()
     }
 
-    fn add_http_request_trailer_typed(&self, name: &str, value: &HeaderValue) {
-        hostcalls::add_map_value_typed(MapType::HttpRequestTrailers, name, value).unwrap()
+    fn set_http_request_trailer_typed(&self, name: &str, value: Option<&HeaderValue>) {
+        hostcalls::set_map_value_typed(MapType::HttpRequestTrailers, name, value).unwrap()
     }
 
     fn add_http_request_trailer(&self, name: &str, value: &str) {
@@ -493,6 +489,10 @@ pub trait HttpContext: Context {
 
     fn add_http_request_trailer_bytes(&self, name: &str, value: &[u8]) {
         hostcalls::add_map_value_bytes(MapType::HttpRequestTrailers, name, value).unwrap()
+    }
+
+    fn add_http_request_trailer_typed(&self, name: &str, value: &HeaderValue) {
+        hostcalls::add_map_value_typed(MapType::HttpRequestTrailers, name, value).unwrap()
     }
 
     fn remove_http_request_trailer(&self, name: &str) {
@@ -511,10 +511,6 @@ pub trait HttpContext: Context {
         Action::Continue
     }
 
-    fn get_http_response_headers_typed(&self) -> Vec<(String, HeaderValue)> {
-        hostcalls::get_map_typed(MapType::HttpResponseHeaders).unwrap()
-    }
-
     fn get_http_response_headers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpResponseHeaders).unwrap()
     }
@@ -523,8 +519,8 @@ pub trait HttpContext: Context {
         hostcalls::get_map_bytes(MapType::HttpResponseHeaders).unwrap()
     }
 
-    fn set_http_response_headers_typed(&self, headers: Vec<(&str, &HeaderValue)>) {
-        hostcalls::set_map_typed(MapType::HttpResponseHeaders, headers).unwrap()
+    fn get_http_response_headers_typed(&self) -> Vec<(String, HeaderValue)> {
+        hostcalls::get_map_typed(MapType::HttpResponseHeaders).unwrap()
     }
 
     fn set_http_response_headers(&self, headers: Vec<(&str, &str)>) {
@@ -535,8 +531,8 @@ pub trait HttpContext: Context {
         hostcalls::set_map_bytes(MapType::HttpResponseHeaders, headers).unwrap()
     }
 
-    fn get_http_response_header_typed(&self, name: &str) -> Option<HeaderValue> {
-        hostcalls::get_map_value_typed(MapType::HttpResponseHeaders, name).unwrap()
+    fn set_http_response_headers_typed(&self, headers: Vec<(&str, &HeaderValue)>) {
+        hostcalls::set_map_typed(MapType::HttpResponseHeaders, headers).unwrap()
     }
 
     fn get_http_response_header(&self, name: &str) -> Option<String> {
@@ -547,8 +543,8 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value_bytes(MapType::HttpResponseHeaders, name).unwrap()
     }
 
-    fn set_http_response_header_typed(&self, name: &str, value: Option<&HeaderValue>) {
-        hostcalls::set_map_value_typed(MapType::HttpResponseHeaders, name, value).unwrap()
+    fn get_http_response_header_typed(&self, name: &str) -> Option<HeaderValue> {
+        hostcalls::get_map_value_typed(MapType::HttpResponseHeaders, name).unwrap()
     }
 
     fn set_http_response_header(&self, name: &str, value: Option<&str>) {
@@ -559,8 +555,8 @@ pub trait HttpContext: Context {
         hostcalls::set_map_value_bytes(MapType::HttpResponseHeaders, name, value).unwrap()
     }
 
-    fn add_http_response_header_typed(&self, name: &str, value: &HeaderValue) {
-        hostcalls::add_map_value_typed(MapType::HttpResponseHeaders, name, value).unwrap()
+    fn set_http_response_header_typed(&self, name: &str, value: Option<&HeaderValue>) {
+        hostcalls::set_map_value_typed(MapType::HttpResponseHeaders, name, value).unwrap()
     }
 
     fn add_http_response_header(&self, name: &str, value: &str) {
@@ -569,6 +565,10 @@ pub trait HttpContext: Context {
 
     fn add_http_response_header_bytes(&self, name: &str, value: &[u8]) {
         hostcalls::add_map_value_bytes(MapType::HttpResponseHeaders, name, value).unwrap()
+    }
+
+    fn add_http_response_header_typed(&self, name: &str, value: &HeaderValue) {
+        hostcalls::add_map_value_typed(MapType::HttpResponseHeaders, name, value).unwrap()
     }
 
     fn remove_http_response_header(&self, name: &str) {
@@ -591,10 +591,6 @@ pub trait HttpContext: Context {
         Action::Continue
     }
 
-    fn get_http_response_trailers_typed(&self) -> Vec<(String, HeaderValue)> {
-        hostcalls::get_map_typed(MapType::HttpResponseTrailers).unwrap()
-    }
-
     fn get_http_response_trailers(&self) -> Vec<(String, String)> {
         hostcalls::get_map(MapType::HttpResponseTrailers).unwrap()
     }
@@ -603,8 +599,8 @@ pub trait HttpContext: Context {
         hostcalls::get_map_bytes(MapType::HttpResponseTrailers).unwrap()
     }
 
-    fn set_http_response_trailers_typed(&self, trailers: Vec<(&str, &HeaderValue)>) {
-        hostcalls::set_map_typed(MapType::HttpResponseTrailers, trailers).unwrap()
+    fn get_http_response_trailers_typed(&self) -> Vec<(String, HeaderValue)> {
+        hostcalls::get_map_typed(MapType::HttpResponseTrailers).unwrap()
     }
 
     fn set_http_response_trailers(&self, trailers: Vec<(&str, &str)>) {
@@ -615,8 +611,8 @@ pub trait HttpContext: Context {
         hostcalls::set_map_bytes(MapType::HttpResponseTrailers, trailers).unwrap()
     }
 
-    fn get_http_response_trailer_typed(&self, name: &str) -> Option<HeaderValue> {
-        hostcalls::get_map_value_typed(MapType::HttpResponseTrailers, name).unwrap()
+    fn set_http_response_trailers_typed(&self, trailers: Vec<(&str, &HeaderValue)>) {
+        hostcalls::set_map_typed(MapType::HttpResponseTrailers, trailers).unwrap()
     }
 
     fn get_http_response_trailer(&self, name: &str) -> Option<String> {
@@ -627,8 +623,8 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value_bytes(MapType::HttpResponseTrailers, name).unwrap()
     }
 
-    fn set_http_response_trailer_typed(&self, name: &str, value: Option<&HeaderValue>) {
-        hostcalls::set_map_value_typed(MapType::HttpResponseTrailers, name, value).unwrap()
+    fn get_http_response_trailer_typed(&self, name: &str) -> Option<HeaderValue> {
+        hostcalls::get_map_value_typed(MapType::HttpResponseTrailers, name).unwrap()
     }
 
     fn set_http_response_trailer(&self, name: &str, value: Option<&str>) {
@@ -639,8 +635,8 @@ pub trait HttpContext: Context {
         hostcalls::set_map_value_bytes(MapType::HttpResponseTrailers, name, value).unwrap()
     }
 
-    fn add_http_response_trailer_typed(&self, name: &str, value: &HeaderValue) {
-        hostcalls::add_map_value_typed(MapType::HttpResponseTrailers, name, value).unwrap()
+    fn set_http_response_trailer_typed(&self, name: &str, value: Option<&HeaderValue>) {
+        hostcalls::set_map_value_typed(MapType::HttpResponseTrailers, name, value).unwrap()
     }
 
     fn add_http_response_trailer(&self, name: &str, value: &str) {
@@ -649,6 +645,10 @@ pub trait HttpContext: Context {
 
     fn add_http_response_trailer_bytes(&self, name: &str, value: &[u8]) {
         hostcalls::add_map_value_bytes(MapType::HttpResponseTrailers, name, value).unwrap()
+    }
+
+    fn add_http_response_trailer_typed(&self, name: &str, value: &HeaderValue) {
+        hostcalls::add_map_value_typed(MapType::HttpResponseTrailers, name, value).unwrap()
     }
 
     fn remove_http_response_trailer(&self, name: &str) {
@@ -661,15 +661,6 @@ pub trait HttpContext: Context {
 
     fn reset_http_response(&self) {
         hostcalls::reset_http_response().unwrap()
-    }
-
-    fn send_http_response_typed(
-        &self,
-        status_code: u32,
-        headers: Vec<(&str, &HeaderValue)>,
-        body: Option<&[u8]>,
-    ) {
-        hostcalls::send_http_response_typed(status_code, headers, body).unwrap()
     }
 
     fn send_http_response(
@@ -688,6 +679,15 @@ pub trait HttpContext: Context {
         body: Option<&[u8]>,
     ) {
         hostcalls::send_http_response_bytes(status_code, headers, body).unwrap()
+    }
+
+    fn send_http_response_typed(
+        &self,
+        status_code: u32,
+        headers: Vec<(&str, &HeaderValue)>,
+        body: Option<&[u8]>,
+    ) {
+        hostcalls::send_http_response_typed(status_code, headers, body).unwrap()
     }
 
     fn send_grpc_response(

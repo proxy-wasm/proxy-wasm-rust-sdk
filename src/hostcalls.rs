@@ -155,28 +155,6 @@ fn proxy_get_header_map_pairs(
     mocks::proxy_get_header_map_pairs(map_type, return_map_data, return_map_size)
 }
 
-pub fn get_map_typed(map_type: MapType) -> Result<Vec<(String, HeaderValue)>, Status> {
-    unsafe {
-        let mut return_data: *mut u8 = null_mut();
-        let mut return_size: usize = 0;
-        match proxy_get_header_map_pairs(map_type, &mut return_data, &mut return_size) {
-            Status::Ok => {
-                if !return_data.is_null() {
-                    let serialized_map = bytes::Bytes::from(Vec::from_raw_parts(
-                        return_data,
-                        return_size,
-                        return_size,
-                    ));
-                    Ok(utils::deserialize_map_typed(serialized_map))
-                } else {
-                    Ok(Vec::new())
-                }
-            }
-            status => panic!("unexpected status: {}", status as u32),
-        }
-    }
-}
-
 pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
     unsafe {
         let mut return_data: *mut u8 = null_mut();
@@ -204,6 +182,28 @@ pub fn get_map_bytes(map_type: MapType) -> Result<Vec<(String, Bytes)>, Status> 
                 if !return_data.is_null() {
                     let serialized_map = Vec::from_raw_parts(return_data, return_size, return_size);
                     Ok(utils::deserialize_map_bytes(&serialized_map))
+                } else {
+                    Ok(Vec::new())
+                }
+            }
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+pub fn get_map_typed(map_type: MapType) -> Result<Vec<(String, HeaderValue)>, Status> {
+    unsafe {
+        let mut return_data: *mut u8 = null_mut();
+        let mut return_size: usize = 0;
+        match proxy_get_header_map_pairs(map_type, &mut return_data, &mut return_size) {
+            Status::Ok => {
+                if !return_data.is_null() {
+                    let serialized_map = bytes::Bytes::from(Vec::from_raw_parts(
+                        return_data,
+                        return_size,
+                        return_size,
+                    ));
+                    Ok(utils::deserialize_map_typed(serialized_map))
                 } else {
                     Ok(Vec::new())
                 }
@@ -270,37 +270,6 @@ fn proxy_get_header_map_value(
     )
 }
 
-pub fn get_map_value_typed(map_type: MapType, key: &str) -> Result<Option<HeaderValue>, Status> {
-    let mut return_data: *mut u8 = null_mut();
-    let mut return_size: usize = 0;
-    unsafe {
-        match proxy_get_header_map_value(
-            map_type,
-            key.as_ptr(),
-            key.len(),
-            &mut return_data,
-            &mut return_size,
-        ) {
-            Status::Ok => {
-                if !return_data.is_null() {
-                    match HeaderValue::from_maybe_shared(Vec::from_raw_parts(
-                        return_data,
-                        return_size,
-                        return_size,
-                    )) {
-                        Ok(value) => Ok(Some(value)),
-                        Err(_) => panic!("invalid field value in: {}", key),
-                    }
-                } else {
-                    Ok(Some(HeaderValue::from_static("")))
-                }
-            }
-            Status::NotFound => Ok(None),
-            status => panic!("unexpected status: {}", status as u32),
-        }
-    }
-}
-
 pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<String>, Status> {
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
@@ -352,6 +321,37 @@ pub fn get_map_value_bytes(map_type: MapType, key: &str) -> Result<Option<Bytes>
                     )))
                 } else {
                     Ok(Some(Vec::new()))
+                }
+            }
+            Status::NotFound => Ok(None),
+            status => panic!("unexpected status: {}", status as u32),
+        }
+    }
+}
+
+pub fn get_map_value_typed(map_type: MapType, key: &str) -> Result<Option<HeaderValue>, Status> {
+    let mut return_data: *mut u8 = null_mut();
+    let mut return_size: usize = 0;
+    unsafe {
+        match proxy_get_header_map_value(
+            map_type,
+            key.as_ptr(),
+            key.len(),
+            &mut return_data,
+            &mut return_size,
+        ) {
+            Status::Ok => {
+                if !return_data.is_null() {
+                    match HeaderValue::from_maybe_shared(Vec::from_raw_parts(
+                        return_data,
+                        return_size,
+                        return_size,
+                    )) {
+                        Ok(value) => Ok(Some(value)),
+                        Err(_) => panic!("invalid field value in: {}", key),
+                    }
+                } else {
+                    Ok(Some(HeaderValue::from_static("")))
                 }
             }
             Status::NotFound => Ok(None),
@@ -1405,31 +1405,6 @@ mod utils {
         serialize_map_bytes(map)
     }
 
-    pub(super) fn deserialize_map_typed(mut bytes: bytes::Bytes) -> Vec<(String, HeaderValue)> {
-        if bytes.is_empty() {
-            return Vec::new();
-        }
-        let size = bytes.get_u32_le() as usize;
-        let mut sizes = bytes.split_to(size * 8);
-        let mut map = Vec::with_capacity(size);
-        for _ in 0..size {
-            let size = sizes.get_u32_le() as usize;
-            let key = bytes.split_to(size);
-            bytes.advance(1);
-            let size = sizes.get_u32_le() as usize;
-            let value = bytes.split_to(size);
-            bytes.advance(1);
-            map.push((
-                String::from_utf8(key.to_vec()).unwrap(),
-                // We're intentionally using the unchecked variant in order to retain
-                // values accepted by the hosts and proxies that don't enforce strict
-                // RFC compliance on HTTP field values.
-                unsafe { HeaderValue::from_maybe_shared_unchecked(value) },
-            ));
-        }
-        map
-    }
-
     pub(super) fn deserialize_map(bytes: &[u8]) -> Vec<(String, String)> {
         if bytes.is_empty() {
             return Vec::new();
@@ -1471,6 +1446,31 @@ mod utils {
             let value = bytes[p..p + size].to_vec();
             p += size + 1;
             map.push((String::from_utf8(key).unwrap(), value));
+        }
+        map
+    }
+
+    pub(super) fn deserialize_map_typed(mut bytes: bytes::Bytes) -> Vec<(String, HeaderValue)> {
+        if bytes.is_empty() {
+            return Vec::new();
+        }
+        let size = bytes.get_u32_le() as usize;
+        let mut sizes = bytes.split_to(size * 8);
+        let mut map = Vec::with_capacity(size);
+        for _ in 0..size {
+            let size = sizes.get_u32_le() as usize;
+            let key = bytes.split_to(size);
+            bytes.advance(1);
+            let size = sizes.get_u32_le() as usize;
+            let value = bytes.split_to(size);
+            bytes.advance(1);
+            map.push((
+                String::from_utf8(key.to_vec()).unwrap(),
+                // We're intentionally using the unchecked variant in order to retain
+                // values accepted by the hosts and proxies that don't enforce strict
+                // RFC compliance on HTTP field values.
+                unsafe { HeaderValue::from_maybe_shared_unchecked(value) },
+            ));
         }
         map
     }
@@ -1652,21 +1652,6 @@ mod utils {
         }
 
         #[test]
-        fn test_deserialize_map_all_chars_typed() {
-            // We're intentionally accepting all values to support hosts and proxies that
-            // don't enforce strict RFC compliance on HTTP field values.
-            for i in 0..0xff {
-                let serialized_src = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
-                let map = deserialize_map_typed(serialized_src.to_vec().into());
-                // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
-                let map_refs: Vec<(&str, &HeaderValue)> =
-                    map.iter().map(|x| (x.0.as_ref(), &x.1)).collect();
-                let serialized_map = serialize_map_typed(&map_refs);
-                assert_eq!(serialized_map, serialized_src);
-            }
-        }
-
-        #[test]
         fn test_deserialize_map_all_chars() {
             // 0x00-0x7f are valid single-byte UTF-8 characters.
             for i in 0..0x7f {
@@ -1704,6 +1689,21 @@ mod utils {
             }
         }
 
+        #[test]
+        fn test_deserialize_map_all_chars_typed() {
+            // We're intentionally accepting all values to support hosts and proxies that
+            // don't enforce strict RFC compliance on HTTP field values.
+            for i in 0..0xff {
+                let serialized_src = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
+                let map = deserialize_map_typed(serialized_src.to_vec().into());
+                // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
+                let map_refs: Vec<(&str, &HeaderValue)> =
+                    map.iter().map(|x| (x.0.as_ref(), &x.1)).collect();
+                let serialized_map = serialize_map_typed(&map_refs);
+                assert_eq!(serialized_map, serialized_src);
+            }
+        }
+
         #[cfg(nightly)]
         #[bench]
         fn bench_serialize_map(b: &mut Bencher) {
@@ -1737,15 +1737,6 @@ mod utils {
 
         #[cfg(nightly)]
         #[bench]
-        fn bench_deserialize_map_typed(b: &mut Bencher) {
-            let serialized_map: bytes::Bytes = SERIALIZED_MAP.into();
-            b.iter(|| {
-                deserialize_map_typed(test::black_box(serialized_map.clone()));
-            });
-        }
-
-        #[cfg(nightly)]
-        #[bench]
         fn bench_deserialize_map(b: &mut Bencher) {
             let serialized_map = SERIALIZED_MAP.to_vec();
             b.iter(|| {
@@ -1759,6 +1750,15 @@ mod utils {
             let serialized_map = SERIALIZED_MAP.to_vec();
             b.iter(|| {
                 deserialize_map_bytes(test::black_box(&serialized_map));
+            });
+        }
+
+        #[cfg(nightly)]
+        #[bench]
+        fn bench_deserialize_map_typed(b: &mut Bencher) {
+            let serialized_map: bytes::Bytes = SERIALIZED_MAP.into();
+            b.iter(|| {
+                deserialize_map_typed(test::black_box(serialized_map.clone()));
             });
         }
     }
