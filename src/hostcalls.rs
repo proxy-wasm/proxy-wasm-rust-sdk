@@ -21,6 +21,12 @@ extern "C" {
     fn proxy_log(level: LogLevel, message_data: *const u8, message_size: usize) -> Status;
 }
 
+pub(crate) fn log_noresult(level: LogLevel, message: &str) {
+    unsafe {
+        let _ = proxy_log(level, message.as_ptr(), message.len());
+    }
+}
+
 pub fn log(level: LogLevel, message: &str) -> Result<(), Status> {
     unsafe {
         match proxy_log(level, message.as_ptr(), message.len()) {
