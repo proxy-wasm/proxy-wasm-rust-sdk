@@ -61,7 +61,10 @@ impl HttpContext for GrpcAuthRandom {
     }
 
     fn on_http_response_headers(&mut self, _: usize, _: bool) -> Action {
-        self.set_http_response_header_typed("Powered-By", Some(&HeaderValue::from_static("proxy-wasm")));
+        self.set_http_response_header_typed(
+            "Powered-By",
+            Some(&HeaderValue::from_static("proxy-wasm")),
+        );
         Action::Continue
     }
 }
