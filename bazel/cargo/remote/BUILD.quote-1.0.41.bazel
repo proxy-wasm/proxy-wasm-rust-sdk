@@ -6,7 +6,11 @@
 #     bazel run @//bazel/cargo:crates_vendor
 ###############################################################################
 
-load("@rules_rust//cargo:defs.bzl", "cargo_toml_env_vars")
+load(
+    "@rules_rust//cargo:defs.bzl",
+    "cargo_build_script",
+    "cargo_toml_env_vars",
+)
 load("@rules_rust//rust:defs.bzl", "rust_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -17,7 +21,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "allocator_api2",
+    name = "quote",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -35,7 +39,8 @@ rust_library(
         ],
     ),
     crate_features = [
-        "alloc",
+        "default",
+        "proc-macro",
     ],
     crate_root = "src/lib.rs",
     edition = "2018",
@@ -47,7 +52,7 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=allocator-api2",
+        "crate-name=quote",
         "manual",
         "noclippy",
         "norustfmt",
@@ -95,5 +100,71 @@ rust_library(
         "@rules_rust//rust/platform:x86_64-unknown-uefi": [],
         "//conditions:default": ["@platforms//:incompatible"],
     }),
-    version = "0.2.21",
+    version = "1.0.41",
+    deps = [
+        "@crates_vendor__proc-macro2-1.0.101//:proc_macro2",
+        "@crates_vendor__quote-1.0.41//:build_script_build",
+    ],
+)
+
+cargo_build_script(
+    name = "_bs",
+    srcs = glob(
+        include = ["**/*.rs"],
+        allow_empty = True,
+    ),
+    compile_data = glob(
+        include = ["**"],
+        allow_empty = True,
+        exclude = [
+            "**/* *",
+            "**/*.rs",
+            ".tmp_git_root/**/*",
+            "BUILD",
+            "BUILD.bazel",
+            "WORKSPACE",
+            "WORKSPACE.bazel",
+        ],
+    ),
+    crate_features = [
+        "default",
+        "proc-macro",
+    ],
+    crate_name = "build_script_build",
+    crate_root = "build.rs",
+    data = glob(
+        include = ["**"],
+        allow_empty = True,
+        exclude = [
+            "**/* *",
+            ".tmp_git_root/**/*",
+            "BUILD",
+            "BUILD.bazel",
+            "WORKSPACE",
+            "WORKSPACE.bazel",
+        ],
+    ),
+    edition = "2018",
+    pkg_name = "quote",
+    rustc_env_files = [
+        ":cargo_toml_env_vars",
+    ],
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-bazel",
+        "crate-name=quote",
+        "manual",
+        "noclippy",
+        "norustfmt",
+    ],
+    version = "1.0.41",
+    visibility = ["//visibility:private"],
+)
+
+alias(
+    name = "build_script_build",
+    actual = ":_bs",
+    tags = ["manual"],
 )

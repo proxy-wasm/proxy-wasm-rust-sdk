@@ -32,14 +32,14 @@ filegroup(
 
 # Workspace Member Dependencies
 alias(
-    name = "hashbrown-0.15.3",
-    actual = "@crates_vendor__hashbrown-0.15.3//:hashbrown",
+    name = "hashbrown-0.16.0",
+    actual = "@crates_vendor__hashbrown-0.16.0//:hashbrown",
     tags = ["manual"],
 )
 
 alias(
     name = "hashbrown",
-    actual = "@crates_vendor__hashbrown-0.15.3//:hashbrown",
+    actual = "@crates_vendor__hashbrown-0.16.0//:hashbrown",
     tags = ["manual"],
 )
 
@@ -56,13 +56,25 @@ alias(
 )
 
 alias(
-    name = "proxy-wasm-0.2.4-dev",
-    actual = "@crates_vendor__proxy-wasm-0.2.4-dev//:proxy_wasm",
+    name = "mockalloc-0.1.2",
+    actual = "@crates_vendor__mockalloc-0.1.2//:mockalloc",
+    tags = ["manual"],
+)
+
+alias(
+    name = "mockalloc",
+    actual = "@crates_vendor__mockalloc-0.1.2//:mockalloc",
+    tags = ["manual"],
+)
+
+alias(
+    name = "proxy-wasm-0.2.5-dev",
+    actual = "@crates_vendor__proxy-wasm-0.2.5-dev//:proxy_wasm",
     tags = ["manual"],
 )
 
 alias(
     name = "proxy-wasm",
-    actual = "@crates_vendor__proxy-wasm-0.2.4-dev//:proxy_wasm",
+    actual = "@crates_vendor__proxy-wasm-0.2.5-dev//:proxy_wasm",
     tags = ["manual"],
 )
