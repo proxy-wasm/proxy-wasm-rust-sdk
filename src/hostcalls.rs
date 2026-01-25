@@ -163,8 +163,11 @@ pub fn get_map(map_type: MapType) -> Result<Vec<(String, HeaderValue)>, Status> 
         match proxy_get_header_map_pairs(map_type, &mut return_data, &mut return_size) {
             Status::Ok => {
                 if !return_data.is_null() {
-                    let serialized_map =
-                        bytes::Bytes::from(std::slice::from_raw_parts(return_data, return_size));
+                    let serialized_map = bytes::Bytes::from(Vec::from_raw_parts(
+                        return_data,
+                        return_size,
+                        return_size,
+                    ));
                     Ok(utils::deserialize_map(serialized_map))
                 } else {
                     Ok(Vec::new())
@@ -237,6 +240,7 @@ pub fn set_map_bytes(map_type: MapType, map: Vec<(&str, &[u8])>) -> Result<(), S
     set_map(map_type, map)
 }
 
+#[cfg(not(test))]
 extern "C" {
     fn proxy_get_header_map_value(
         map_type: MapType,
@@ -245,6 +249,23 @@ extern "C" {
         return_value_data: *mut *mut u8,
         return_value_size: *mut usize,
     ) -> Status;
+}
+
+#[cfg(test)]
+fn proxy_get_header_map_value(
+    map_type: MapType,
+    key_data: *const u8,
+    key_size: usize,
+    return_value_data: *mut *mut u8,
+    return_value_size: *mut usize,
+) -> Status {
+    mocks::proxy_get_header_map_value(
+        map_type,
+        key_data,
+        key_size,
+        return_value_data,
+        return_value_size,
+    )
 }
 
 #[cfg(feature = "strict-header-value")]
@@ -261,8 +282,9 @@ pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<HeaderValue>
         ) {
             Status::Ok => {
                 if !return_data.is_null() {
-                    match HeaderValue::from_bytes(std::slice::from_raw_parts(
+                    match HeaderValue::from_maybe_shared(Vec::from_raw_parts(
                         return_data,
+                        return_size,
                         return_size,
                     )) {
                         Ok(value) => Ok(Some(value)),
@@ -1213,6 +1235,24 @@ mod mocks {
         }
         Status::Ok
     }
+
+    pub fn proxy_get_header_map_value(
+        _map_type: MapType,
+        _key_data: *const u8,
+        _key_size: usize,
+        return_value_data: *mut *mut u8,
+        return_value_size: *mut usize,
+    ) -> Status {
+        let mut value = String::from("foo");
+        value.push_str("-prevent-optimizations");
+        let layout = Layout::array::<u8>(value.len()).unwrap();
+        unsafe {
+            *return_value_data = alloc(layout);
+            *return_value_size = value.len();
+            std::ptr::copy(value.as_ptr(), *return_value_data, value.len());
+        }
+        Status::Ok
+    }
 }
 
 #[cfg(test)]
@@ -1233,6 +1273,18 @@ mod tests {
     #[mockalloc::test]
     fn test_get_map_bytes_no_leaks() {
         let result = super::get_map_bytes(MapType::HttpRequestHeaders);
+        assert!(result.is_ok());
+    }
+
+    #[mockalloc::test]
+    fn test_get_map_value_no_leaks() {
+        let result = super::get_map_value(MapType::HttpRequestHeaders, "foo");
+        assert!(result.is_ok());
+    }
+
+    #[mockalloc::test]
+    fn test_get_map_value_bytes_no_leaks() {
+        let result = super::get_map_value_bytes(MapType::HttpRequestHeaders, "foo");
         assert!(result.is_ok());
     }
 }
