@@ -1,8 +1,8 @@
 [package]
 name = "proxy-wasm"
-version = "0.2.4-dev"
+version = "0.2.5-dev"
 authors = ["Piotr Sikora <piotrsikora@google.com>"]
-rust-version = "1.65"
+rust-version = "1.68"
 description = "WebAssembly for Proxies"
 readme = "README.md"
 license = "Apache-2.0"
@@ -11,8 +11,11 @@ edition = "2018"
 build = "build.rs"
 
 [dependencies]
-hashbrown = "0.15"
+hashbrown = "0.16"
 log = "0.4"
+
+[dev-dependencies]
+mockalloc = "0.1.2"
 
 [profile.release]
 lto = true
