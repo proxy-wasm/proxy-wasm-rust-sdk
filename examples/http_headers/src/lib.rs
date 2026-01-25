@@ -52,8 +52,8 @@ impl HttpContext for HttpHeaders {
             );
         }
 
-        match self.get_http_request_header(":path") {
-            Some(path) if path == "/hello" => {
+        match self.get_http_request_header_typed(":path") {
+            Some(path) if path.as_bytes() == b"/hello" => {
                 self.send_http_response_typed(
                     200,
                     vec![
