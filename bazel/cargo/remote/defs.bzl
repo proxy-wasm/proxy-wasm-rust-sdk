@@ -296,7 +296,7 @@ _NORMAL_DEPENDENCIES = {
     "": {
         _COMMON_CONDITION: {
             "bytes": Label("@crates_vendor//:bytes-1.10.1"),
-            "hashbrown": Label("@crates_vendor//:hashbrown-0.15.3"),
+            "hashbrown": Label("@crates_vendor//:hashbrown-0.16.0"),
             "http": Label("@crates_vendor//:http-1.3.1"),
             "log": Label("@crates_vendor//:log-0.4.27"),
         },
@@ -312,11 +312,16 @@ _NORMAL_ALIASES = {
 
 _NORMAL_DEV_DEPENDENCIES = {
     "": {
+        _COMMON_CONDITION: {
+            "mockalloc": Label("@crates_vendor//:mockalloc-0.1.2"),
+        },
     },
 }
 
 _NORMAL_DEV_ALIASES = {
     "": {
+        _COMMON_CONDITION: {
+        },
     },
 }
 
@@ -337,6 +342,8 @@ _PROC_MACRO_DEV_DEPENDENCIES = {
 
 _PROC_MACRO_DEV_ALIASES = {
     "": {
+        _COMMON_CONDITION: {
+        },
     },
 }
 
@@ -381,12 +388,16 @@ _CONDITIONS = {
     "i686-unknown-linux-gnu": ["@rules_rust//rust/platform:i686-unknown-linux-gnu"],
     "powerpc-unknown-linux-gnu": ["@rules_rust//rust/platform:powerpc-unknown-linux-gnu"],
     "riscv32imc-unknown-none-elf": ["@rules_rust//rust/platform:riscv32imc-unknown-none-elf"],
+    "riscv64gc-unknown-linux-gnu": ["@rules_rust//rust/platform:riscv64gc-unknown-linux-gnu"],
     "riscv64gc-unknown-none-elf": ["@rules_rust//rust/platform:riscv64gc-unknown-none-elf"],
     "s390x-unknown-linux-gnu": ["@rules_rust//rust/platform:s390x-unknown-linux-gnu"],
     "thumbv7em-none-eabi": ["@rules_rust//rust/platform:thumbv7em-none-eabi"],
     "thumbv8m.main-none-eabi": ["@rules_rust//rust/platform:thumbv8m.main-none-eabi"],
+    "wasm32-unknown-emscripten": ["@rules_rust//rust/platform:wasm32-unknown-emscripten"],
     "wasm32-unknown-unknown": ["@rules_rust//rust/platform:wasm32-unknown-unknown"],
     "wasm32-wasip1": ["@rules_rust//rust/platform:wasm32-wasip1"],
+    "wasm32-wasip1-threads": ["@rules_rust//rust/platform:wasm32-wasip1-threads"],
+    "wasm32-wasip2": ["@rules_rust//rust/platform:wasm32-wasip2"],
     "x86_64-apple-darwin": ["@rules_rust//rust/platform:x86_64-apple-darwin"],
     "x86_64-apple-ios": ["@rules_rust//rust/platform:x86_64-apple-ios"],
     "x86_64-linux-android": ["@rules_rust//rust/platform:x86_64-linux-android"],
@@ -449,22 +460,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crates_vendor__foldhash-0.1.5",
-        sha256 = "d9c4f5dac5e15c24eb999c26181a6ca40b39fe946cbe4c263c7209467bc83af2",
+        name = "crates_vendor__foldhash-0.2.0",
+        sha256 = "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb",
         type = "tar.gz",
-        urls = ["https://static.crates.io/crates/foldhash/0.1.5/download"],
-        strip_prefix = "foldhash-0.1.5",
-        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.foldhash-0.1.5.bazel"),
+        urls = ["https://static.crates.io/crates/foldhash/0.2.0/download"],
+        strip_prefix = "foldhash-0.2.0",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.foldhash-0.2.0.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crates_vendor__hashbrown-0.15.3",
-        sha256 = "84b26c544d002229e640969970a2e74021aadf6e2f96372b9c58eff97de08eb3",
+        name = "crates_vendor__hashbrown-0.16.0",
+        sha256 = "5419bdc4f6a9207fbeba6d11b604d481addf78ecd10c11ad51e76c2f6482748d",
         type = "tar.gz",
-        urls = ["https://static.crates.io/crates/hashbrown/0.15.3/download"],
-        strip_prefix = "hashbrown-0.15.3",
-        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.hashbrown-0.15.3.bazel"),
+        urls = ["https://static.crates.io/crates/hashbrown/0.16.0/download"],
+        strip_prefix = "hashbrown-0.16.0",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.hashbrown-0.16.0.bazel"),
     )
 
     maybe(
@@ -497,9 +508,70 @@ def crate_repositories():
         build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.log-0.4.27.bazel"),
     )
 
+    maybe(
+        http_archive,
+        name = "crates_vendor__mockalloc-0.1.2",
+        sha256 = "5a6c93486116b2ab028d2a2c5f5ff42020407d1c7048b77ca0b196a511a12a94",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/mockalloc/0.1.2/download"],
+        strip_prefix = "mockalloc-0.1.2",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.mockalloc-0.1.2.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__mockalloc-macros-0.1.0",
+        sha256 = "23565dcdaedab64115f722c31d84e5bdb7125724097dcafce160a64806d6fb65",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/mockalloc-macros/0.1.0/download"],
+        strip_prefix = "mockalloc-macros-0.1.0",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.mockalloc-macros-0.1.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__proc-macro2-1.0.101",
+        sha256 = "89ae43fd86e4158d6db51ad8e2b80f313af9cc74f5c0e03ccb87de09998732de",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/proc-macro2/1.0.101/download"],
+        strip_prefix = "proc-macro2-1.0.101",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.proc-macro2-1.0.101.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__quote-1.0.41",
+        sha256 = "ce25767e7b499d1b604768e7cde645d14cc8584231ea6b295e9c9eb22c02e1d1",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/quote/1.0.41/download"],
+        strip_prefix = "quote-1.0.41",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.quote-1.0.41.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__syn-1.0.109",
+        sha256 = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/syn/1.0.109/download"],
+        strip_prefix = "syn-1.0.109",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.syn-1.0.109.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__unicode-ident-1.0.19",
+        sha256 = "f63a545481291138910575129486daeaf8ac54aee4387fe7906919f7830c7d9d",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/unicode-ident/1.0.19/download"],
+        strip_prefix = "unicode-ident-1.0.19",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.unicode-ident-1.0.19.bazel"),
+    )
+
     return [
         struct(repo = "crates_vendor__bytes-1.10.1", is_dev_dep = False),
-        struct(repo = "crates_vendor__hashbrown-0.15.3", is_dev_dep = False),
+        struct(repo = "crates_vendor__hashbrown-0.16.0", is_dev_dep = False),
         struct(repo = "crates_vendor__http-1.3.1", is_dev_dep = False),
         struct(repo = "crates_vendor__log-0.4.27", is_dev_dep = False),
+        struct(repo = "crates_vendor__mockalloc-0.1.2", is_dev_dep = True),
     ]
