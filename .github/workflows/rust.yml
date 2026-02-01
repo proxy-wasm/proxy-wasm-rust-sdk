@@ -80,7 +80,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        go install github.com/bazelbuild/bazelisk@v1.25.0
+        go install github.com/bazelbuild/bazelisk@v1.28.1
         go install github.com/bazelbuild/buildtools/buildifier@v0.0.0-20260121081817-bbf01ec6cb49
         export PATH=$PATH:$(go env GOPATH)/bin
 
