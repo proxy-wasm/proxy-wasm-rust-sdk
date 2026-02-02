@@ -452,7 +452,9 @@ jobs:
 
       - name: Clean generated files
         if: matrix.example == 'envoy_tcp_routing'
-        run: rm -rf src/generated
+        run: |
+          rm -rf src/generated
+          rm -rf target
 
       - name: Build (wasm32-wasip1)
         run: cargo build --release --target=wasm32-wasip1
