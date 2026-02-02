@@ -12,28 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Publishes new releases to the Bazel Central Registry.
-# See .bcr/README.md for more information.
 name: Publish to BCR
 
 on:
-  # Automatically trigger when a version tag is pushed
+  # Automatically trigger when a version tag is pushed.
   push:
     tags:
       - "v*.*.*"
 
-  # Allow manual dispatch from the GitHub UI for retries
+  # Allow manual dispatch from the GitHub UI for retries.
   workflow_dispatch:
     inputs:
       tag_name:
-        description: "Git tag to publish (e.g., v0.2.5)"
+        description: "Git tag to publish (e.g. v0.2.5)"
         required: true
         type: string
 
 jobs:
   publish:
-    uses: bazel-contrib/publish-to-bcr/.github/workflows/publish.yaml@v1.0.0
+    uses: bazel-contrib/publish-to-bcr/.github/workflows/publish.yaml@v1.1.0
     with:
+      attest: false
+      open_pull_request: false
+      registry_fork: PiotrSikora/bazel-central-registry
       tag_name: ${{ inputs.tag_name || github.ref_name }}
     permissions:
       attestations: write
