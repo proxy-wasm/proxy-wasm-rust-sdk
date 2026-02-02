@@ -17,7 +17,7 @@ services:
     image: envoyproxy/envoy:v1.34.1
     entrypoint: /usr/local/bin/envoy -c /etc/envoy.yaml -l info --service-cluster proxy
     volumes:
-      - ./envoy/envoy.yaml:/etc/envoy.yaml
+      - ./envoy.yaml:/etc/envoy.yaml
       - ./target/wasm32-wasip1/release/proxy_wasm_example_envoy_tcp_routing.wasm:/etc/envoy_tcp_routing.wasm
     networks:
       - envoymesh
