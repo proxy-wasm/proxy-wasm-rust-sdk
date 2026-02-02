@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,11 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@proxy_wasm_rust_sdk//bazel/cargo/remote:defs.bzl", "crate_repositories")
-load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
-load("@rules_rust//rust:repositories.bzl", "rust_repositories")
+version: 2
+updates:
+  - package-ecosystem: bazel
+    directory: /
+    schedule:
+      interval: weekly
 
-def proxy_wasm_rust_sdk_dependencies_crates():
-    rust_repositories(versions = ["1.91.1"])
-    crate_universe_dependencies()
-    crate_repositories()
+  - package-ecosystem: cargo
+    directories:
+      - /
+      - examples/envoy_filter_metadata
+      - examples/grpc_auth_random
+      - examples/hello_world
+      - examples/http_auth_random
+      - examples/http_body
+      - examples/http_config
+      - examples/http_headers
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
