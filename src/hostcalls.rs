@@ -137,7 +137,7 @@ pub fn set_buffer(
     }
 }
 
-#[cfg(not(test))]
+#[cfg(not(all(test, feature = "mockalloc")))]
 extern "C" {
     fn proxy_get_header_map_pairs(
         map_type: MapType,
@@ -146,7 +146,7 @@ extern "C" {
     ) -> Status;
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "mockalloc"))]
 fn proxy_get_header_map_pairs(
     map_type: MapType,
     return_map_data: *mut *mut u8,
@@ -1157,7 +1157,7 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "mockalloc"))]
 mod mocks {
     use crate::hostcalls::utils::tests::SERIALIZED_MAP;
     use crate::types::*;
@@ -1182,7 +1182,7 @@ mod mocks {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "mockalloc"))]
 mod tests {
     use crate::types::*;
     use mockalloc::Mockalloc;
