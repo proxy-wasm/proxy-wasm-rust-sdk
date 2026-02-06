@@ -25,7 +25,9 @@ edition = "2018"
 build = "build.rs"
 
 [dependencies]
+bytes = "1"
 hashbrown = "0.16"
+http = "1"
 log = "0.4"
 
 [dev-dependencies]

@@ -295,7 +295,9 @@ def aliases(
 _NORMAL_DEPENDENCIES = {
     "": {
         _COMMON_CONDITION: {
+            "bytes": Label("@crates_vendor//:bytes-1.11.0"),
             "hashbrown": Label("@crates_vendor//:hashbrown-0.16.0"),
+            "http": Label("@crates_vendor//:http-1.4.0"),
             "log": Label("@crates_vendor//:log-0.4.27"),
         },
     },
@@ -428,6 +430,16 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crates_vendor__bytes-1.11.0",
+        sha256 = "b35204fbdc0b3f4446b89fc1ac2cf84a8a68971995d0bf2e925ec7cd960f9cb3",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/bytes/1.11.0/download"],
+        strip_prefix = "bytes-1.11.0",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.bytes-1.11.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crates_vendor__equivalent-1.0.2",
         sha256 = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f",
         type = "tar.gz",
@@ -454,6 +466,26 @@ def crate_repositories():
         urls = ["https://static.crates.io/crates/hashbrown/0.16.0/download"],
         strip_prefix = "hashbrown-0.16.0",
         build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.hashbrown-0.16.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__http-1.4.0",
+        sha256 = "e3ba2a386d7f85a81f119ad7498ebe444d2e22c2af0b86b069416ace48b3311a",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/http/1.4.0/download"],
+        strip_prefix = "http-1.4.0",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.http-1.4.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__itoa-1.0.17",
+        sha256 = "92ecc6618181def0457392ccd0ee51198e065e016d1d527a7ac1b6dc7c1f09d2",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/itoa/1.0.17/download"],
+        strip_prefix = "itoa-1.0.17",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.itoa-1.0.17.bazel"),
     )
 
     maybe(
@@ -527,7 +559,9 @@ def crate_repositories():
     )
 
     return [
+        struct(repo = "crates_vendor__bytes-1.11.0", is_dev_dep = False),
         struct(repo = "crates_vendor__hashbrown-0.16.0", is_dev_dep = False),
+        struct(repo = "crates_vendor__http-1.4.0", is_dev_dep = False),
         struct(repo = "crates_vendor__log-0.4.27", is_dev_dep = False),
         struct(repo = "crates_vendor__mockalloc-0.1.2", is_dev_dep = True),
     ]

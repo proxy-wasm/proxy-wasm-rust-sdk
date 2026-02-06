@@ -26,21 +26,21 @@ struct GrpcAuthRandom;
 
 impl HttpContext for GrpcAuthRandom {
     fn on_http_request_headers(&mut self, _: usize, _: bool) -> Action {
-        match self.get_http_request_header("content-type") {
-            Some(value) if value.starts_with("application/grpc") => {}
+        match self.get_http_request_header_typed("content-type") {
+            Some(value) if value.as_bytes().starts_with(b"application/grpc") => {}
             _ => {
                 // Reject non-gRPC clients.
-                self.send_http_response(
+                self.send_http_response_typed(
                     503,
-                    vec![("Powered-By", "proxy-wasm")],
+                    vec![("Powered-By", &HeaderValue::from_static("proxy-wasm"))],
                     Some(b"Service accessible only to gRPC clients.\n"),
                 );
                 return Action::Pause;
             }
         }
 
-        match self.get_http_request_header(":path") {
-            Some(value) if value.starts_with("/grpc.reflection") => {
+        match self.get_http_request_header_typed(":path") {
+            Some(value) if value.as_bytes().starts_with(b"/grpc.reflection") => {
                 // Always allow gRPC calls to the reflection API.
                 Action::Continue
             }
@@ -61,7 +61,10 @@ impl HttpContext for GrpcAuthRandom {
     }
 
     fn on_http_response_headers(&mut self, _: usize, _: bool) -> Action {
-        self.set_http_response_header("Powered-By", Some("proxy-wasm"));
+        self.set_http_response_header_typed(
+            "Powered-By",
+            Some(&HeaderValue::from_static("proxy-wasm")),
+        );
         Action::Continue
     }
 }

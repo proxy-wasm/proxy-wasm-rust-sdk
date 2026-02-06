@@ -52,6 +52,8 @@ crates_deps = use_extension("//bazel:extensions.bzl", "crates_deps")
 use_repo(
     crates_deps,
     "crates_vendor",
+    "crates_vendor__bytes-1.11.0",
     "crates_vendor__hashbrown-0.16.0",
+    "crates_vendor__http-1.4.0",
     "crates_vendor__log-0.4.27",
 )

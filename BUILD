@@ -34,7 +34,9 @@ rust_library(
     visibility = ["//visibility:public"],
     deps = [
         ":proxy_wasm_build_script",
+        "//bazel/cargo/remote:bytes",
         "//bazel/cargo/remote:hashbrown",
+        "//bazel/cargo/remote:http",
         "//bazel/cargo/remote:log",
     ],
 )
