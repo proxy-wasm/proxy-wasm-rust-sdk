@@ -68,7 +68,7 @@ dependencies = [
 
 [[package]]
 name = "proxy-wasm"
-version = "0.2.5-dev"
+version = "0.2.4"
 dependencies = [
  "hashbrown",
  "log",
