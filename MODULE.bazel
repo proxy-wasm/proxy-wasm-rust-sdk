@@ -13,8 +13,9 @@
 # limitations under the License.
 
 module(
-    name = "proxy_wasm_rust_sdk",
+    name = "proxy-wasm-rust-sdk",
     version = "0.2.5-dev",
+    repo_name = "proxy_wasm_rust_sdk",
 )
 
 # Regular dependencies (sorted alphabetically).
