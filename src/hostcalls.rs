@@ -244,7 +244,7 @@ pub fn set_map_typed(map_type: MapType, map: Vec<(&str, &HeaderValue)>) -> Resul
     set_map_bytes(map_type, map)
 }
 
-#[cfg(not(test))]
+#[cfg(not(all(test, feature = "mockalloc")))]
 extern "C" {
     fn proxy_get_header_map_value(
         map_type: MapType,
@@ -255,7 +255,7 @@ extern "C" {
     ) -> Status;
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "mockalloc"))]
 fn proxy_get_header_map_value(
     map_type: MapType,
     key_data: *const u8,
