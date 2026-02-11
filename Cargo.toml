@@ -27,9 +27,7 @@ build = "build.rs"
 [dependencies]
 hashbrown = "0.16"
 log = "0.4"
-
-[dev-dependencies]
-mockalloc = "0.1.2"
+mockalloc = { version = "0.1", optional = true }
 
 [profile.release]
 lto = true
