@@ -24,7 +24,7 @@ When adding or updating Cargo dependencies, the existing Bazel `BUILD` files
 must be regenerated using the [`bazelisk`] tool:
 
 ```sh
-bazelisk run //bazel/cargo:crates_vendor -- --repin all
+bazelisk run --noenable_bzlmod --enable_workspace //bazel/cargo:crates_vendor -- --repin all
 ```
 
 
