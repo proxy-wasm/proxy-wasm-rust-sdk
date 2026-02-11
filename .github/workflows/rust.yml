@@ -162,8 +162,9 @@ jobs:
     - name: Test
       run: cargo test
 
-    - name: Test (no leaks)
-      run: cargo test --features mockalloc
+    # Re-enable once our MSRV is Rust v1.71+.
+    # - name: Test (no leaks)
+    #  run: cargo test --features mockalloc
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
