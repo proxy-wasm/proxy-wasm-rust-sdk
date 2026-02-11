@@ -295,7 +295,7 @@ def aliases(
 _NORMAL_DEPENDENCIES = {
     "": {
         _COMMON_CONDITION: {
-            "bytes": Label("@crates_vendor//:bytes-1.11.0"),
+            "bytes": Label("@crates_vendor//:bytes-1.11.1"),
             "hashbrown": Label("@crates_vendor//:hashbrown-0.16.0"),
             "http": Label("@crates_vendor//:http-1.4.0"),
             "log": Label("@crates_vendor//:log-0.4.27"),
@@ -423,12 +423,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crates_vendor__bytes-1.11.0",
-        sha256 = "b35204fbdc0b3f4446b89fc1ac2cf84a8a68971995d0bf2e925ec7cd960f9cb3",
+        name = "crates_vendor__bytes-1.11.1",
+        sha256 = "1e748733b7cbc798e1434b6ac524f0c1ff2ab456fe201501e6497c8417a4fc33",
         type = "tar.gz",
-        urls = ["https://static.crates.io/crates/bytes/1.11.0/download"],
-        strip_prefix = "bytes-1.11.0",
-        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.bytes-1.11.0.bazel"),
+        urls = ["https://static.crates.io/crates/bytes/1.11.1/download"],
+        strip_prefix = "bytes-1.11.1",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.bytes-1.11.1.bazel"),
     )
 
     maybe(
@@ -492,7 +492,7 @@ def crate_repositories():
     )
 
     return [
-        struct(repo = "crates_vendor__bytes-1.11.0", is_dev_dep = False),
+        struct(repo = "crates_vendor__bytes-1.11.1", is_dev_dep = False),
         struct(repo = "crates_vendor__hashbrown-0.16.0", is_dev_dep = False),
         struct(repo = "crates_vendor__http-1.4.0", is_dev_dep = False),
         struct(repo = "crates_vendor__log-0.4.27", is_dev_dep = False),

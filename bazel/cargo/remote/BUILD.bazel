@@ -32,14 +32,14 @@ filegroup(
 
 # Workspace Member Dependencies
 alias(
-    name = "bytes-1.11.0",
-    actual = "@crates_vendor__bytes-1.11.0//:bytes",
+    name = "bytes-1.11.1",
+    actual = "@crates_vendor__bytes-1.11.1//:bytes",
     tags = ["manual"],
 )
 
 alias(
     name = "bytes",
-    actual = "@crates_vendor__bytes-1.11.0//:bytes",
+    actual = "@crates_vendor__bytes-1.11.1//:bytes",
     tags = ["manual"],
 )
 
