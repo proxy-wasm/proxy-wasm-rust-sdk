@@ -1,10 +1,10 @@
-# Copyright 2026 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#      http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,24 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[package]
-publish = false
-name = "proxy-wasm-example-http-body"
-version = "0.0.1"
-authors = ["Piotr Sikora <piotrsikora@google.com>"]
-description = "Proxy-Wasm plugin example: HTTP body"
-license = "Apache-2.0"
-edition = "2018"
+load("@rules_cc//cc:extensions.bzl", "compatibility_proxy_repo")
 
-[lib]
-crate-type = ["cdylib"]
-
-[dependencies]
-proxy-wasm = { path = "../../" }
-
-[profile.release]
-lto = true
-opt-level = 3
-codegen-units = 1
-panic = "abort"
-strip = "debuginfo"
+def proxy_wasm_rust_sdk_dependencies_compat():
+    compatibility_proxy_repo()

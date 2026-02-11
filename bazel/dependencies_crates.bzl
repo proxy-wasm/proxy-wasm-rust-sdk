@@ -1,10 +1,10 @@
-# Copyright 2026 Google LLC
+# Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#      http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,24 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[package]
-publish = false
-name = "proxy-wasm-example-http-body"
-version = "0.0.1"
-authors = ["Piotr Sikora <piotrsikora@google.com>"]
-description = "Proxy-Wasm plugin example: HTTP body"
-license = "Apache-2.0"
-edition = "2018"
+load("@proxy_wasm_rust_sdk//bazel/cargo/remote:defs.bzl", "crate_repositories")
+load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
+load("@rules_rust//rust:repositories.bzl", "rust_repositories")
 
-[lib]
-crate-type = ["cdylib"]
-
-[dependencies]
-proxy-wasm = { path = "../../" }
-
-[profile.release]
-lto = true
-opt-level = 3
-codegen-units = 1
-panic = "abort"
-strip = "debuginfo"
+def proxy_wasm_rust_sdk_dependencies_crates():
+    rust_repositories(versions = ["1.91.1"])
+    crate_universe_dependencies()
+    crate_repositories()
