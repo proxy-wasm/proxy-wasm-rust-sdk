@@ -345,14 +345,12 @@ pub fn get_map_value_typed(map_type: MapType, key: &str) -> Result<Option<Header
         ) {
             Status::Ok => {
                 if !return_data.is_null() {
-                    match HeaderValue::from_maybe_shared(Vec::from_raw_parts(
-                        return_data,
-                        return_size,
-                        return_size,
-                    )) {
-                        Ok(value) => Ok(Some(value)),
-                        Err(_) => panic!("invalid field value in: {}", key),
-                    }
+                    // We're intentionally using the unchecked variant in order to retain
+                    // values accepted by the hosts and proxies that don't enforce strict
+                    // RFC compliance on HTTP field values.
+                    Ok(Some(HeaderValue::from_maybe_shared_unchecked(
+                        Vec::from_raw_parts(return_data, return_size, return_size),
+                    )))
                 } else {
                     Ok(Some(HeaderValue::from_static("")))
                 }
