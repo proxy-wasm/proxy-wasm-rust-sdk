@@ -37,7 +37,7 @@ static_resources:
                     runtime: envoy.wasm.runtime.v8
                     code:
                       local:
-                        filename: /etc/envoy_tcp_routing.wasm
+                        filename: /etc/envoy/proxy-wasm-plugins/proxy_wasm_example_envoy_tcp_routing.wasm
                     allow_precompiled: true
             # TCP proxy filter
             - name: envoy.filters.network.tcp_proxy
