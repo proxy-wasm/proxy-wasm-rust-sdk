@@ -533,6 +533,18 @@ jobs:
         rustup default nightly
         rustup target add wasm32-wasip1
 
+    - name: Install protobuf compiler
+      if: matrix.example == 'envoy_tcp_routing'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y protobuf-compiler
+
+    - name: Clean generated files
+      if: matrix.example == 'envoy_tcp_routing'
+      run: |
+        rm -rf src/generated
+        rm -rf target
+
     - name: Change crate type from library to binary
       run: |
         grep -v '^\[lib\]' Cargo.toml > Cargo.tmp
