@@ -15,8 +15,8 @@
 use crate::hostcalls;
 use crate::traits::*;
 use crate::types::*;
+use crate::{dont_panic, maybe_panic};
 use hashbrown::HashMap;
-use log::trace;
 use std::cell::{Cell, RefCell};
 
 thread_local! {
@@ -100,7 +100,7 @@ impl Dispatcher {
             .insert(token_id, self.active_id.get())
             .is_some()
         {
-            panic!("duplicate token_id")
+            maybe_panic!("register_callout: duplicate token_id")
         }
     }
 
@@ -111,7 +111,7 @@ impl Dispatcher {
             .insert(token_id, self.active_id.get())
             .is_some()
         {
-            panic!("duplicate token_id")
+            maybe_panic!("register_grpc_stream: duplicate token_id")
         }
     }
 
@@ -122,7 +122,7 @@ impl Dispatcher {
             .insert(token_id, self.active_id.get())
             .is_some()
         {
-            panic!("duplicate token_id")
+            maybe_panic!("register_grpc_callout: duplicate token_id")
         }
     }
 
@@ -137,49 +137,62 @@ impl Dispatcher {
             .insert(context_id, new_context)
             .is_some()
         {
-            panic!("duplicate context_id")
+            maybe_panic!("create_root_context: duplicate context_id")
         }
     }
 
     fn create_stream_context(&self, context_id: u32, root_context_id: u32) {
         let new_context = match self.roots.borrow().get(&root_context_id) {
             Some(root_context) => match self.new_stream.get() {
-                Some(f) => f(context_id, root_context_id),
-                None => match root_context.create_stream_context(context_id) {
-                    Some(stream_context) => stream_context,
-                    None => panic!("create_stream_context returned None"),
-                },
+                Some(f) => Some(f(context_id, root_context_id)),
+                None => root_context.create_stream_context(context_id),
             },
-            None => panic!("invalid root_context_id"),
+            None => {
+                maybe_panic!("create_stream_context: invalid root_context_id");
+                #[allow(unreachable_code)]
+                None
+            }
         };
-        if self
-            .streams
-            .borrow_mut()
-            .insert(context_id, new_context)
-            .is_some()
-        {
-            panic!("duplicate context_id")
+        match new_context {
+            Some(new_context) => {
+                if self
+                    .streams
+                    .borrow_mut()
+                    .insert(context_id, new_context)
+                    .is_some()
+                {
+                    maybe_panic!("create_stream_context: duplicate context_id")
+                }
+            }
+            None => maybe_panic!("create_stream_context: no context created"),
         }
     }
 
     fn create_http_context(&self, context_id: u32, root_context_id: u32) {
         let new_context = match self.roots.borrow().get(&root_context_id) {
             Some(root_context) => match self.new_http_stream.get() {
-                Some(f) => f(context_id, root_context_id),
-                None => match root_context.create_http_context(context_id) {
-                    Some(stream_context) => stream_context,
-                    None => panic!("create_http_context returned None"),
-                },
+                Some(f) => Some(f(context_id, root_context_id)),
+                None => root_context.create_http_context(context_id),
             },
-            None => panic!("invalid root_context_id"),
+            None => {
+                maybe_panic!("create_http_context:invalid root_context_id");
+                #[allow(unreachable_code)]
+                None
+            }
         };
-        if self
-            .http_streams
-            .borrow_mut()
-            .insert(context_id, new_context)
-            .is_some()
-        {
-            panic!("duplicate context_id")
+
+        match new_context {
+            Some(new_context) => {
+                if self
+                    .http_streams
+                    .borrow_mut()
+                    .insert(context_id, new_context)
+                    .is_some()
+                {
+                    maybe_panic!("create_http_context: duplicate context_id")
+                }
+            }
+            None => maybe_panic!("create_http_context: no context created"),
         }
     }
 
@@ -198,10 +211,10 @@ impl Dispatcher {
                 Some(ContextType::StreamContext) => {
                     self.create_stream_context(context_id, root_context_id)
                 }
-                None => panic!("missing ContextType on root_context"),
+                None => maybe_panic!("on_create_context: missing ContextType on root_context"),
             }
         } else {
-            panic!("invalid root_context_id and missing constructors");
+            maybe_panic!("on_create_context: invalid root_context_id and missing constructors")
         }
     }
 
@@ -216,7 +229,9 @@ impl Dispatcher {
             self.active_id.set(context_id);
             root.on_done()
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_done: invalid context_id");
+            #[allow(unreachable_code)]
+            true
         }
     }
 
@@ -231,7 +246,7 @@ impl Dispatcher {
             self.active_id.set(context_id);
             root.on_log()
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_log: invalid context_id")
         }
     }
 
@@ -240,7 +255,7 @@ impl Dispatcher {
             || self.streams.borrow_mut().remove(&context_id).is_some()
             || self.roots.borrow_mut().remove(&context_id).is_some())
         {
-            panic!("invalid context_id")
+            maybe_panic!("on_delete: invalid context_id")
         }
     }
 
@@ -249,7 +264,9 @@ impl Dispatcher {
             self.active_id.set(context_id);
             root.on_vm_start(vm_configuration_size)
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_vm_start: invalid context_id");
+            #[allow(unreachable_code)]
+            true
         }
     }
 
@@ -258,7 +275,9 @@ impl Dispatcher {
             self.active_id.set(context_id);
             root.on_configure(plugin_configuration_size)
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_configure: invalid context_id");
+            #[allow(unreachable_code)]
+            true
         }
     }
 
@@ -267,7 +286,7 @@ impl Dispatcher {
             self.active_id.set(context_id);
             root.on_tick()
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_tick: invalid context_id")
         }
     }
 
@@ -276,7 +295,7 @@ impl Dispatcher {
             self.active_id.set(context_id);
             root.on_queue_ready(queue_id)
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_queue_ready: invalid context_id")
         }
     }
 
@@ -285,7 +304,9 @@ impl Dispatcher {
             self.active_id.set(context_id);
             stream.on_new_connection()
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_new_connection: invalid context_id");
+            #[allow(unreachable_code)]
+            Action::Continue
         }
     }
 
@@ -294,7 +315,9 @@ impl Dispatcher {
             self.active_id.set(context_id);
             stream.on_downstream_data(data_size, end_of_stream)
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_downstream_data: invalid context_id");
+            #[allow(unreachable_code)]
+            Action::Continue
         }
     }
 
@@ -303,7 +326,7 @@ impl Dispatcher {
             self.active_id.set(context_id);
             stream.on_downstream_close(peer_type)
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_downstream_close: invalid context_id")
         }
     }
 
@@ -312,7 +335,9 @@ impl Dispatcher {
             self.active_id.set(context_id);
             stream.on_upstream_data(data_size, end_of_stream)
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_upstream_data: invalid context_id");
+            #[allow(unreachable_code)]
+            Action::Continue
         }
     }
 
@@ -321,7 +346,7 @@ impl Dispatcher {
             self.active_id.set(context_id);
             stream.on_upstream_close(peer_type)
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_upstream_close: invalid context_id")
         }
     }
 
@@ -335,7 +360,9 @@ impl Dispatcher {
             self.active_id.set(context_id);
             http_stream.on_http_request_headers(num_headers, end_of_stream)
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_http_request_headers: invalid context_id");
+            #[allow(unreachable_code)]
+            Action::Continue
         }
     }
 
@@ -349,7 +376,9 @@ impl Dispatcher {
             self.active_id.set(context_id);
             http_stream.on_http_request_body(body_size, end_of_stream)
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_http_request_body: invalid context_id");
+            #[allow(unreachable_code)]
+            Action::Continue
         }
     }
 
@@ -358,7 +387,9 @@ impl Dispatcher {
             self.active_id.set(context_id);
             http_stream.on_http_request_trailers(num_trailers)
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_http_request_trailers: invalid context_id");
+            #[allow(unreachable_code)]
+            Action::Continue
         }
     }
 
@@ -372,7 +403,9 @@ impl Dispatcher {
             self.active_id.set(context_id);
             http_stream.on_http_response_headers(num_headers, end_of_stream)
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_http_response_headers: invalid context_id");
+            #[allow(unreachable_code)]
+            Action::Continue
         }
     }
 
@@ -386,7 +419,9 @@ impl Dispatcher {
             self.active_id.set(context_id);
             http_stream.on_http_response_body(body_size, end_of_stream)
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_http_response_body: invalid context_id");
+            #[allow(unreachable_code)]
+            Action::Continue
         }
     }
 
@@ -395,7 +430,9 @@ impl Dispatcher {
             self.active_id.set(context_id);
             http_stream.on_http_response_trailers(num_trailers)
         } else {
-            panic!("invalid context_id")
+            maybe_panic!("on_http_response_trailers: invalid context_id");
+            #[allow(unreachable_code)]
+            Action::Continue
         }
     }
 
@@ -406,24 +443,23 @@ impl Dispatcher {
         body_size: usize,
         num_trailers: usize,
     ) {
-        let context_id = self
-            .callouts
-            .borrow_mut()
-            .remove(&token_id)
-            .expect("invalid token_id");
-
-        if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
-            self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            http_stream.on_http_call_response(token_id, num_headers, body_size, num_trailers)
-        } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
-            self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            stream.on_http_call_response(token_id, num_headers, body_size, num_trailers)
-        } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
-            self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
-            root.on_http_call_response(token_id, num_headers, body_size, num_trailers)
+        let context_id = self.callouts.borrow_mut().remove(&token_id);
+        if let Some(context_id) = context_id {
+            if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
+                self.active_id.set(context_id);
+                hostcalls::set_effective_context(context_id).unwrap_or(());
+                http_stream.on_http_call_response(token_id, num_headers, body_size, num_trailers)
+            } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
+                self.active_id.set(context_id);
+                hostcalls::set_effective_context(context_id).unwrap_or(());
+                stream.on_http_call_response(token_id, num_headers, body_size, num_trailers)
+            } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
+                self.active_id.set(context_id);
+                hostcalls::set_effective_context(context_id).unwrap_or(());
+                root.on_http_call_response(token_id, num_headers, body_size, num_trailers)
+            }
+        } else {
+            maybe_panic!("on_http_call_response: invalid token_id")
         }
     }
 
@@ -432,22 +468,22 @@ impl Dispatcher {
             Some(id) => *id,
             None => {
                 // TODO: change back to a panic once underlying issue is fixed.
-                trace!("on_grpc_receive_initial_metadata: invalid token_id");
+                dont_panic!("on_grpc_receive_initial_metadata: invalid token_id");
                 return;
             }
         };
 
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            hostcalls::set_effective_context(context_id).unwrap_or(());
             http_stream.on_grpc_stream_initial_metadata(token_id, headers);
         } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            hostcalls::set_effective_context(context_id).unwrap_or(());
             stream.on_grpc_stream_initial_metadata(token_id, headers);
         } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            hostcalls::set_effective_context(context_id).unwrap_or(());
             root.on_grpc_stream_initial_metadata(token_id, headers);
         }
     }
@@ -457,15 +493,15 @@ impl Dispatcher {
         if let Some(context_id) = context_id {
             if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                hostcalls::set_effective_context(context_id).unwrap_or(());
                 http_stream.on_grpc_call_response(token_id, 0, response_size);
             } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                hostcalls::set_effective_context(context_id).unwrap_or(());
                 stream.on_grpc_call_response(token_id, 0, response_size);
             } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                hostcalls::set_effective_context(context_id).unwrap_or(());
                 root.on_grpc_call_response(token_id, 0, response_size);
             }
         } else {
@@ -473,20 +509,20 @@ impl Dispatcher {
             if let Some(context_id) = context_id {
                 if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id).unwrap_or(());
                     http_stream.on_grpc_stream_message(token_id, response_size);
                 } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id).unwrap_or(());
                     stream.on_grpc_stream_message(token_id, response_size);
                 } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id).unwrap_or(());
                     root.on_grpc_stream_message(token_id, response_size);
                 }
             } else {
                 // TODO: change back to a panic once underlying issue is fixed.
-                trace!("on_grpc_receive_initial_metadata: invalid token_id");
+                dont_panic!("on_grpc_receive_initial_metadata: invalid token_id")
             }
         }
     }
@@ -496,22 +532,22 @@ impl Dispatcher {
             Some(id) => *id,
             None => {
                 // TODO: change back to a panic once underlying issue is fixed.
-                trace!("on_grpc_receive_trailing_metadata: invalid token_id");
+                dont_panic!("on_grpc_receive_trailing_metadata: invalid token_id");
                 return;
             }
         };
 
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            hostcalls::set_effective_context(context_id).unwrap_or(());
             http_stream.on_grpc_stream_trailing_metadata(token_id, trailers);
         } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            hostcalls::set_effective_context(context_id).unwrap_or(());
             stream.on_grpc_stream_trailing_metadata(token_id, trailers);
         } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            hostcalls::set_effective_context(context_id).unwrap_or(());
             root.on_grpc_stream_trailing_metadata(token_id, trailers);
         }
     }
@@ -521,15 +557,15 @@ impl Dispatcher {
         if let Some(context_id) = context_id {
             if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                hostcalls::set_effective_context(context_id).unwrap_or(());
                 http_stream.on_grpc_call_response(token_id, status_code, 0);
             } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                hostcalls::set_effective_context(context_id).unwrap_or(());
                 stream.on_grpc_call_response(token_id, status_code, 0);
             } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                 self.active_id.set(context_id);
-                hostcalls::set_effective_context(context_id).unwrap();
+                hostcalls::set_effective_context(context_id).unwrap_or(());
                 root.on_grpc_call_response(token_id, status_code, 0);
             }
         } else {
@@ -537,20 +573,20 @@ impl Dispatcher {
             if let Some(context_id) = context_id {
                 if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id).unwrap_or(());
                     http_stream.on_grpc_stream_close(token_id, status_code)
                 } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id).unwrap_or(());
                     stream.on_grpc_stream_close(token_id, status_code)
                 } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
                     self.active_id.set(context_id);
-                    hostcalls::set_effective_context(context_id).unwrap();
+                    hostcalls::set_effective_context(context_id).unwrap_or(());
                     root.on_grpc_stream_close(token_id, status_code)
                 }
             } else {
                 // TODO: change back to a panic once underlying issue is fixed.
-                trace!("on_grpc_close: invalid token_id, a non-connected stream has closed");
+                dont_panic!("on_grpc_close: invalid token_id, a non-connected stream has closed")
             }
         }
     }
@@ -558,15 +594,15 @@ impl Dispatcher {
     fn on_foreign_function(&self, context_id: u32, function_id: u32, arugments_size: usize) {
         if let Some(http_stream) = self.http_streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            hostcalls::set_effective_context(context_id).unwrap_or(());
             http_stream.on_foreign_function(function_id, arugments_size)
         } else if let Some(stream) = self.streams.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            hostcalls::set_effective_context(context_id).unwrap_or(());
             stream.on_foreign_function(function_id, arugments_size)
         } else if let Some(root) = self.roots.borrow_mut().get_mut(&context_id) {
             self.active_id.set(context_id);
-            hostcalls::set_effective_context(context_id).unwrap();
+            hostcalls::set_effective_context(context_id).unwrap_or(());
             root.on_foreign_function(function_id, arugments_size)
         }
     }

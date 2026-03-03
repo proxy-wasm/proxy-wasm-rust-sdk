@@ -29,6 +29,10 @@ hashbrown = "0.16"
 log = "0.4"
 mockalloc = { version = "0.1", optional = true }
 
+[features]
+default = []
+no-panic = []
+
 [profile.release]
 lto = true
 opt-level = 3
