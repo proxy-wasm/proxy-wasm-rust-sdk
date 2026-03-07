@@ -13,7 +13,7 @@
 # limitations under the License.
 
 load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
-load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_shared_library")
 
 exports_files([
     "Cargo.toml",
@@ -39,12 +39,10 @@ rust_library(
     ],
 )
 
-rust_binary(
+rust_shared_library(
     name = "http_auth_random",
     srcs = ["examples/http_auth_random/src/lib.rs"],
-    crate_type = "cdylib",
     edition = "2018",
-    out_binary = True,
     rustc_flags = ["-Cstrip=debuginfo"],
     visibility = ["//visibility:private"],
     deps = [
