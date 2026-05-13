@@ -35,7 +35,7 @@ services:
       - "10000:10000"
 
   httpbin:
-    image: mccutchen/go-httpbin:v2.15.0
+    image: mccutchen/go-httpbin
     hostname: httpbin
     networks:
       - envoy-tcp-routing
