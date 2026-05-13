@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Envoy configuration for TCP rerouting example
+# Envoy configuration for TCP routing example
 static_resources:
   listeners:
     - name: main
@@ -22,7 +22,7 @@ static_resources:
           port_value: 10000
       filter_chains:
         - filters:
-            # WASM filter for TCP rerouting
+            # WASM filter for TCP routing
             - name: envoy.filters.network.wasm
               typed_config:
                 "@type": type.googleapis.com/envoy.extensions.filters.network.wasm.v3.Wasm
@@ -44,7 +44,7 @@ static_resources:
               typed_config:
                 "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
                 stat_prefix: destination
-                cluster: egress-router1 # Default cluster, overridden by WASM filter
+                cluster: egress-router1 # Default cluster, overridden by the WASM filter
                 access_log:
                   - name: envoy.access_loggers.file
                     typed_config:
@@ -65,7 +65,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: httpbin.org
+                      address: httpbin
                       port_value: 80
 
     - name: egress-router2
@@ -79,12 +79,5 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: httpbin.org
+                      address: httpbin
                       port_value: 80
-
-admin:
-  access_log_path: "/dev/null"
-  address:
-    socket_address:
-      address: 0.0.0.0
-      port_value: 8001

@@ -13,20 +13,32 @@
 # limitations under the License.
 
 services:
-  proxy:
-    image: envoyproxy/envoy:v1.34.1
-    entrypoint: /usr/local/bin/envoy -c /etc/envoy.yaml -l info --service-cluster proxy
+  envoy:
+    image: envoyproxy/envoy:v1.34-latest
+    hostname: envoy
+    command:
+      - /usr/local/bin/envoy
+      - -c
+      - /etc/envoy/envoy.yaml
+      - -l
+      - info
+      - --service-cluster
+      - proxy
+    depends_on:
+      - httpbin
     volumes:
-      - ./envoy.yaml:/etc/envoy.yaml
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
       - ./target/wasm32-wasip1/release:/etc/envoy/proxy-wasm-plugins
     networks:
-      - envoymesh
+      - envoy-tcp-routing
     ports:
       - "10000:10000"
-      - "8001:8001"
+
+  httpbin:
+    image: mccutchen/go-httpbin:v2.15.0
+    hostname: httpbin
+    networks:
+      - envoy-tcp-routing
 
 networks:
-  envoymesh:
-    ipam:
-      config:
-        - subnet: 172.22.0.0/16
+  envoy-tcp-routing: {}
