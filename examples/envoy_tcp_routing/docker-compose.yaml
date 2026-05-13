@@ -41,4 +41,7 @@ services:
       - envoy-tcp-routing
 
 networks:
-  envoy-tcp-routing: {}
+  envoy-tcp-routing:
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
