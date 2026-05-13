@@ -17,14 +17,18 @@
 //! This example demonstrates dynamic TCP routing based on source IP address.
 //! Inspired by https://github.com/SiiiTschiii/wasmerang
 //!
-//! The filter intercepts TCP connections and routes them to different upstream
-//! clusters based on whether the last octet of the source IP is even or odd:
+//! The filter inspects TCP connections and routes them to different upstream
+//! clusters based on whether the last byte of the source IP is even or odd:
 //! - Even last octet → egress-router1
 //! - Odd last octet → egress-router2
 
+use std::net::{IpAddr, SocketAddr};
+
 use log::{info, warn};
+use prost::Message;
 use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
+use set_envoy_filter_state::{LifeSpan, SetEnvoyFilterStateArguments};
 
 // Include the generated protobuf code
 pub mod set_envoy_filter_state {
@@ -68,73 +72,74 @@ impl Context for TcpReroutingStream {}
 
 impl StreamContext for TcpReroutingStream {
     fn on_new_connection(&mut self) -> Action {
-        if let Some(source_addr_bytes) = self.get_property(vec!["source", "address"]) {
-            if let Ok(source_addr) = std::str::from_utf8(&source_addr_bytes) {
-                info!("[TCP WASM] Source address: {}", source_addr);
+        let Some(source_addr_bytes) = self.get_property(vec!["source", "address"]) else {
+            warn!("[TCP WASM] Missing source address property");
+            return Action::Continue;
+        };
 
-                // Extract the last octet from the source IP address
-                if let Some(last_octet) = extract_last_octet(source_addr) {
-                    info!(
-                        "[TCP WASM] Source IP last octet: {}, intercepting ALL traffic",
-                        last_octet
-                    );
+        let Ok(source_addr) = std::str::from_utf8(&source_addr_bytes) else {
+            warn!("[TCP WASM] Source address is not valid UTF-8");
+            return Action::Continue;
+        };
 
-                    // Determine target cluster based on even/odd last octet
-                    let cluster = if last_octet % 2 == 0 {
-                        "egress-router1"
-                    } else {
-                        "egress-router2"
-                    };
+        let Some(last_byte) = extract_last_ip_byte(source_addr) else {
+            warn!(
+                "[TCP WASM] Failed to parse source address for routing: {}",
+                source_addr
+            );
+            return Action::Continue;
+        };
 
-                    info!("[TCP WASM] Routing to {}", cluster);
+        let cluster = select_cluster(last_byte);
+        let args = SetEnvoyFilterStateArguments {
+            path: "envoy.tcp_proxy.cluster".to_string(),
+            value: cluster.to_string(),
+            span: LifeSpan::FilterChain as i32,
+        };
 
-                    // Set the cluster via Envoy's filter state mechanism using proper protobuf encoding
-                    use set_envoy_filter_state::{LifeSpan, SetEnvoyFilterStateArguments};
-
-                    let args = SetEnvoyFilterStateArguments {
-                        path: "envoy.tcp_proxy.cluster".to_string(),
-                        value: cluster.to_string(),
-                        span: LifeSpan::FilterChain as i32,
-                    };
-
-                    let mut buf = Vec::new();
-                    if let Err(e) = prost::Message::encode(&args, &mut buf) {
-                        warn!("[TCP WASM] Failed to encode filter state: {}", e);
-                        return Action::Continue;
-                    }
-
-                    // Use the Envoy-specific filter state mechanism
-                    // https://github.com/envoyproxy/envoy/issues/28128
-                    let status = self.call_foreign_function("set_envoy_filter_state", Some(&buf));
-
-                    info!(
-                        "[TCP WASM] set_envoy_filter_state status (envoy.tcp_proxy.cluster): {:?}",
-                        status
-                    );
-                    info!("[TCP WASM] Rerouting to {} via filter state", cluster);
-                }
-            }
+        let mut buf = Vec::new();
+        if let Err(err) = args.encode(&mut buf) {
+            warn!("[TCP WASM] Failed to encode filter state: {}", err);
+            return Action::Continue;
         }
+
+        if let Err(err) = self.call_foreign_function("set_envoy_filter_state", Some(&buf)) {
+            warn!("[TCP WASM] Failed to set Envoy filter state: {:?}", err);
+            return Action::Continue;
+        }
+
+        info!("[TCP WASM] Routed source {} to {}", source_addr, cluster);
         Action::Continue
     }
 }
 
-/// Extracts the last octet from an IP address string.
+fn select_cluster(last_byte: u8) -> &'static str {
+    if last_byte.is_multiple_of(2) {
+        "egress-router1"
+    } else {
+        "egress-router2"
+    }
+}
+
+/// Extracts the last byte from a source address.
 ///
-/// Handles both IPv4 addresses with and without port numbers.
+/// Handles IPv4/IPv6 addresses with and without port numbers.
 /// Examples:
 /// - "192.168.1.10" → Some(10)
 /// - "192.168.1.10:8080" → Some(10)
 /// - "172.21.0.11:58762" → Some(11)
-fn extract_last_octet(addr: &str) -> Option<u8> {
-    // Remove port if present (format: "ip:port")
-    let ip_part = addr.split(':').next()?;
+/// - "[2001:db8::1]:8080" → Some(1)
+fn extract_last_ip_byte(addr: &str) -> Option<u8> {
+    let ip = if let Ok(socket_addr) = addr.parse::<SocketAddr>() {
+        socket_addr.ip()
+    } else {
+        addr.parse::<IpAddr>().ok()?
+    };
 
-    // Split by '.' and get the last segment
-    let last_segment = ip_part.split('.').next_back()?;
-
-    // Parse as u8
-    last_segment.parse::<u8>().ok()
+    Some(match ip {
+        IpAddr::V4(ipv4) => ipv4.octets()[3],
+        IpAddr::V6(ipv6) => ipv6.octets()[15],
+    })
 }
 
 #[cfg(test)]
@@ -142,33 +147,20 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_extract_last_octet() {
-        assert_eq!(extract_last_octet("192.168.1.10"), Some(10));
-        assert_eq!(extract_last_octet("192.168.1.10:8080"), Some(10));
-        assert_eq!(extract_last_octet("172.21.0.11:58762"), Some(11));
-        assert_eq!(extract_last_octet("10.0.0.2"), Some(2));
-        assert_eq!(extract_last_octet("invalid"), None);
-        assert_eq!(extract_last_octet(""), None);
+    fn test_extract_last_ip_byte() {
+        assert_eq!(extract_last_ip_byte("192.168.1.10"), Some(10));
+        assert_eq!(extract_last_ip_byte("192.168.1.10:8080"), Some(10));
+        assert_eq!(extract_last_ip_byte("172.21.0.11:58762"), Some(11));
+        assert_eq!(extract_last_ip_byte("10.0.0.2"), Some(2));
+        assert_eq!(extract_last_ip_byte("2001:db8::2"), Some(2));
+        assert_eq!(extract_last_ip_byte("[2001:db8::3]:8080"), Some(3));
+        assert_eq!(extract_last_ip_byte("invalid"), None);
+        assert_eq!(extract_last_ip_byte(""), None);
     }
 
     #[test]
     fn test_routing_logic() {
-        // Even last octet should route to egress-router1
-        let last_octet = 10;
-        let cluster = if last_octet % 2 == 0 {
-            "egress-router1"
-        } else {
-            "egress-router2"
-        };
-        assert_eq!(cluster, "egress-router1");
-
-        // Odd last octet should route to egress-router2
-        let last_octet = 11;
-        let cluster = if last_octet % 2 == 0 {
-            "egress-router1"
-        } else {
-            "egress-router2"
-        };
-        assert_eq!(cluster, "egress-router2");
+        assert_eq!(select_cluster(10), "egress-router1");
+        assert_eq!(select_cluster(11), "egress-router2");
     }
 }
