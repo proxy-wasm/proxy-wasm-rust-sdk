@@ -295,8 +295,8 @@ def aliases(
 _NORMAL_DEPENDENCIES = {
     "": {
         _COMMON_CONDITION: {
-            "hashbrown": Label("@crates_vendor//:hashbrown-0.16.0"),
-            "log": Label("@crates_vendor//:log-0.4.27"),
+            "hashbrown": Label("@crates_vendor//:hashbrown-0.16.1"),
+            "log": Label("@crates_vendor//:log-0.4.29"),
         },
     },
 }
@@ -441,25 +441,25 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crates_vendor__hashbrown-0.16.0",
-        sha256 = "5419bdc4f6a9207fbeba6d11b604d481addf78ecd10c11ad51e76c2f6482748d",
+        name = "crates_vendor__hashbrown-0.16.1",
+        sha256 = "841d1cc9bed7f9236f321df977030373f4a4163ae1a7dbfe1a51a2c1a51d9100",
         type = "tar.gz",
-        urls = ["https://static.crates.io/crates/hashbrown/0.16.0/download"],
-        strip_prefix = "hashbrown-0.16.0",
-        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.hashbrown-0.16.0.bazel"),
+        urls = ["https://static.crates.io/crates/hashbrown/0.16.1/download"],
+        strip_prefix = "hashbrown-0.16.1",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.hashbrown-0.16.1.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crates_vendor__log-0.4.27",
-        sha256 = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94",
+        name = "crates_vendor__log-0.4.29",
+        sha256 = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897",
         type = "tar.gz",
-        urls = ["https://static.crates.io/crates/log/0.4.27/download"],
-        strip_prefix = "log-0.4.27",
-        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.log-0.4.27.bazel"),
+        urls = ["https://static.crates.io/crates/log/0.4.29/download"],
+        strip_prefix = "log-0.4.29",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.log-0.4.29.bazel"),
     )
 
     return [
-        struct(repo = "crates_vendor__hashbrown-0.16.0", is_dev_dep = False),
-        struct(repo = "crates_vendor__log-0.4.27", is_dev_dep = False),
+        struct(repo = "crates_vendor__hashbrown-0.16.1", is_dev_dep = False),
+        struct(repo = "crates_vendor__log-0.4.29", is_dev_dep = False),
     ]
