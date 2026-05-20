@@ -14,7 +14,7 @@
 
 services:
   envoy:
-    image: envoyproxy/envoy:v1.34-latest
+    image: envoyproxy/envoy:v1.38-latest
     hostname: envoy
     command:
       - --config-path /etc/envoy/envoy.yaml
