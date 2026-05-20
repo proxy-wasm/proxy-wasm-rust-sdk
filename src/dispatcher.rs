@@ -572,52 +572,52 @@ impl Dispatcher {
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_context_create(context_id: u32, root_context_id: u32) {
     DISPATCHER.with(|dispatcher| dispatcher.on_create_context(context_id, root_context_id))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_done(context_id: u32) -> bool {
     DISPATCHER.with(|dispatcher| dispatcher.on_done(context_id))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_log(context_id: u32) {
     DISPATCHER.with(|dispatcher| dispatcher.on_log(context_id))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_delete(context_id: u32) {
     DISPATCHER.with(|dispatcher| dispatcher.on_delete(context_id))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_vm_start(context_id: u32, vm_configuration_size: usize) -> bool {
     DISPATCHER.with(|dispatcher| dispatcher.on_vm_start(context_id, vm_configuration_size))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_configure(context_id: u32, plugin_configuration_size: usize) -> bool {
     DISPATCHER.with(|dispatcher| dispatcher.on_configure(context_id, plugin_configuration_size))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_tick(context_id: u32) {
     DISPATCHER.with(|dispatcher| dispatcher.on_tick(context_id))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_queue_ready(context_id: u32, queue_id: u32) {
     DISPATCHER.with(|dispatcher| dispatcher.on_queue_ready(context_id, queue_id))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_new_connection(context_id: u32) -> Action {
     DISPATCHER.with(|dispatcher| dispatcher.on_new_connection(context_id))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_downstream_data(
     context_id: u32,
     data_size: usize,
@@ -627,12 +627,12 @@ pub extern "C" fn proxy_on_downstream_data(
         .with(|dispatcher| dispatcher.on_downstream_data(context_id, data_size, end_of_stream))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_downstream_connection_close(context_id: u32, peer_type: PeerType) {
     DISPATCHER.with(|dispatcher| dispatcher.on_downstream_close(context_id, peer_type))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_upstream_data(
     context_id: u32,
     data_size: usize,
@@ -641,12 +641,12 @@ pub extern "C" fn proxy_on_upstream_data(
     DISPATCHER.with(|dispatcher| dispatcher.on_upstream_data(context_id, data_size, end_of_stream))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_upstream_connection_close(context_id: u32, peer_type: PeerType) {
     DISPATCHER.with(|dispatcher| dispatcher.on_upstream_close(context_id, peer_type))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_request_headers(
     context_id: u32,
     num_headers: usize,
@@ -657,7 +657,7 @@ pub extern "C" fn proxy_on_request_headers(
     })
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_request_body(
     context_id: u32,
     body_size: usize,
@@ -667,12 +667,12 @@ pub extern "C" fn proxy_on_request_body(
         .with(|dispatcher| dispatcher.on_http_request_body(context_id, body_size, end_of_stream))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_request_trailers(context_id: u32, num_trailers: usize) -> Action {
     DISPATCHER.with(|dispatcher| dispatcher.on_http_request_trailers(context_id, num_trailers))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_response_headers(
     context_id: u32,
     num_headers: usize,
@@ -683,7 +683,7 @@ pub extern "C" fn proxy_on_response_headers(
     })
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_response_body(
     context_id: u32,
     body_size: usize,
@@ -693,12 +693,12 @@ pub extern "C" fn proxy_on_response_body(
         .with(|dispatcher| dispatcher.on_http_response_body(context_id, body_size, end_of_stream))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_response_trailers(context_id: u32, num_trailers: usize) -> Action {
     DISPATCHER.with(|dispatcher| dispatcher.on_http_response_trailers(context_id, num_trailers))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_http_call_response(
     _context_id: u32,
     token_id: u32,
@@ -711,7 +711,7 @@ pub extern "C" fn proxy_on_http_call_response(
     })
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_grpc_receive_initial_metadata(
     _context_id: u32,
     token_id: u32,
@@ -720,12 +720,12 @@ pub extern "C" fn proxy_on_grpc_receive_initial_metadata(
     DISPATCHER.with(|dispatcher| dispatcher.on_grpc_receive_initial_metadata(token_id, headers))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_grpc_receive(_context_id: u32, token_id: u32, response_size: usize) {
     DISPATCHER.with(|dispatcher| dispatcher.on_grpc_receive(token_id, response_size))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_grpc_receive_trailing_metadata(
     _context_id: u32,
     token_id: u32,
@@ -734,12 +734,12 @@ pub extern "C" fn proxy_on_grpc_receive_trailing_metadata(
     DISPATCHER.with(|dispatcher| dispatcher.on_grpc_receive_trailing_metadata(token_id, trailers))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_grpc_close(_context_id: u32, token_id: u32, status_code: u32) {
     DISPATCHER.with(|dispatcher| dispatcher.on_grpc_close(token_id, status_code))
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_foreign_function(
     context_id: u32,
     function_id: u32,
