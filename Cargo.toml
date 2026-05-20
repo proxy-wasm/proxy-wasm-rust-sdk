@@ -25,7 +25,7 @@ edition = "2018"
 build = "build.rs"
 
 [dependencies]
-hashbrown = "0.16"
+hashbrown = "0.17"
 log = "0.4"
 mockalloc = { version = "0.1", optional = true }
 
