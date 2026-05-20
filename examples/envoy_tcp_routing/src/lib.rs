@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! TCP Rerouting Example
+//! TCP routing example
 //!
 //! This example demonstrates dynamic TCP routing based on source IP address.
 //! Inspired by https://github.com/SiiiTschiii/wasmerang
@@ -38,15 +38,15 @@ pub mod set_envoy_filter_state {
 proxy_wasm::main! {{
     proxy_wasm::set_log_level(LogLevel::Info);
     proxy_wasm::set_root_context(|_| -> Box<dyn RootContext> {
-        Box::new(TcpReroutingRoot)
+        Box::new(TcpRoutingRoot)
     });
 }}
 
-struct TcpReroutingRoot;
+struct TcpRoutingRoot;
 
-impl Context for TcpReroutingRoot {}
+impl Context for TcpRoutingRoot {}
 
-impl RootContext for TcpReroutingRoot {
+impl RootContext for TcpRoutingRoot {
     fn on_configure(&mut self, _plugin_configuration_size: usize) -> bool {
         if let Some(config_bytes) = self.get_plugin_configuration() {
             info!(
@@ -58,7 +58,7 @@ impl RootContext for TcpReroutingRoot {
     }
 
     fn create_stream_context(&self, _context_id: u32) -> Option<Box<dyn StreamContext>> {
-        Some(Box::new(TcpReroutingStream))
+        Some(Box::new(TcpRoutingStream))
     }
 
     fn get_type(&self) -> Option<ContextType> {
@@ -66,11 +66,11 @@ impl RootContext for TcpReroutingRoot {
     }
 }
 
-struct TcpReroutingStream;
+struct TcpRoutingStream;
 
-impl Context for TcpReroutingStream {}
+impl Context for TcpRoutingStream {}
 
-impl StreamContext for TcpReroutingStream {
+impl StreamContext for TcpRoutingStream {
     fn on_new_connection(&mut self) -> Action {
         let Some(source_addr_bytes) = self.get_property(vec!["source", "address"]) else {
             warn!("[TCP WASM] Missing source address property");

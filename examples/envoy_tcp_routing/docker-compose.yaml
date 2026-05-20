@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,15 +17,9 @@ services:
     image: envoyproxy/envoy:v1.34-latest
     hostname: envoy
     command:
-      - /usr/local/bin/envoy
-      - -c
-      - /etc/envoy/envoy.yaml
-      - -l
-      - info
-      - --service-cluster
-      - proxy
-    depends_on:
-      - httpbin
+      - --config-path /etc/envoy/envoy.yaml
+      - --log-level info
+      - --service-cluster proxy
     volumes:
       - ./envoy.yaml:/etc/envoy/envoy.yaml
       - ./target/wasm32-wasip1/release:/etc/envoy/proxy-wasm-plugins
@@ -33,6 +27,8 @@ services:
       - envoy-tcp-routing
     ports:
       - "10000:10000"
+    depends_on:
+      - httpbin
 
   httpbin:
     image: mccutchen/go-httpbin
