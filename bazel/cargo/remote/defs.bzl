@@ -154,7 +154,7 @@ def all_crate_deps(
         normal (bool, optional): If True, normal dependencies are included in the
             output list.
         normal_dev (bool, optional): If True, normal dev dependencies will be
-            included in the output list..
+            included in the output list.
         proc_macro (bool, optional): If True, proc_macro dependencies are included
             in the output list.
         proc_macro_dev (bool, optional): If True, dev proc_macro dependencies are
@@ -295,8 +295,8 @@ def aliases(
 _NORMAL_DEPENDENCIES = {
     "": {
         _COMMON_CONDITION: {
-            "hashbrown": Label("@crates_vendor//:hashbrown-0.16.0"),
-            "log": Label("@crates_vendor//:log-0.4.27"),
+            "hashbrown": Label("@crates_vendor//:hashbrown-0.16.1"),
+            "log": Label("@crates_vendor//:log-0.4.29"),
         },
     },
 }
@@ -361,6 +361,7 @@ _BUILD_PROC_MACRO_ALIASES = {
 _CONDITIONS = {
     "aarch64-apple-darwin": ["@rules_rust//rust/platform:aarch64-apple-darwin"],
     "aarch64-apple-ios": ["@rules_rust//rust/platform:aarch64-apple-ios"],
+    "aarch64-apple-ios-macabi": ["@rules_rust//rust/platform:aarch64-apple-ios-macabi"],
     "aarch64-apple-ios-sim": ["@rules_rust//rust/platform:aarch64-apple-ios-sim"],
     "aarch64-linux-android": ["@rules_rust//rust/platform:aarch64-linux-android"],
     "aarch64-pc-windows-msvc": ["@rules_rust//rust/platform:aarch64-pc-windows-msvc"],
@@ -370,6 +371,7 @@ _CONDITIONS = {
     "aarch64-unknown-nto-qnx710": ["@rules_rust//rust/platform:aarch64-unknown-nto-qnx710"],
     "aarch64-unknown-uefi": ["@rules_rust//rust/platform:aarch64-unknown-uefi"],
     "arm-unknown-linux-gnueabi": ["@rules_rust//rust/platform:arm-unknown-linux-gnueabi"],
+    "arm-unknown-linux-musleabi": ["@rules_rust//rust/platform:arm-unknown-linux-musleabi"],
     "armv7-linux-androideabi": ["@rules_rust//rust/platform:armv7-linux-androideabi"],
     "armv7-unknown-linux-gnueabi": ["@rules_rust//rust/platform:armv7-unknown-linux-gnueabi"],
     "i686-apple-darwin": ["@rules_rust//rust/platform:i686-apple-darwin"],
@@ -382,7 +384,9 @@ _CONDITIONS = {
     "riscv64gc-unknown-linux-gnu": ["@rules_rust//rust/platform:riscv64gc-unknown-linux-gnu"],
     "riscv64gc-unknown-none-elf": ["@rules_rust//rust/platform:riscv64gc-unknown-none-elf"],
     "s390x-unknown-linux-gnu": ["@rules_rust//rust/platform:s390x-unknown-linux-gnu"],
+    "thumbv6m-none-eabi": ["@rules_rust//rust/platform:thumbv6m-none-eabi"],
     "thumbv7em-none-eabi": ["@rules_rust//rust/platform:thumbv7em-none-eabi"],
+    "thumbv7em-none-eabihf": ["@rules_rust//rust/platform:thumbv7em-none-eabihf"],
     "thumbv8m.main-none-eabi": ["@rules_rust//rust/platform:thumbv8m.main-none-eabi"],
     "wasm32-unknown-emscripten": ["@rules_rust//rust/platform:wasm32-unknown-emscripten"],
     "wasm32-unknown-unknown": ["@rules_rust//rust/platform:wasm32-unknown-unknown"],
@@ -391,6 +395,7 @@ _CONDITIONS = {
     "wasm32-wasip2": ["@rules_rust//rust/platform:wasm32-wasip2"],
     "x86_64-apple-darwin": ["@rules_rust//rust/platform:x86_64-apple-darwin"],
     "x86_64-apple-ios": ["@rules_rust//rust/platform:x86_64-apple-ios"],
+    "x86_64-apple-ios-macabi": ["@rules_rust//rust/platform:x86_64-apple-ios-macabi"],
     "x86_64-linux-android": ["@rules_rust//rust/platform:x86_64-linux-android"],
     "x86_64-pc-windows-msvc": ["@rules_rust//rust/platform:x86_64-pc-windows-msvc"],
     "x86_64-unknown-freebsd": ["@rules_rust//rust/platform:x86_64-unknown-freebsd"],
@@ -441,25 +446,25 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crates_vendor__hashbrown-0.16.0",
-        sha256 = "5419bdc4f6a9207fbeba6d11b604d481addf78ecd10c11ad51e76c2f6482748d",
+        name = "crates_vendor__hashbrown-0.16.1",
+        sha256 = "841d1cc9bed7f9236f321df977030373f4a4163ae1a7dbfe1a51a2c1a51d9100",
         type = "tar.gz",
-        urls = ["https://static.crates.io/crates/hashbrown/0.16.0/download"],
-        strip_prefix = "hashbrown-0.16.0",
-        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.hashbrown-0.16.0.bazel"),
+        urls = ["https://static.crates.io/crates/hashbrown/0.16.1/download"],
+        strip_prefix = "hashbrown-0.16.1",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.hashbrown-0.16.1.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crates_vendor__log-0.4.27",
-        sha256 = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94",
+        name = "crates_vendor__log-0.4.29",
+        sha256 = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897",
         type = "tar.gz",
-        urls = ["https://static.crates.io/crates/log/0.4.27/download"],
-        strip_prefix = "log-0.4.27",
-        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.log-0.4.27.bazel"),
+        urls = ["https://static.crates.io/crates/log/0.4.29/download"],
+        strip_prefix = "log-0.4.29",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.log-0.4.29.bazel"),
     )
 
     return [
-        struct(repo = "crates_vendor__hashbrown-0.16.0", is_dev_dep = False),
-        struct(repo = "crates_vendor__log-0.4.27", is_dev_dep = False),
+        struct(repo = "crates_vendor__hashbrown-0.16.1", is_dev_dep = False),
+        struct(repo = "crates_vendor__log-0.4.29", is_dev_dep = False),
     ]
