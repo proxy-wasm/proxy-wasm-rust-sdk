@@ -349,9 +349,10 @@ jobs:
       run: |
         cargo install cargo-outdated --version 0.17.0
 
+    # Unignore hashbrown once our MSRV is Rust v1.85+.
     - name: Run cargo outdated (main)
       run: |
-        cargo outdated --root-deps-only --exit-code 1
+        cargo outdated --root-deps-only --exit-code 1 --ignore hashbrown
 
     - name: Run cargo outdated (examples)
       run: |
