@@ -404,6 +404,41 @@ jobs:
           cargo audit; \
         done
 
+  semver-checks:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Cache
+      uses: actions/cache@v5
+      with:
+        path: |
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+          ~/.cargo/advisory-db
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.rustup
+        key: audit-${{ hashFiles('.github/workflows/rust.yml', 'Cargo.toml') }}
+
+    - name: Install Rustup
+      if: ${{ env.ACT }}
+      run: |
+        curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
+        chmod +x ./rustup-init.sh
+        ./rustup-init.sh -y
+        rm rustup-init.sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+    - name: Install dependencies
+      run: |
+        cargo install cargo-semver-checks --version 0.47.0
+
+    - name: Run cargo semver-checks
+      run: |
+        cargo semver-checks --all-features
+
   examples:
     runs-on: ubuntu-24.04
 
