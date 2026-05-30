@@ -21,7 +21,7 @@ pub trait Context {
         hostcalls::get_current_time().unwrap()
     }
 
-    fn get_property(&self, path: Vec<&str>) -> Option<Bytes> {
+    fn get_property(&self, path: Vec<&str>) -> Option<Vec<u8>> {
         hostcalls::get_property(path).unwrap()
     }
 
@@ -29,7 +29,7 @@ pub trait Context {
         hostcalls::set_property(path, value).unwrap()
     }
 
-    fn get_shared_data(&self, key: &str) -> (Option<Bytes>, Option<u32>) {
+    fn get_shared_data(&self, key: &str) -> (Option<Vec<u8>>, Option<u32>) {
         hostcalls::get_shared_data(key).unwrap()
     }
 
@@ -54,7 +54,7 @@ pub trait Context {
         hostcalls::resolve_shared_queue(vm_id, name).unwrap()
     }
 
-    fn dequeue_shared_queue(&self, queue_id: u32) -> Result<Option<Bytes>, Status> {
+    fn dequeue_shared_queue(&self, queue_id: u32) -> Result<Option<Vec<u8>>, Status> {
         hostcalls::dequeue_shared_queue(queue_id)
     }
 
@@ -86,7 +86,7 @@ pub trait Context {
         hostcalls::get_map(MapType::HttpCallResponseHeaders).unwrap()
     }
 
-    fn get_http_call_response_headers_bytes(&self) -> Vec<(String, Bytes)> {
+    fn get_http_call_response_headers_bytes(&self) -> Vec<(String, Vec<u8>)> {
         hostcalls::get_map_bytes(MapType::HttpCallResponseHeaders).unwrap()
     }
 
@@ -94,11 +94,11 @@ pub trait Context {
         hostcalls::get_map_value(MapType::HttpCallResponseHeaders, name).unwrap()
     }
 
-    fn get_http_call_response_header_bytes(&self, name: &str) -> Option<Bytes> {
+    fn get_http_call_response_header_bytes(&self, name: &str) -> Option<Vec<u8>> {
         hostcalls::get_map_value_bytes(MapType::HttpCallResponseHeaders, name).unwrap()
     }
 
-    fn get_http_call_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
+    fn get_http_call_response_body(&self, start: usize, max_size: usize) -> Option<Vec<u8>> {
         hostcalls::get_buffer(BufferType::HttpCallResponseBody, start, max_size).unwrap()
     }
 
@@ -106,7 +106,7 @@ pub trait Context {
         hostcalls::get_map(MapType::HttpCallResponseTrailers).unwrap()
     }
 
-    fn get_http_call_response_trailers_bytes(&self) -> Vec<(String, Bytes)> {
+    fn get_http_call_response_trailers_bytes(&self) -> Vec<(String, Vec<u8>)> {
         hostcalls::get_map_bytes(MapType::HttpCallResponseTrailers).unwrap()
     }
 
@@ -114,7 +114,7 @@ pub trait Context {
         hostcalls::get_map_value(MapType::HttpCallResponseTrailers, name).unwrap()
     }
 
-    fn get_http_call_response_trailer_bytes(&self, name: &str) -> Option<Bytes> {
+    fn get_http_call_response_trailer_bytes(&self, name: &str) -> Option<Vec<u8>> {
         hostcalls::get_map_value_bytes(MapType::HttpCallResponseTrailers, name).unwrap()
     }
 
@@ -139,7 +139,7 @@ pub trait Context {
 
     fn on_grpc_call_response(&mut self, _token_id: u32, _status_code: u32, _response_size: usize) {}
 
-    fn get_grpc_call_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
+    fn get_grpc_call_response_body(&self, start: usize, max_size: usize) -> Option<Vec<u8>> {
         hostcalls::get_buffer(BufferType::GrpcReceiveBuffer, start, max_size).unwrap()
     }
 
@@ -159,11 +159,11 @@ pub trait Context {
 
     fn on_grpc_stream_initial_metadata(&mut self, _token_id: u32, _num_elements: u32) {}
 
-    fn get_grpc_stream_initial_metadata(&self) -> Vec<(String, Bytes)> {
+    fn get_grpc_stream_initial_metadata(&self) -> Vec<(String, Vec<u8>)> {
         hostcalls::get_map_bytes(MapType::GrpcReceiveInitialMetadata).unwrap()
     }
 
-    fn get_grpc_stream_initial_metadata_value(&self, name: &str) -> Option<Bytes> {
+    fn get_grpc_stream_initial_metadata_value(&self, name: &str) -> Option<Vec<u8>> {
         hostcalls::get_map_value_bytes(MapType::GrpcReceiveInitialMetadata, name).unwrap()
     }
 
@@ -173,17 +173,17 @@ pub trait Context {
 
     fn on_grpc_stream_message(&mut self, _token_id: u32, _message_size: usize) {}
 
-    fn get_grpc_stream_message(&mut self, start: usize, max_size: usize) -> Option<Bytes> {
+    fn get_grpc_stream_message(&mut self, start: usize, max_size: usize) -> Option<Vec<u8>> {
         hostcalls::get_buffer(BufferType::GrpcReceiveBuffer, start, max_size).unwrap()
     }
 
     fn on_grpc_stream_trailing_metadata(&mut self, _token_id: u32, _num_elements: u32) {}
 
-    fn get_grpc_stream_trailing_metadata(&self) -> Vec<(String, Bytes)> {
+    fn get_grpc_stream_trailing_metadata(&self) -> Vec<(String, Vec<u8>)> {
         hostcalls::get_map_bytes(MapType::GrpcReceiveTrailingMetadata).unwrap()
     }
 
-    fn get_grpc_stream_trailing_metadata_value(&self, name: &str) -> Option<Bytes> {
+    fn get_grpc_stream_trailing_metadata_value(&self, name: &str) -> Option<Vec<u8>> {
         hostcalls::get_map_value_bytes(MapType::GrpcReceiveTrailingMetadata, name).unwrap()
     }
 
@@ -207,7 +207,7 @@ pub trait Context {
         &self,
         function_name: &str,
         arguments: Option<&[u8]>,
-    ) -> Result<Option<Bytes>, Status> {
+    ) -> Result<Option<Vec<u8>>, Status> {
         hostcalls::call_foreign_function(function_name, arguments)
     }
 
@@ -225,7 +225,7 @@ pub trait RootContext: Context {
         true
     }
 
-    fn get_vm_configuration(&self) -> Option<Bytes> {
+    fn get_vm_configuration(&self) -> Option<Vec<u8>> {
         hostcalls::get_buffer(BufferType::VmConfiguration, 0, usize::MAX).unwrap()
     }
 
@@ -233,7 +233,7 @@ pub trait RootContext: Context {
         true
     }
 
-    fn get_plugin_configuration(&self) -> Option<Bytes> {
+    fn get_plugin_configuration(&self) -> Option<Vec<u8>> {
         hostcalls::get_buffer(BufferType::PluginConfiguration, 0, usize::MAX).unwrap()
     }
 
@@ -269,7 +269,7 @@ pub trait StreamContext: Context {
         Action::Continue
     }
 
-    fn get_downstream_data(&self, start: usize, max_size: usize) -> Option<Bytes> {
+    fn get_downstream_data(&self, start: usize, max_size: usize) -> Option<Vec<u8>> {
         hostcalls::get_buffer(BufferType::DownstreamData, start, max_size).unwrap()
     }
 
@@ -291,7 +291,7 @@ pub trait StreamContext: Context {
         Action::Continue
     }
 
-    fn get_upstream_data(&self, start: usize, max_size: usize) -> Option<Bytes> {
+    fn get_upstream_data(&self, start: usize, max_size: usize) -> Option<Vec<u8>> {
         hostcalls::get_buffer(BufferType::UpstreamData, start, max_size).unwrap()
     }
 
@@ -321,7 +321,7 @@ pub trait HttpContext: Context {
         hostcalls::get_map(MapType::HttpRequestHeaders).unwrap()
     }
 
-    fn get_http_request_headers_bytes(&self) -> Vec<(String, Bytes)> {
+    fn get_http_request_headers_bytes(&self) -> Vec<(String, Vec<u8>)> {
         hostcalls::get_map_bytes(MapType::HttpRequestHeaders).unwrap()
     }
 
@@ -337,7 +337,7 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value(MapType::HttpRequestHeaders, name).unwrap()
     }
 
-    fn get_http_request_header_bytes(&self, name: &str) -> Option<Bytes> {
+    fn get_http_request_header_bytes(&self, name: &str) -> Option<Vec<u8>> {
         hostcalls::get_map_value_bytes(MapType::HttpRequestHeaders, name).unwrap()
     }
 
@@ -365,7 +365,7 @@ pub trait HttpContext: Context {
         Action::Continue
     }
 
-    fn get_http_request_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
+    fn get_http_request_body(&self, start: usize, max_size: usize) -> Option<Vec<u8>> {
         hostcalls::get_buffer(BufferType::HttpRequestBody, start, max_size).unwrap()
     }
 
@@ -381,7 +381,7 @@ pub trait HttpContext: Context {
         hostcalls::get_map(MapType::HttpRequestTrailers).unwrap()
     }
 
-    fn get_http_request_trailers_bytes(&self) -> Vec<(String, Bytes)> {
+    fn get_http_request_trailers_bytes(&self) -> Vec<(String, Vec<u8>)> {
         hostcalls::get_map_bytes(MapType::HttpRequestTrailers).unwrap()
     }
 
@@ -397,7 +397,7 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value(MapType::HttpRequestTrailers, name).unwrap()
     }
 
-    fn get_http_request_trailer_bytes(&self, name: &str) -> Option<Bytes> {
+    fn get_http_request_trailer_bytes(&self, name: &str) -> Option<Vec<u8>> {
         hostcalls::get_map_value_bytes(MapType::HttpRequestTrailers, name).unwrap()
     }
 
@@ -437,7 +437,7 @@ pub trait HttpContext: Context {
         hostcalls::get_map(MapType::HttpResponseHeaders).unwrap()
     }
 
-    fn get_http_response_headers_bytes(&self) -> Vec<(String, Bytes)> {
+    fn get_http_response_headers_bytes(&self) -> Vec<(String, Vec<u8>)> {
         hostcalls::get_map_bytes(MapType::HttpResponseHeaders).unwrap()
     }
 
@@ -453,7 +453,7 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value(MapType::HttpResponseHeaders, name).unwrap()
     }
 
-    fn get_http_response_header_bytes(&self, name: &str) -> Option<Bytes> {
+    fn get_http_response_header_bytes(&self, name: &str) -> Option<Vec<u8>> {
         hostcalls::get_map_value_bytes(MapType::HttpResponseHeaders, name).unwrap()
     }
 
@@ -481,7 +481,7 @@ pub trait HttpContext: Context {
         Action::Continue
     }
 
-    fn get_http_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
+    fn get_http_response_body(&self, start: usize, max_size: usize) -> Option<Vec<u8>> {
         hostcalls::get_buffer(BufferType::HttpResponseBody, start, max_size).unwrap()
     }
 
@@ -497,7 +497,7 @@ pub trait HttpContext: Context {
         hostcalls::get_map(MapType::HttpResponseTrailers).unwrap()
     }
 
-    fn get_http_response_trailers_bytes(&self) -> Vec<(String, Bytes)> {
+    fn get_http_response_trailers_bytes(&self) -> Vec<(String, Vec<u8>)> {
         hostcalls::get_map_bytes(MapType::HttpResponseTrailers).unwrap()
     }
 
@@ -513,7 +513,7 @@ pub trait HttpContext: Context {
         hostcalls::get_map_value(MapType::HttpResponseTrailers, name).unwrap()
     }
 
-    fn get_http_response_trailer_bytes(&self, name: &str) -> Option<Bytes> {
+    fn get_http_response_trailer_bytes(&self, name: &str) -> Option<Vec<u8>> {
         hostcalls::get_map_value_bytes(MapType::HttpResponseTrailers, name).unwrap()
     }
 
