@@ -26,7 +26,7 @@ pub(crate) fn set_log_level(level: LogLevel) {
     if !INITIALIZED.load(Ordering::Relaxed) {
         log::set_logger(&LOGGER).unwrap();
         panic::set_hook(Box::new(|panic_info| {
-            hostcalls::log(LogLevel::Critical, &panic_info.to_string()).unwrap();
+            hostcalls::log_noresult(LogLevel::Critical, &panic_info.to_string());
         }));
         INITIALIZED.store(true, Ordering::Relaxed);
     }
