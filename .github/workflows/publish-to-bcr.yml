@@ -30,7 +30,7 @@ on:
 
 jobs:
   publish:
-    uses: bazel-contrib/publish-to-bcr/.github/workflows/publish.yaml@v1.2.0
+    uses: bazel-contrib/publish-to-bcr/.github/workflows/publish.yaml@v1.3.0
     with:
       attest: false
       open_pull_request: false
