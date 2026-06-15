@@ -31,5 +31,4 @@ prost = "0.14"
 
 [build-dependencies]
 prost-build = "0.14"
-proc-macro2 = "1.0"
-
+protox = "0.9"

@@ -457,17 +457,6 @@ jobs:
         rustup toolchain install stable --component clippy --component rustfmt
         rustup target add wasm32-wasip1
 
-    - name: Install protobuf compiler
-      if: matrix.example == 'envoy_tcp_routing'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y protobuf-compiler
-
-    - name: Clean generated files
-      if: matrix.example == 'envoy_tcp_routing'
-      run: |
-        rm -rf src/generated
-
     - name: Build (wasm32-wasip1)
       run: cargo build --release --target=wasm32-wasip1
 
@@ -542,17 +531,6 @@ jobs:
         rustup toolchain install nightly --component clippy --component rustfmt
         rustup default nightly
         rustup target add wasm32-wasip1
-
-    - name: Install protobuf compiler
-      if: matrix.example == 'envoy_tcp_routing'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y protobuf-compiler
-
-    - name: Clean generated files
-      if: matrix.example == 'envoy_tcp_routing'
-      run: |
-        rm -rf src/generated
 
     - name: Change crate type from library to binary
       run: |

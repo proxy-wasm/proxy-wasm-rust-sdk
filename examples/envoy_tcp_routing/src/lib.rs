@@ -32,7 +32,10 @@ use set_envoy_filter_state::{LifeSpan, SetEnvoyFilterStateArguments};
 
 // Include the generated protobuf code
 pub mod set_envoy_filter_state {
-    include!("generated/envoy.source.extensions.common.wasm.rs");
+    include!(concat!(
+        env!("OUT_DIR"),
+        "/envoy.source.extensions.common.wasm.rs"
+    ));
 }
 
 proxy_wasm::main! {{
