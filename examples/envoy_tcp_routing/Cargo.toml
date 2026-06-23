@@ -19,7 +19,7 @@ version = "0.0.1"
 authors = ["Proxy-Wasm contributors"]
 description = "Proxy-Wasm plugin example: Envoy TCP routing"
 license = "Apache-2.0"
-edition = "2021"
+edition = "2024"
 
 [lib]
 crate-type = ["cdylib"]
