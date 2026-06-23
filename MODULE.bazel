@@ -14,7 +14,7 @@
 
 module(
     name = "proxy-wasm-rust-sdk",
-    version = "0.2.5-dev",
+    version = "0.2.5",
     repo_name = "proxy_wasm_rust_sdk",
 )
 
@@ -22,28 +22,23 @@ module(
 bazel_dep(name = "bazel_features", version = "1.38.0")
 bazel_dep(name = "bazel_skylib", version = "1.8.2")
 bazel_dep(name = "rules_cc", version = "0.2.14")
-bazel_dep(name = "rules_rust", version = "0.68.1")
+bazel_dep(name = "rules_rust", version = "0.70.0")
 
 # Configure Rust toolchain.
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(
     edition = "2018",
-    versions = ["1.91.1"],
+    versions = ["1.95.0"],
 )
 use_repo(rust, "rust_toolchains")
 
-register_toolchains(
-    "@rust_toolchains//:all",
-    # Dummy C/C++ toolchains for Wasm targets.
-    "@rules_rust//rust/private/dummy_cc_toolchain:dummy_cc_wasm32_toolchain",
-    "@rules_rust//rust/private/dummy_cc_toolchain:dummy_cc_wasm64_toolchain",
-)
+register_toolchains("@rust_toolchains//:all")
 
 # Cargo dependencies.
 crates_deps = use_extension("//bazel:extensions.bzl", "crates_deps")
 use_repo(
     crates_deps,
     "crates_vendor",
-    "crates_vendor__hashbrown-0.16.0",
-    "crates_vendor__log-0.4.27",
+    "crates_vendor__hashbrown-0.16.1",
+    "crates_vendor__log-0.4.29",
 )

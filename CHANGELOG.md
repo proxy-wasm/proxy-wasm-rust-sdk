@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.2.5] - 2026-05-20
+
+### Fixed
+
+- Fixed compatibility with Rust v1.96.0.
+
 ## [0.2.4] - 2025-10-01
 
 ### Fixed
@@ -137,6 +143,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release.
 
 
+[0.2.5]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/proxy-wasm/proxy-wasm-rust-sdk/compare/v0.2.1...v0.2.2

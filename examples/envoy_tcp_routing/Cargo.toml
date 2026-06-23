@@ -1,10 +1,10 @@
-# Copyright 2022 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,16 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-services:
-  envoy:
-    image: envoyproxy/envoy:v1.38-latest
-    hostname: envoy
-    ports:
-      - "10000:10000"
-    volumes:
-      - ./envoy.yaml:/etc/envoy/envoy.yaml
-      - ./target/wasm32-wasip1/release:/etc/envoy/proxy-wasm-plugins
-    networks:
-      - envoymesh
-networks:
-  envoymesh: {}
+[package]
+publish = false
+name = "proxy-wasm-example-envoy-tcp-routing"
+version = "0.0.1"
+authors = ["Proxy-Wasm contributors"]
+description = "Proxy-Wasm plugin example: Envoy TCP routing"
+license = "Apache-2.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+log = "0.4"
+proxy-wasm = { path = "../../" }
+prost = "0.14"
+
+[build-dependencies]
+prost-build = "0.14"
+proc-macro2 = "1.0"
+
