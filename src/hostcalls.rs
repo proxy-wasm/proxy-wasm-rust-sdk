@@ -1198,7 +1198,7 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
 mod mocks {
     use crate::hostcalls::utils::tests::SERIALIZED_MAP;
     use crate::types::*;
-    use std::alloc::{alloc, Layout};
+    use std::alloc::{Layout, alloc};
 
     pub fn proxy_get_header_map_pairs(
         _map_type: MapType,

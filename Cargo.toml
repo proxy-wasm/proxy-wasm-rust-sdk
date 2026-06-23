@@ -16,12 +16,12 @@
 name = "proxy-wasm"
 version = "0.2.5"
 authors = ["Piotr Sikora <piotrsikora@google.com>"]
-rust-version = "1.68"
+rust-version = "1.85"
 description = "WebAssembly for Proxies"
 readme = "README.md"
 license = "Apache-2.0"
 repository = "https://github.com/proxy-wasm/proxy-wasm-rust-sdk"
-edition = "2018"
+edition = "2024"
 build = "build.rs"
 
 [dependencies]
