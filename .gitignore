@@ -1,5 +1,3 @@
 /bazel-*
 target
 Cargo.lock
-# Generated protobuf code
-examples/envoy_tcp_routing/src/generated/

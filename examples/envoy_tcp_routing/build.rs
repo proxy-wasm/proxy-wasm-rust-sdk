@@ -12,14 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::fs;
-
 fn main() {
     println!("cargo:rerun-if-changed=src/set_envoy_filter_state.proto");
-    let out_dir = "src/generated";
-    fs::create_dir_all(out_dir).unwrap();
-    prost_build::Config::new()
-        .out_dir(out_dir)
-        .compile_protos(&["src/set_envoy_filter_state.proto"], &["src/"])
-        .unwrap();
+    let fds = protox::compile(["src/set_envoy_filter_state.proto"], ["src/"]).unwrap();
+    prost_build::compile_fds(fds).unwrap();
 }
