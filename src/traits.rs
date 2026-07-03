@@ -137,7 +137,7 @@ pub trait Context {
     }
 
     fn get_http_call_response_header_typed(&self, name: &str) -> Option<HeaderValue> {
-        hostcalls::get_map_value_typed(MapType::HttpCallResponseTrailers, name).unwrap()
+        hostcalls::get_map_value_typed(MapType::HttpCallResponseHeaders, name).unwrap()
     }
 
     fn get_http_call_response_body(&self, start: usize, max_size: usize) -> Option<Bytes> {
