@@ -13,35 +13,23 @@
 # limitations under the License.
 
 [package]
-name = "proxy-wasm"
-version = "0.3.0-dev"
-authors = ["Piotr Sikora <piotrsikora@google.com>"]
-rust-version = "1.85"
-description = "WebAssembly for Proxies"
-readme = "README.md"
+publish = false
+name = "proxy-wasm-example-envoy-tcp-routing"
+version = "0.0.1"
+authors = ["Proxy-Wasm contributors"]
+description = "Proxy-Wasm plugin example: Envoy TCP routing"
 license = "Apache-2.0"
-repository = "https://github.com/proxy-wasm/proxy-wasm-rust-sdk"
 edition = "2024"
-build = "build.rs"
+
+[lib]
+crate-type = ["cdylib"]
 
 [dependencies]
-bytes = "1"
-hashbrown = "0.17"
-http = "1"
 log = "0.4"
-mockalloc = { version = "0.1", optional = true }
+proxy-wasm = { path = "../../" }
+prost = "0.14"
 
-[profile.release]
-lto = true
-opt-level = 3
-codegen-units = 1
-panic = "abort"
-strip = "debuginfo"
+[build-dependencies]
+prost-build = "0.14"
+proc-macro2 = "1.0"
 
-[profile.test]
-inherits = "release"
-debug = true
-
-[profile.bench]
-inherits = "release"
-debug = true

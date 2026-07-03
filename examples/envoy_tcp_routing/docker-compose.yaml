@@ -16,21 +16,28 @@ services:
   envoy:
     image: envoyproxy/envoy:v1.38-latest
     hostname: envoy
-    ports:
-      - "10000:10000"
+    command:
+      - --config-path /etc/envoy/envoy.yaml
+      - --log-level info
+      - --service-cluster proxy
     volumes:
       - ./envoy.yaml:/etc/envoy/envoy.yaml
       - ./target/wasm32-wasip1/release:/etc/envoy/proxy-wasm-plugins
     networks:
-      - envoymesh
+      - envoy-tcp-routing
+    ports:
+      - "10000:10000"
     depends_on:
       - httpbin
+
   httpbin:
     image: mccutchen/go-httpbin
     hostname: httpbin
-    ports:
-      - "8080:8080"
     networks:
-      - envoymesh
+      - envoy-tcp-routing
+
 networks:
-  envoymesh: {}
+  envoy-tcp-routing:
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
