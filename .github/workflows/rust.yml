@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: actions/setup-go@v6
       with:
         go-version: '^1.24'
@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: actions/setup-go@v6
       with:
         go-version: '^1.24'
@@ -115,7 +115,7 @@ jobs:
       RUSTFLAGS: -D warnings
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Cache
       if: ${{ env.ACT }}
@@ -136,16 +136,16 @@ jobs:
       run: |
         curl -OL https://static.rust-lang.org/rustup/rustup-init.sh
         chmod +x ./rustup-init.sh
-        ./rustup-init.sh -y --default-toolchain 1.68.0
+        ./rustup-init.sh -y --default-toolchain 1.85.0
         rm rustup-init.sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
     - name: Update Rust
       run: |
-        rustup toolchain install 1.68.0 --component clippy --component rustfmt
-        rustup default 1.68.0
+        rustup toolchain install 1.85.0 --component clippy --component rustfmt
+        rustup default 1.85.0
         rustup target add wasm32-unknown-unknown
-        rustup target add wasm32-wasi
+        rustup target add wasm32-wasip1
 
     - name: Build (wasm32-unknown-unknown)
       run: cargo build --release --all-targets --target=wasm32-unknown-unknown
@@ -153,18 +153,17 @@ jobs:
     - name: Clippy (wasm32-unknown-unknown)
       run: cargo clippy --release --all-targets --target=wasm32-unknown-unknown
 
-    - name: Build (wasm32-wasi)
-      run: cargo build --release --all-targets --target=wasm32-wasi
+    - name: Build (wasm32-wasip1)
+      run: cargo build --release --all-targets --target=wasm32-wasip1
 
-    - name: Clippy (wasm32-wasi)
-      run: cargo clippy --release --all-targets --target=wasm32-wasi
+    - name: Clippy (wasm32-wasip1)
+      run: cargo clippy --release --all-targets --target=wasm32-wasip1
 
     - name: Test
       run: cargo test
 
-    # Re-enable once our MSRV is Rust v1.71+.
-    # - name: Test (no leaks)
-    #  run: cargo test --features mockalloc
+    - name: Test (no leaks)
+      run: cargo test --features mockalloc
 
     - name: Format (rustfmt)
       run: cargo fmt -- --check
@@ -185,7 +184,7 @@ jobs:
       RUSTFLAGS: -D warnings
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Cache
       if: ${{ env.ACT }}
@@ -253,7 +252,7 @@ jobs:
       RUSTFLAGS: -D warnings
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Cache
       if: ${{ env.ACT }}
@@ -322,7 +321,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Cache
       uses: actions/cache@v5
@@ -349,10 +348,9 @@ jobs:
       run: |
         cargo install cargo-outdated --version 0.17.0
 
-    # Unignore hashbrown once our MSRV is Rust v1.85+.
     - name: Run cargo outdated (main)
       run: |
-        cargo outdated --root-deps-only --exit-code 1 --ignore hashbrown
+        cargo outdated --root-deps-only --exit-code 1
 
     - name: Run cargo outdated (examples)
       run: |
@@ -365,7 +363,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Cache
       uses: actions/cache@v5
@@ -427,7 +425,7 @@ jobs:
       RUSTFLAGS: -D warnings
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Cache
       if: ${{ env.ACT }}
@@ -501,7 +499,7 @@ jobs:
       RUSTFLAGS: -D warnings -Z wasi-exec-model=reactor
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Cache
       if: ${{ env.ACT }}

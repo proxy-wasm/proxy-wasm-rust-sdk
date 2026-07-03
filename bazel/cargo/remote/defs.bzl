@@ -295,7 +295,7 @@ def aliases(
 _NORMAL_DEPENDENCIES = {
     "": {
         _COMMON_CONDITION: {
-            "hashbrown": Label("@crates_vendor//:hashbrown-0.16.1"),
+            "hashbrown": Label("@crates_vendor//:hashbrown-0.17.1"),
             "log": Label("@crates_vendor//:log-0.4.29"),
         },
     },
@@ -446,12 +446,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crates_vendor__hashbrown-0.16.1",
-        sha256 = "841d1cc9bed7f9236f321df977030373f4a4163ae1a7dbfe1a51a2c1a51d9100",
+        name = "crates_vendor__hashbrown-0.17.1",
+        sha256 = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a",
         type = "tar.gz",
-        urls = ["https://static.crates.io/crates/hashbrown/0.16.1/download"],
-        strip_prefix = "hashbrown-0.16.1",
-        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.hashbrown-0.16.1.bazel"),
+        urls = ["https://static.crates.io/crates/hashbrown/0.17.1/download"],
+        strip_prefix = "hashbrown-0.17.1",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.hashbrown-0.17.1.bazel"),
     )
 
     maybe(
@@ -465,6 +465,6 @@ def crate_repositories():
     )
 
     return [
-        struct(repo = "crates_vendor__hashbrown-0.16.1", is_dev_dep = False),
+        struct(repo = "crates_vendor__hashbrown-0.17.1", is_dev_dep = False),
         struct(repo = "crates_vendor__log-0.4.29", is_dev_dep = False),
     ]

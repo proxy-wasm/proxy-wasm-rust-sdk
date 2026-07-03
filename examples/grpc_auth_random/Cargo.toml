@@ -18,7 +18,7 @@ name = "proxy-wasm-example-grpc-auth-random"
 version = "0.0.1"
 description = "Proxy-Wasm plugin example: gRPC auth (random)"
 license = "Apache-2.0"
-edition = "2018"
+edition = "2024"
 
 [lib]
 crate-type = ["cdylib"]
