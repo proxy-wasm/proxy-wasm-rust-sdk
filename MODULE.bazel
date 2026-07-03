@@ -14,7 +14,7 @@
 
 module(
     name = "proxy-wasm-rust-sdk",
-    version = "0.2.5",
+    version = "0.3.0-dev",
     repo_name = "proxy_wasm_rust_sdk",
 )
 
