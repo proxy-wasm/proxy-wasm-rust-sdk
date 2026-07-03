@@ -19,7 +19,7 @@ version = "0.0.1"
 authors = ["Piotr Sikora <piotrsikora@google.com>"]
 description = "Proxy-Wasm plugin example: HTTP config"
 license = "Apache-2.0"
-edition = "2018"
+edition = "2024"
 
 [lib]
 crate-type = ["cdylib"]

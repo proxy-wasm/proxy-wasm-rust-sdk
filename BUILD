@@ -22,7 +22,7 @@ exports_files([
 cargo_build_script(
     name = "proxy_wasm_build_script",
     srcs = ["build.rs"],
-    edition = "2018",
+    edition = "2024",
     tags = ["manual"],
     visibility = ["//visibility:private"],
 )
@@ -30,7 +30,7 @@ cargo_build_script(
 rust_library(
     name = "proxy_wasm",
     srcs = glob(["src/*.rs"]),
-    edition = "2018",
+    edition = "2024",
     visibility = ["//visibility:public"],
     deps = [
         ":proxy_wasm_build_script",
@@ -42,7 +42,7 @@ rust_library(
 rust_shared_library(
     name = "http_auth_random",
     srcs = ["examples/http_auth_random/src/lib.rs"],
-    edition = "2018",
+    edition = "2024",
     rustc_flags = ["-Cstrip=debuginfo"],
     visibility = ["//visibility:private"],
     deps = [
