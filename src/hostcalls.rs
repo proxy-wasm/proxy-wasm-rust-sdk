@@ -162,7 +162,7 @@ fn proxy_get_header_map_pairs(
     mocks::proxy_get_header_map_pairs(map_type, return_map_data, return_map_size)
 }
 
-#[deprecated(since = "0.2.5", note = "use `get_map_typed` instead")]
+#[deprecated(since = "0.3.0", note = "use `get_map_typed` instead")]
 pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
     unsafe {
         let mut return_data: *mut u8 = null_mut();
@@ -230,7 +230,7 @@ unsafe extern "C" {
     ) -> Status;
 }
 
-#[deprecated(since = "0.2.5", note = "use `set_map_typed` instead")]
+#[deprecated(since = "0.3.0", note = "use `set_map_typed` instead")]
 pub fn set_map(map_type: MapType, map: Vec<(&str, &str)>) -> Result<(), Status> {
     set_map_bytes(map_type, map)
 }
@@ -281,7 +281,7 @@ fn proxy_get_header_map_value(
     )
 }
 
-#[deprecated(since = "0.2.5", note = "use `get_map_value_typed` instead")]
+#[deprecated(since = "0.3.0", note = "use `get_map_value_typed` instead")]
 pub fn get_map_value(map_type: MapType, key: &str) -> Result<Option<String>, Status> {
     let mut return_data: *mut u8 = null_mut();
     let mut return_size: usize = 0;
@@ -399,7 +399,7 @@ unsafe extern "C" {
     ) -> Status;
 }
 
-#[deprecated(since = "0.2.5", note = "use `set_map_value_typed` instead")]
+#[deprecated(since = "0.3.0", note = "use `set_map_value_typed` instead")]
 pub fn set_map_value(map_type: MapType, key: &str, value: Option<&str>) -> Result<(), Status> {
     set_map_value_bytes(map_type, key, value)
 }
@@ -448,7 +448,7 @@ unsafe extern "C" {
     ) -> Status;
 }
 
-#[deprecated(since = "0.2.5", note = "use `add_map_value_typed` instead")]
+#[deprecated(since = "0.3.0", note = "use `add_map_value_typed` instead")]
 pub fn add_map_value(map_type: MapType, key: &str, value: &str) -> Result<(), Status> {
     add_map_value_bytes(map_type, key, value)
 }
@@ -811,7 +811,7 @@ unsafe extern "C" {
     ) -> Status;
 }
 
-#[deprecated(since = "0.2.5", note = "use `send_http_response_typed` instead")]
+#[deprecated(since = "0.3.0", note = "use `send_http_response_typed` instead")]
 pub fn send_http_response(
     status_code: u32,
     headers: Vec<(&str, &str)>,
@@ -893,7 +893,7 @@ unsafe extern "C" {
     ) -> Status;
 }
 
-#[deprecated(since = "0.2.5", note = "use `dispatch_http_call_typed` instead")]
+#[deprecated(since = "0.3.0", note = "use `dispatch_http_call_typed` instead")]
 pub fn dispatch_http_call(
     upstream: &str,
     headers: Vec<(&str, &str)>,
