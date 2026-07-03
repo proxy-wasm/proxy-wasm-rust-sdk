@@ -356,7 +356,13 @@ pub fn get_map_value_typed(map_type: MapType, key: &str) -> Result<Option<Header
                 if !return_data.is_null() {
                     // We're intentionally using the unchecked variant in order to retain
                     // values accepted by the hosts and proxies that don't enforce strict
-                    // RFC compliance on HTTP field values.
+                    // RFC compliance on HTTP field values (e.g. NGINX).
+                    //
+                    // Passing non-compliant values is safe in terms of Rust memory safety.
+                    //
+                    // Note that HeaderValue::from_maybe_shared_unchecked() panics in debug
+                    // builds when processing values that are not RFC-compliant, bacause of
+                    // extra conformance checks.
                     Ok(Some(HeaderValue::from_maybe_shared_unchecked(
                         Vec::from_raw_parts(return_data, return_size, return_size),
                     )))
@@ -1512,7 +1518,13 @@ mod utils {
                 String::from_utf8(key.to_vec()).unwrap(),
                 // We're intentionally using the unchecked variant in order to retain
                 // values accepted by the hosts and proxies that don't enforce strict
-                // RFC compliance on HTTP field values.
+                // RFC compliance on HTTP field values (e.g. NGINX).
+                //
+                // Passing non-compliant values is safe in terms of Rust memory safety.
+                //
+                // Note that HeaderValue::from_maybe_shared_unchecked() panics in debug
+                // builds when processing values that are not RFC-compliant, bacause of
+                // extra conformance checks.
                 unsafe { HeaderValue::from_maybe_shared_unchecked(value) },
             ));
         }
@@ -1736,8 +1748,16 @@ mod utils {
         #[test]
         fn test_deserialize_map_all_chars_typed() {
             // We're intentionally accepting all values to support hosts and proxies that
-            // don't enforce strict RFC compliance on HTTP field values.
+            // don't enforce strict RFC compliance on HTTP field values (e.g. NGINX).
             for i in 0..0xff {
+                // HttpValue::from_maybe_shared_unchecked() panics in debug builds when
+                // processing bytes that are not RFC-compliant, so deserialize map with
+                // them only in non-debug builds.
+                if cfg!(debug_assertions) {
+                    if i < 32 && i != b'\t' || i == 127 {
+                        continue;
+                    }
+                }
                 let serialized_src = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
                 let map = deserialize_map_typed(serialized_src.to_vec().into());
                 // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
