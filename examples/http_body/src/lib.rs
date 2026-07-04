@@ -44,7 +44,7 @@ impl HttpContext for HttpBody {
         // the body later, then clients will break. So remove it.
         // We must do this here, because once we exit this function we
         // can no longer modify the response headers.
-        self.set_http_response_header("content-length", None);
+        self.set_http_response_header_typed("content-length", None);
         Action::Continue
     }
 

@@ -19,26 +19,26 @@ proxy_wasm::main! {{
     proxy_wasm::set_log_level(LogLevel::Trace);
     proxy_wasm::set_root_context(|_| -> Box<dyn RootContext> {
         Box::new(HttpConfigHeaderRoot {
-            header_content: String::new(),
+            header_content: HeaderValue::from_static(""),
         })
     });
 }}
 
 struct HttpConfigHeader {
-    header_content: String,
+    header_content: HeaderValue,
 }
 
 impl Context for HttpConfigHeader {}
 
 impl HttpContext for HttpConfigHeader {
     fn on_http_response_headers(&mut self, _: usize, _: bool) -> Action {
-        self.add_http_response_header("custom-header", self.header_content.as_str());
+        self.add_http_response_header_typed("custom-header", &self.header_content);
         Action::Continue
     }
 }
 
 struct HttpConfigHeaderRoot {
-    header_content: String,
+    header_content: HeaderValue,
 }
 
 impl Context for HttpConfigHeaderRoot {}
@@ -46,7 +46,7 @@ impl Context for HttpConfigHeaderRoot {}
 impl RootContext for HttpConfigHeaderRoot {
     fn on_configure(&mut self, _: usize) -> bool {
         if let Some(config_bytes) = self.get_plugin_configuration() {
-            self.header_content = String::from_utf8(config_bytes).unwrap()
+            self.header_content = HeaderValue::from_maybe_shared(config_bytes).unwrap()
         }
         true
     }

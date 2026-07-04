@@ -295,7 +295,9 @@ def aliases(
 _NORMAL_DEPENDENCIES = {
     "": {
         _COMMON_CONDITION: {
+            "bytes": Label("@crates_vendor//:bytes-1.12.0"),
             "hashbrown": Label("@crates_vendor//:hashbrown-0.17.1"),
+            "http": Label("@crates_vendor//:http-1.4.2"),
             "log": Label("@crates_vendor//:log-0.4.29"),
         },
     },
@@ -426,6 +428,16 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crates_vendor__bytes-1.12.0",
+        sha256 = "8ae3f5d315924270530207e2a68396c3cc547f6dca3fbdca317cfb1a51edb593",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/bytes/1.12.0/download"],
+        strip_prefix = "bytes-1.12.0",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.bytes-1.12.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crates_vendor__equivalent-1.0.2",
         sha256 = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f",
         type = "tar.gz",
@@ -456,6 +468,26 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crates_vendor__http-1.4.2",
+        sha256 = "6970f50e31d6fc17d3fa27329444bfa74e196cf62e95052a3f6fee181dba6425",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/http/1.4.2/download"],
+        strip_prefix = "http-1.4.2",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.http-1.4.2.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crates_vendor__itoa-1.0.18",
+        sha256 = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/itoa/1.0.18/download"],
+        strip_prefix = "itoa-1.0.18",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.itoa-1.0.18.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crates_vendor__log-0.4.29",
         sha256 = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897",
         type = "tar.gz",
@@ -465,6 +497,8 @@ def crate_repositories():
     )
 
     return [
+        struct(repo = "crates_vendor__bytes-1.12.0", is_dev_dep = False),
         struct(repo = "crates_vendor__hashbrown-0.17.1", is_dev_dep = False),
+        struct(repo = "crates_vendor__http-1.4.2", is_dev_dep = False),
         struct(repo = "crates_vendor__log-0.4.29", is_dev_dep = False),
     ]

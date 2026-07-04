@@ -33,12 +33,17 @@ impl HttpContext for MetadataHttp {
             "envoy.filters.http.lua",
             "uppercased-custom-metadata",
         ]) {
-            Some(metadata) => match String::from_utf8(metadata) {
-                Ok(data) => {
-                    self.send_http_response(
+            Some(metadata) => match HeaderValue::from_maybe_shared(metadata) {
+                Ok(value) => {
+                    self.send_http_response_typed(
                         200,
-                        vec![("Powered-By", "proxy-wasm"), ("uppercased-metadata", &data)],
-                        Some(format!("Custom response with Envoy metadata: {data:?}\n").as_bytes()),
+                        vec![
+                            ("Powered-By", &HeaderValue::from_static("proxy-wasm")),
+                            ("uppercased-metadata", &value),
+                        ],
+                        Some(
+                            format!("Custom response with Envoy metadata: {value:?}\n").as_bytes(),
+                        ),
                     );
                     Action::Pause
                 }

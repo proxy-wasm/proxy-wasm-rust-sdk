@@ -26,12 +26,12 @@ struct HttpAuthRandom;
 
 impl HttpContext for HttpAuthRandom {
     fn on_http_request_headers(&mut self, _: usize, _: bool) -> Action {
-        self.dispatch_http_call(
+        self.dispatch_http_call_typed(
             "httpbin",
             vec![
-                (":method", "GET"),
-                (":path", "/bytes/1"),
-                (":authority", "httpbin.org"),
+                (":method", &HeaderValue::from_static("GET")),
+                (":path", &HeaderValue::from_static("/bytes/1")),
+                (":authority", &HeaderValue::from_static("httpbin.org")),
             ],
             None,
             vec![],
@@ -42,7 +42,10 @@ impl HttpContext for HttpAuthRandom {
     }
 
     fn on_http_response_headers(&mut self, _: usize, _: bool) -> Action {
-        self.set_http_response_header("Powered-By", Some("proxy-wasm"));
+        self.set_http_response_header_typed(
+            "Powered-By",
+            Some(&HeaderValue::from_static("proxy-wasm")),
+        );
         Action::Continue
     }
 }
@@ -58,9 +61,9 @@ impl Context for HttpAuthRandom {
             }
         }
         info!("Access forbidden.");
-        self.send_http_response(
+        self.send_http_response_typed(
             403,
-            vec![("Powered-By", "proxy-wasm")],
+            vec![("Powered-By", &HeaderValue::from_static("proxy-wasm"))],
             Some(b"Access forbidden.\n"),
         );
     }
