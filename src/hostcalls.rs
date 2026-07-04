@@ -1753,10 +1753,8 @@ mod utils {
                 // HttpValue::from_maybe_shared_unchecked() panics in debug builds when
                 // processing bytes that are not RFC-compliant, so deserialize map with
                 // them only in non-debug builds.
-                if cfg!(debug_assertions) {
-                    if i < 32 && i != b'\t' || i == 127 {
-                        continue;
-                    }
+                if cfg!(debug_assertions) && (i < 32 && i != b'\t' || i == 127) {
+                    continue;
                 }
                 let serialized_src = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
                 let map = deserialize_map_typed(serialized_src.to_vec().into());
