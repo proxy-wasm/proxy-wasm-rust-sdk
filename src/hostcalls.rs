@@ -1475,7 +1475,7 @@ mod utils {
         #[test]
         fn test_deserialize_map_all_chars() {
             // 0x00-0x7f are valid single-byte UTF-8 characters.
-            for i in 0..0x7f {
+            for i in 0..=0x7f {
                 let serialized_src = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
                 let map = deserialize_map(&serialized_src);
                 // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
@@ -1485,7 +1485,7 @@ mod utils {
                 assert_eq!(serialized_map, serialized_src);
             }
             // 0x80-0xff are invalid single-byte UTF-8 characters.
-            for i in 0x80..0xff {
+            for i in 0x80..=0xff {
                 let serialized_src = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
                 std::panic::set_hook(Box::new(|_| {}));
                 let result = std::panic::catch_unwind(|| {
@@ -1498,7 +1498,7 @@ mod utils {
         #[test]
         fn test_deserialize_map_all_chars_bytes() {
             // All 256 single-byte characters are allowed when emitting bytes.
-            for i in 0..0xff {
+            for i in 0..=0xff {
                 let serialized_src = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 99, 0, i, 0];
                 let map = deserialize_map_bytes(&serialized_src);
                 // TODO(v0.3): fix arguments, so that maps can be reused without conversion.
