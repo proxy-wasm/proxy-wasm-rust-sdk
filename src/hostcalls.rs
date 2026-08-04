@@ -1058,7 +1058,10 @@ unsafe extern "C" {
 pub fn set_effective_context(context_id: u32) -> Result<(), Status> {
     unsafe {
         match proxy_set_effective_context(context_id) {
-            Status::Ok => Ok(()),
+            Status::Ok => {
+                dispatcher::set_active_id(context_id);
+                Ok(())
+            }
             Status::BadArgument => Err(Status::BadArgument),
             status => panic!("unexpected status: {}", status as u32),
         }
