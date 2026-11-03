@@ -1,0 +1,5 @@
+{
+  "integrity": "",
+  "strip_prefix": "proxy-wasm-rust-sdk-{VERSION}",
+  "url": "https://github.com/{OWNER}/{REPO}/archive/refs/tags/v{VERSION}.tar.gz"
+}

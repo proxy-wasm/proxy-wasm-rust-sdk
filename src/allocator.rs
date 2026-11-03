@@ -16,9 +16,12 @@ use std::mem::MaybeUninit;
 
 #[cfg_attr(
     all(target_arch = "wasm32", target_os = "unknown"),
-    export_name = "malloc"
+    unsafe(export_name = "malloc")
 )]
-#[cfg_attr(not(all(target_arch = "wasm32", target_os = "unknown")), no_mangle)]
+#[cfg_attr(
+    not(all(target_arch = "wasm32", target_os = "unknown")),
+    unsafe(no_mangle)
+)]
 pub extern "C" fn proxy_on_memory_allocate(size: usize) -> *mut u8 {
     let mut vec: Vec<MaybeUninit<u8>> = Vec::with_capacity(size);
     unsafe {

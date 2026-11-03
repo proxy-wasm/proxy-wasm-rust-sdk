@@ -31,11 +31,11 @@ mod logger;
 macro_rules! main {
     ($code:block) => {
         #[cfg(target_os = "wasi")]
-        extern "C" {
+        unsafe extern "C" {
             fn __wasm_call_ctors();
         }
 
-        #[no_mangle]
+        #[unsafe(no_mangle)]
         pub extern "C" fn _initialize() {
             #[cfg(target_os = "wasi")]
             unsafe {
@@ -75,5 +75,5 @@ pub fn set_http_context(callback: types::NewHttpContext) {
     dispatcher::set_http_context(callback);
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_abi_version_0_2_1() {}
