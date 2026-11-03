@@ -18,6 +18,7 @@
 extern crate test;
 
 pub mod hostcalls;
+pub mod map;
 pub mod traits;
 pub mod types;
 

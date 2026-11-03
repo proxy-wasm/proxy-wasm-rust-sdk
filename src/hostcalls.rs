@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::dispatcher;
+use crate::map::SerializedMap;
 use crate::types::*;
 use std::ptr::{null, null_mut};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -160,6 +161,37 @@ fn proxy_get_header_map_pairs(
     return_map_size: *mut usize,
 ) -> Status {
     mocks::proxy_get_header_map_pairs(map_type, return_map_data, return_map_size)
+}
+
+/// Acquires a serialized map without copying individual names or values.
+///
+/// The returned owner retains the host-transferred guest allocation. Use
+/// `pairs()` for byte-valued views or `text_pairs()` for validated text views.
+/// Host failures are returned unchanged. A null pointer with a nonzero size is
+/// rejected as `InternalFailure`; a null, zero-length result is an empty map.
+/// Existing owned map APIs retain their original behavior.
+pub fn get_serialized_map(map_type: MapType) -> Result<SerializedMap, Status> {
+    let mut return_data: *mut u8 = null_mut();
+    let mut return_size: usize = 0;
+    unsafe {
+        match proxy_get_header_map_pairs(map_type, &mut return_data, &mut return_size) {
+            Status::Ok if return_data.is_null() => {
+                if return_size == 0 {
+                    Ok(SerializedMap::default())
+                } else {
+                    Err(Status::InternalFailure)
+                }
+            }
+            Status::Ok => {
+                // Same ownership boundary as get_map/get_map_bytes: the host used
+                // proxy_on_memory_allocate(size), transferring an exact-sized
+                // guest allocation. The Vec is its sole owner, including decode
+                // error paths; no references into mutable host storage are kept.
+                Ok(Vec::from_raw_parts(return_data, return_size, return_size).into())
+            }
+            status => Err(status),
+        }
+    }
 }
 
 pub fn get_map(map_type: MapType) -> Result<Vec<(String, String)>, Status> {
@@ -1198,24 +1230,43 @@ pub fn increment_metric(metric_id: u32, offset: i64) -> Result<(), Status> {
 mod mocks {
     use crate::hostcalls::utils::tests::SERIALIZED_MAP;
     use crate::types::*;
-    use std::alloc::{Layout, alloc};
+    use std::cell::RefCell;
+
+    thread_local! {
+        static RESULT: RefCell<(Status, Option<Vec<u8>>, usize)> =
+            RefCell::new((Status::Ok, Some(SERIALIZED_MAP.to_vec()), 0));
+    }
+
+    pub fn set_result(status: Status, bytes: Option<Vec<u8>>, null_size: usize) {
+        RESULT.with(|result| *result.borrow_mut() = (status, bytes, null_size));
+    }
 
     pub fn proxy_get_header_map_pairs(
         _map_type: MapType,
         return_map_data: *mut *mut u8,
         return_map_size: *mut usize,
     ) -> Status {
-        let layout = Layout::array::<u8>(SERIALIZED_MAP.len()).unwrap();
-        unsafe {
-            *return_map_data = alloc(layout);
-            *return_map_size = SERIALIZED_MAP.len();
-            std::ptr::copy(
-                SERIALIZED_MAP.as_ptr(),
-                *return_map_data,
-                SERIALIZED_MAP.len(),
-            );
-        }
-        Status::Ok
+        RESULT.with(|result| {
+            let result = result.borrow();
+            if result.0 == Status::Ok {
+                unsafe {
+                    if let Some(bytes) = &result.1 {
+                        // Exercise the actual SDK allocator's ownership contract.
+                        *return_map_data = crate::allocator::proxy_on_memory_allocate(bytes.len());
+                        *return_map_size = bytes.len();
+                        std::ptr::copy_nonoverlapping(
+                            bytes.as_ptr(),
+                            *return_map_data,
+                            bytes.len(),
+                        );
+                    } else {
+                        *return_map_data = std::ptr::null_mut();
+                        *return_map_size = result.2;
+                    }
+                }
+            }
+            result.0
+        })
     }
 }
 
@@ -1228,16 +1279,92 @@ mod tests {
     #[global_allocator]
     static ALLOCATOR: Mockalloc<System> = Mockalloc(System);
 
-    #[mockalloc::test]
-    fn test_get_map_no_leaks() {
-        let result = super::get_map(MapType::HttpRequestHeaders);
-        assert!(result.is_ok());
+    #[test]
+    fn serialized_map_status_and_empty_buffers() {
+        use super::{get_serialized_map, mocks};
+        for status in [
+            Status::NotFound,
+            Status::BadArgument,
+            Status::InternalFailure,
+        ] {
+            mocks::set_result(status, None, 0);
+            assert_eq!(
+                get_serialized_map(MapType::HttpRequestHeaders).unwrap_err(),
+                status
+            );
+        }
+        for bytes in [None, Some(vec![]), Some(vec![0; 4])] {
+            mocks::set_result(Status::Ok, bytes, 0);
+            assert!(
+                get_serialized_map(MapType::HttpRequestHeaders)
+                    .unwrap()
+                    .pairs()
+                    .unwrap()
+                    .is_empty()
+            );
+        }
+        mocks::set_result(Status::Ok, None, 4);
+        assert_eq!(
+            get_serialized_map(MapType::HttpRequestHeaders).unwrap_err(),
+            Status::InternalFailure
+        );
+        mocks::set_result(
+            Status::Ok,
+            Some(super::utils::tests::SERIALIZED_MAP.to_vec()),
+            0,
+        );
     }
 
-    #[mockalloc::test]
+    #[test]
+    fn serialized_map_allocations_and_drops() {
+        use super::{get_serialized_map, mocks, utils};
+        // Warm up the thread-local mock before measuring acquisition and decode.
+        for count in [1, 4, 20, 64] {
+            let entries = vec![("key", "value"); count];
+            mocks::set_result(Status::Ok, Some(utils::serialize_map(&entries)), 0);
+            for _ in 0..10 {
+                let info = mockalloc::record_allocs(|| {
+                    let map = get_serialized_map(MapType::HttpRequestHeaders).unwrap();
+                    assert_eq!(map.pairs().unwrap().len(), count);
+                });
+                info.result().unwrap();
+                assert_eq!(info.num_allocs(), 2);
+            }
+        }
+        for bytes in [vec![1], utils::serialize_map_bytes(&[("key", b"\xff")])] {
+            mocks::set_result(Status::Ok, Some(bytes), 0);
+            mockalloc::assert_allocs(|| {
+                let map = get_serialized_map(MapType::HttpRequestHeaders).unwrap();
+                assert!(map.text_pairs().is_err());
+            });
+        }
+        mocks::set_result(Status::Ok, Some(utils::tests::SERIALIZED_MAP.to_vec()), 0);
+    }
+
+    #[test]
+    fn test_get_map_no_leaks() {
+        super::mocks::set_result(
+            Status::Ok,
+            Some(super::utils::tests::SERIALIZED_MAP.to_vec()),
+            0,
+        );
+        mockalloc::assert_allocs(|| {
+            let result = super::get_map(MapType::HttpRequestHeaders).unwrap();
+            assert!(!result.is_empty());
+        });
+    }
+
+    #[test]
     fn test_get_map_bytes_no_leaks() {
-        let result = super::get_map_bytes(MapType::HttpRequestHeaders);
-        assert!(result.is_ok());
+        super::mocks::set_result(
+            Status::Ok,
+            Some(super::utils::tests::SERIALIZED_MAP.to_vec()),
+            0,
+        );
+        mockalloc::assert_allocs(|| {
+            let result = super::get_map_bytes(MapType::HttpRequestHeaders).unwrap();
+            assert!(!result.is_empty());
+        });
     }
 }
 
