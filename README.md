@@ -25,6 +25,35 @@
 - [Envoy filter metadata](./examples/envoy_filter_metadata/)
 - [Envoy TCP Routing](./examples/envoy_tcp_routing/)
 
+## Borrowed header maps
+
+`hostcalls::get_serialized_map` retains the serialized guest allocation returned
+by the host. `SerializedMap::pairs()` validates the map and returns a vector of
+borrowed names and byte-valued payloads without copying each field.
+`SerializedMap::text_pairs()` additionally validates values as UTF-8. Keep the
+map owner alive while using either view; copy any values retained after it is
+dropped, such as values needed by asynchronous callbacks.
+
+```rust
+use proxy_wasm::{hostcalls, types::MapType};
+
+if let Ok(map) = hostcalls::get_serialized_map(MapType::HttpRequestHeaders) {
+    if let Ok(pairs) = map.pairs() {
+        for (name, value) in pairs {
+            // The views remain valid while ordinary host calls run.
+            let _ = hostcalls::set_map_value_bytes(
+                MapType::HttpRequestHeaders, name, Some(value),
+            );
+        }
+    }
+}
+```
+
+The new accessors preserve order, duplicate names, empty fields, embedded NULs,
+and payload bytes. Invalid buffers return `MapDecodeError` without exposing a
+partial map. Names must be UTF-8; opaque values need not be. Existing owned APIs
+and trait convenience methods are unchanged.
+
 ## Articles & blog posts from the community
 
 - [Extending Envoy with WASM and Rust](https://antweiss.com/blog/extending-envoy-with-wasm-and-rust/)
