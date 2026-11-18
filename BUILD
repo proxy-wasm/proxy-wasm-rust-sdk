@@ -25,6 +25,9 @@ cargo_build_script(
     edition = "2024",
     tags = ["manual"],
     visibility = ["//visibility:private"],
+    deps = [
+        "//bazel/cargo/remote:version_check",
+    ],
 )
 
 rust_library(
