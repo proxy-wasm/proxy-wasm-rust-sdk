@@ -16,6 +16,7 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=RUSTFLAGS");
     println!("cargo:rustc-check-cfg=cfg(nightly)");
+    println!("cargo:rustc-check-cfg=cfg(wasi_call_ctors)");
     println!("cargo:rustc-check-cfg=cfg(wasi_exec_model_reactor)");
 
     if let Some(toolchain) = std::env::var_os("RUSTUP_TOOLCHAIN") {
@@ -28,6 +29,10 @@ fn main() {
         if target_os != "wasi" {
             return;
         }
+    }
+
+    if version_check::is_min_version("1.100.0") == Some(false) {
+        println!("cargo:rustc-cfg=wasi_call_ctors");
     }
 
     if let Some(rustflags) = std::env::var_os("CARGO_ENCODED_RUSTFLAGS") {
