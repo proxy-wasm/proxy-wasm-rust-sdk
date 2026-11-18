@@ -29,6 +29,9 @@ hashbrown = "0.17"
 log = "0.4"
 mockalloc = { version = "0.1", optional = true }
 
+[build-dependencies]
+version_check = "0.9"
+
 [profile.release]
 lto = true
 opt-level = 3

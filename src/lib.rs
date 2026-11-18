@@ -25,8 +25,8 @@ mod allocator;
 mod dispatcher;
 mod logger;
 
-// For crate-type="cdylib".
-#[cfg(not(wasi_exec_model_reactor))]
+// For crate-type="cdylib" with Rust before v1.100.
+#[cfg(all(not(wasi_exec_model_reactor), wasi_call_ctors))]
 #[macro_export]
 macro_rules! main {
     ($code:block) => {
@@ -43,6 +43,19 @@ macro_rules! main {
             }
 
             $code;
+        }
+    };
+}
+
+// For crate-type="cdylib" with Rust since v1.100.
+#[cfg(all(not(wasi_exec_model_reactor), not(wasi_call_ctors)))]
+#[macro_export]
+macro_rules! main {
+    ($code:block) => {
+        #[unsafe(no_mangle)]
+        pub extern "C" fn main(argc: usize, argv: *const *const u8) -> isize {
+            $code;
+            0
         }
     };
 }

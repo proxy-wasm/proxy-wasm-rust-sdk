@@ -41,4 +41,5 @@ use_repo(
     "crates_vendor",
     "crates_vendor__hashbrown-0.17.1",
     "crates_vendor__log-0.4.29",
+    "crates_vendor__version_check-0.9.5",
 )
