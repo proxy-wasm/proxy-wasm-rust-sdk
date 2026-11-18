@@ -66,3 +66,15 @@ alias(
     actual = "@crates_vendor__proxy-wasm-0.3.0-dev//:proxy_wasm",
     tags = ["manual"],
 )
+
+alias(
+    name = "version_check-0.9.5",
+    actual = "@crates_vendor__version_check-0.9.5//:version_check",
+    tags = ["manual"],
+)
+
+alias(
+    name = "version_check",
+    actual = "@crates_vendor__version_check-0.9.5//:version_check",
+    tags = ["manual"],
+)

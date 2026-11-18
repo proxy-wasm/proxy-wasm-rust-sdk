@@ -340,11 +340,16 @@ _PROC_MACRO_DEV_ALIASES = {
 
 _BUILD_DEPENDENCIES = {
     "": {
+        _COMMON_CONDITION: {
+            "version_check": Label("@crates_vendor//:version_check-0.9.5"),
+        },
     },
 }
 
 _BUILD_ALIASES = {
     "": {
+        _COMMON_CONDITION: {
+        },
     },
 }
 
@@ -464,7 +469,18 @@ def crate_repositories():
         build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.log-0.4.29.bazel"),
     )
 
+    maybe(
+        http_archive,
+        name = "crates_vendor__version_check-0.9.5",
+        sha256 = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/version_check/0.9.5/download"],
+        strip_prefix = "version_check-0.9.5",
+        build_file = Label("@proxy_wasm_rust_sdk//bazel/cargo/remote:BUILD.version_check-0.9.5.bazel"),
+    )
+
     return [
         struct(repo = "crates_vendor__hashbrown-0.17.1", is_dev_dep = False),
         struct(repo = "crates_vendor__log-0.4.29", is_dev_dep = False),
+        struct(repo = "crates_vendor__version_check-0.9.5", is_dev_dep = False),
     ]
